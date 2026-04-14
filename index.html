@@ -78,6 +78,7 @@
   .score { font-weight: 600; }
   .ratio { color: #64748b; }
   .deal-name { color: #475569; font-size: 12px; }
+  .deal-date { color: #94a3b8; font-size: 12px; }
 
   /* ===== Detail Panel ===== */
   .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 100; }
@@ -219,6 +220,7 @@
         <tr>
           <th>メンバー名 <span class="sort-icon">↕</span></th>
           <th>商談名</th>
+          <th>商談日時 <span class="sort-icon">↕</span></th>
           <th>総合グレード <span class="sort-icon">↕</span></th>
           <th>総合スコア <span class="sort-icon">↕</span></th>
           <th>ヒアリング力 <span class="sort-icon">↕</span></th>
@@ -234,6 +236,7 @@
         <tr>
           <td class="member-name"><a onclick="openDetail('kameo')">亀尾 悠人</a> <span class="link-icon">↗</span></td>
           <td class="deal-name">フジテック様_初回提案</td>
+          <td class="deal-date">2026/04/11 14:00</td>
           <td><span class="grade grade-a">A</span></td>
           <td class="score">4.2</td>
           <td>4.0</td>
@@ -247,6 +250,7 @@
         <tr>
           <td class="member-name"><a onclick="openDetail('sudo')">須藤 遼</a> <span class="link-icon">↗</span></td>
           <td class="deal-name">三和HD様_要件ヒアリング</td>
+          <td class="deal-date">2026/04/11 11:00</td>
           <td><span class="grade grade-b-plus">B+</span></td>
           <td class="score">3.8</td>
           <td>4.0</td>
@@ -260,6 +264,7 @@
         <tr>
           <td class="member-name"><a onclick="openDetail('santo')">山藤 将希</a> <span class="link-icon">↗</span></td>
           <td class="deal-name">日本管財様_2回目提案</td>
+          <td class="deal-date">2026/04/10 16:00</td>
           <td><span class="grade grade-b-plus">B+</span></td>
           <td class="score">3.6</td>
           <td>4.0</td>
@@ -273,6 +278,7 @@
         <tr>
           <td class="member-name"><a onclick="openDetail('kamachi')">蒲池 和哉</a> <span class="link-icon">↗</span></td>
           <td class="deal-name">東急コミュニティー様_デモ</td>
+          <td class="deal-date">2026/04/10 13:30</td>
           <td><span class="grade grade-a">A</span></td>
           <td class="score">4.0</td>
           <td>4.0</td>
@@ -286,6 +292,7 @@
         <tr>
           <td class="member-name"><a onclick="openDetail('ota')">太田 啓友</a> <span class="link-icon">↗</span></td>
           <td class="deal-name">セコム様_初回ヒアリング</td>
+          <td class="deal-date">2026/04/09 15:00</td>
           <td><span class="grade grade-b">B</span></td>
           <td class="score">3.4</td>
           <td>3.0</td>
@@ -299,6 +306,7 @@
         <tr>
           <td class="member-name"><a onclick="openDetail('sakazume')">坂詰 未来</a> <span class="link-icon">↗</span></td>
           <td class="deal-name">大成建設様_課題整理</td>
+          <td class="deal-date">2026/04/09 10:00</td>
           <td><span class="grade grade-b">B</span></td>
           <td class="score">3.2</td>
           <td>3.0</td>
@@ -312,6 +320,7 @@
         <tr>
           <td class="member-name"><a onclick="openDetail('akada')">赤田 夏実</a> <span class="link-icon">↗</span></td>
           <td class="deal-name">野村不動産様_最終提案</td>
+          <td class="deal-date">2026/04/08 17:00</td>
           <td><span class="grade grade-s">S</span></td>
           <td class="score">4.6</td>
           <td>5.0</td>
@@ -325,6 +334,7 @@
         <tr>
           <td class="member-name"><a onclick="openDetail('morita')">森田 博隆</a> <span class="link-icon">↗</span></td>
           <td class="deal-name">清水建設様_初回説明</td>
+          <td class="deal-date">2026/04/08 14:00</td>
           <td><span class="grade grade-b-minus">B-</span></td>
           <td class="score">2.8</td>
           <td>3.0</td>
@@ -338,6 +348,7 @@
         <tr>
           <td class="member-name"><a onclick="openDetail('an')">安 裕在</a> <span class="link-icon">↗</span></td>
           <td class="deal-name">住友不動産様_ニーズ確認</td>
+          <td class="deal-date">2026/04/07 16:30</td>
           <td><span class="grade grade-b">B</span></td>
           <td class="score">3.4</td>
           <td>4.0</td>
@@ -351,6 +362,7 @@
         <tr>
           <td class="member-name"><a onclick="openDetail('noda')">野田 茜里</a> <span class="link-icon">↗</span></td>
           <td class="deal-name">ALSOK様_規制対応相談</td>
+          <td class="deal-date">2026/04/07 11:00</td>
           <td><span class="grade grade-b-plus">B+</span></td>
           <td class="score">3.6</td>
           <td>4.0</td>
@@ -364,6 +376,7 @@
         <tr>
           <td class="member-name"><a onclick="openDetail('yamaguchi')">山口 ひな子</a> <span class="link-icon">↗</span></td>
           <td class="deal-name">鹿島建設様_システム移行</td>
+          <td class="deal-date">2026/04/04 15:00</td>
           <td><span class="grade grade-b">B</span></td>
           <td class="score">3.2</td>
           <td>3.0</td>
@@ -377,6 +390,7 @@
         <tr>
           <td class="member-name"><a onclick="openDetail('nagaoka')">長岡 正樹</a> <span class="link-icon">↗</span></td>
           <td class="deal-name">三井不動産様_クロージング</td>
+          <td class="deal-date">2026/04/04 10:30</td>
           <td><span class="grade grade-b-plus">B+</span></td>
           <td class="score">3.8</td>
           <td>4.0</td>
