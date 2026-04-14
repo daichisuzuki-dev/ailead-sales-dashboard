@@ -80,6 +80,38 @@
   .deal-name { color: #475569; font-size: 12px; }
   .deal-date { color: #94a3b8; font-size: 12px; }
 
+  /* ===== Report Page ===== */
+  .page { display: none; }
+  .page.active { display: block; }
+  .report-section { background: #fff; border-radius: 12px; padding: 24px 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 20px; }
+  .report-section-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 16px; }
+  .report-summary-text { font-size: 13px; color: #475569; line-height: 1.8; }
+  .report-summary-text li { margin-bottom: 6px; }
+  .report-kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+  .report-kpi-card { background: #f8fafc; border-radius: 10px; padding: 18px; text-align: center; }
+  .report-kpi-label { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
+  .report-kpi-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+  .report-kpi-value .kpi-unit { font-size: 13px; font-weight: 400; color: #94a3b8; }
+  .ai-insight { background: #eff6ff; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
+  .ai-insight-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #2563eb; color: #fff; border-radius: 50%; font-size: 11px; font-weight: 700; margin-right: 8px; }
+  .ai-insight-text { font-size: 13px; color: #334155; line-height: 1.7; display: inline; }
+  .ai-badge { display: inline-block; background: #dbeafe; color: #2563eb; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-bottom: 12px; }
+  .ai-timestamp { font-size: 11px; color: #94a3b8; margin-bottom: 16px; }
+  .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .chart-container { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .chart-title { font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 16px; }
+  .heatmap-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .heatmap-table th { padding: 8px 12px; text-align: left; color: #94a3b8; font-weight: 500; border-bottom: 1px solid #f1f5f9; }
+  .heatmap-table td { padding: 8px 12px; border-bottom: 1px solid #f8fafc; }
+  .heatmap-cell { display: inline-block; width: 36px; height: 24px; border-radius: 4px; text-align: center; line-height: 24px; font-weight: 600; font-size: 11px; }
+  .heat-5 { background: #dcfce7; color: #16a34a; }
+  .heat-4 { background: #dbeafe; color: #2563eb; }
+  .heat-3 { background: #fef3c7; color: #d97706; }
+  .heat-2 { background: #fed7aa; color: #ea580c; }
+  .heat-1 { background: #fee2e2; color: #dc2626; }
+  .heatmap-name { color: #334155; font-weight: 500; }
+  .heatmap-avg { font-size: 11px; color: #94a3b8; font-weight: 500; }
+
   /* ===== Detail Panel ===== */
   .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 100; }
   .overlay.active { display: block; }
@@ -150,11 +182,11 @@
       </div>
     </div>
     <ul class="sidebar-nav">
-      <li class="active">
+      <li class="active" id="nav-list" onclick="showPage('list')">
         <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"/></svg>
         一覧
       </li>
-      <li>
+      <li id="nav-report" onclick="showPage('report')">
         <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm8-3a1 1 0 00-1 1v3a1 1 0 00.293.707l2 2a1 1 0 001.414-1.414L11 10.586V8a1 1 0 00-1-1z"/></svg>
         レポート
       </li>
@@ -174,6 +206,9 @@
 
 <!-- Main Content -->
 <div class="main">
+
+<!-- ===== LIST PAGE ===== -->
+<div class="page active" id="page-list">
   <div class="page-title">一覧</div>
 
   <!-- Summary Cards -->
@@ -405,6 +440,135 @@
     </table>
   </div>
 </div>
+<!-- END LIST PAGE -->
+
+<!-- ===== REPORT PAGE ===== -->
+<div class="page" id="page-report">
+  <div class="page-title">レポート</div>
+
+  <!-- Summary -->
+  <div class="report-section">
+    <div class="report-section-title">サマリー</div>
+    <ul class="report-summary-text">
+      <li>メンバーの<strong>33%が優秀評価</strong>（12名中4名）</li>
+      <li>総合スコア: 平均 <strong>3.5</strong> / 中央値 3.5（範囲: 2.8 - 4.6）</li>
+      <li>スコアの標準偏差は0.48で、メンバー間の中程度のばらつき</li>
+      <li><strong>ヒアリング力が最も高評価</strong>（平均3.8）、<strong>提案力が最も改善余地あり</strong>（平均3.3）</li>
+      <li>話者比率の平均は<strong>41.7%</strong>（理想範囲: 30-40%）</li>
+      <li>要観察 5名、要改善 1名</li>
+    </ul>
+  </div>
+
+  <!-- AI Insights -->
+  <div class="report-section">
+    <div class="report-section-title">AI分析インサイト</div>
+    <div class="ai-badge">AI生成</div>
+    <div class="ai-timestamp">2026/04/14 22:00 生成</div>
+
+    <div class="ai-insight">
+      <span class="ai-insight-num">1</span>
+      <span class="ai-insight-text">ヒアリング力はグレードA以上が75%（12名中9名）を占め、4評価軸中で最も高評価層が厚い。平均3.83と安定した高水準にあり、チーム全体として顧客の課題を引き出す基盤が備わっていることを示す。この強みを活かし、ヒアリング内容を提案に接続する仕組み（商談テンプレート等）の導入が有効である。</span>
+    </div>
+    <div class="ai-insight">
+      <span class="ai-insight-num">2</span>
+      <span class="ai-insight-text">提案力はグレードA以上が42%（12名中5名）と半数を下回り、改善余地が最も大きい。特にB評価の5名は「事例・数値の具体性不足」が共通課題として指摘されており、導入事例データベースの整備と提案テンプレートの標準化により組織的な底上げが見込める。</span>
+    </div>
+    <div class="ai-insight">
+      <span class="ai-insight-num">3</span>
+      <span class="ai-insight-text">話者比率40%以下のメンバー（6名）は平均総合スコア3.9に対し、40%超のメンバー（6名）は平均3.1と、<strong>話者比率と商談品質に明確な負の相関</strong>が見られる。特に森田（52.7%）、太田（48.1%）は話しすぎの傾向が顕著であり、傾聴スキルの強化が優先課題である。</span>
+    </div>
+    <div class="ai-insight">
+      <span class="ai-insight-num">4</span>
+      <span class="ai-insight-text">赤田（S評価・話者比率32.4%）の商談パターンは他メンバーの模範となりうる。特に「定量的な深掘り質問→課題の構造化→事例+数値の提案→顧客負荷を下げるネクストアクション」の一連の流れは、勝ちパターンとして組織展開すべきベストプラクティスである。</span>
+    </div>
+  </div>
+
+  <!-- Efficiency KPI -->
+  <div class="report-section">
+    <div class="report-section-title">効率化指標</div>
+    <div class="report-kpi">
+      <div class="report-kpi-card">
+        <div class="report-kpi-label">人手想定時間</div>
+        <div class="report-kpi-value">216.0<span class="kpi-unit"> 時間</span></div>
+      </div>
+      <div class="report-kpi-card">
+        <div class="report-kpi-label">削減時間</div>
+        <div class="report-kpi-value">205.2<span class="kpi-unit"> 時間</span></div>
+      </div>
+      <div class="report-kpi-card">
+        <div class="report-kpi-label">削減率</div>
+        <div class="report-kpi-value">95.0<span class="kpi-unit"> %</span></div>
+      </div>
+      <div class="report-kpi-card">
+        <div class="report-kpi-label">コスト換算</div>
+        <div class="report-kpi-value" style="font-size:22px;">&yen;923,400</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:#94a3b8;">算出根拠: 人手評価 60分/件、AI処理 3分/件、時給 4,500円で試算</div>
+  </div>
+
+  <!-- Charts Row 1: Grade Distribution + Recommendation -->
+  <div class="chart-row">
+    <div class="chart-container">
+      <div class="chart-title">グレード分布</div>
+      <canvas id="gradeDistChart" height="200"></canvas>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">推薦ステータス</div>
+      <div style="display:flex;align-items:center;gap:20px;">
+        <canvas id="recPieChart" height="200" style="max-width:200px;"></canvas>
+        <div style="font-size:12px;color:#475569;line-height:2;">
+          <div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#16a34a;margin-right:6px;"></span>優秀 (4)</div>
+          <div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#d97706;margin-right:6px;"></span>要観察 (5)</div>
+          <div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#dc2626;margin-right:6px;"></span>要改善 (1)</div>
+          <div style="margin-top:8px;font-size:20px;font-weight:700;color:#1e293b;">12<span style="font-size:12px;font-weight:400;color:#94a3b8;"> 名</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Heatmap -->
+  <div class="report-section">
+    <div class="report-section-title">評価基準ヒートマップ</div>
+    <table class="heatmap-table">
+      <thead>
+        <tr><th></th><th>ヒアリング力</th><th>課題設定力</th><th>提案力</th><th>クロージング力</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="heatmap-avg"></td><td class="heatmap-avg">平均 3.8</td><td class="heatmap-avg">平均 3.5</td><td class="heatmap-avg">平均 3.3</td><td class="heatmap-avg">平均 3.4</td></tr>
+        <tr><td class="heatmap-name">赤田 夏実</td><td><span class="heatmap-cell heat-5">5.0</span></td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-5">5.0</span></td><td><span class="heatmap-cell heat-4">4.0</span></td></tr>
+        <tr><td class="heatmap-name">亀尾 悠人</td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-4">4.5</span></td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-4">4.0</span></td></tr>
+        <tr><td class="heatmap-name">蒲池 和哉</td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-4">4.0</span></td></tr>
+        <tr><td class="heatmap-name">須藤 遼</td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-4">4.0</span></td></tr>
+        <tr><td class="heatmap-name">長岡 正樹</td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-4">4.0</span></td></tr>
+        <tr><td class="heatmap-name">山藤 将希</td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td></tr>
+        <tr><td class="heatmap-name">野田 茜里</td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td></tr>
+        <tr><td class="heatmap-name">安 裕在</td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td></tr>
+        <tr><td class="heatmap-name">太田 啓友</td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td></tr>
+        <tr><td class="heatmap-name">坂詰 未来</td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td></tr>
+        <tr><td class="heatmap-name">山口 ひな子</td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-4">4.0</span></td></tr>
+        <tr><td class="heatmap-name">森田 博隆</td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-2">2.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Charts Row 2: Scatter + Trend -->
+  <div class="chart-row">
+    <div class="chart-container">
+      <div class="chart-title">スコア x 話者比率</div>
+      <canvas id="scatterChart" height="250"></canvas>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">月別スコア推移</div>
+      <canvas id="trendChart" height="250"></canvas>
+    </div>
+  </div>
+
+</div>
+<!-- END REPORT PAGE -->
+
+</div>
+<!-- END MAIN -->
 
 <!-- Overlay -->
 <div class="overlay" id="overlay" onclick="closeDetail()"></div>
@@ -717,6 +881,108 @@ function openDetail(id) {
 
   document.getElementById('overlay').classList.add('active');
   document.getElementById('detailPanel').classList.add('active');
+}
+
+// Page switching
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-nav li').forEach(l => l.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('nav-' + page).classList.add('active');
+  if (page === 'report') { initReportCharts(); }
+}
+
+let reportChartsInit = false;
+function initReportCharts() {
+  if (reportChartsInit) return;
+  reportChartsInit = true;
+
+  // Grade Distribution - Stacked Bar
+  new Chart(document.getElementById('gradeDistChart'), {
+    type: 'bar',
+    data: {
+      labels: ['ヒアリング力', '課題設定力', '提案力', 'クロージング力'],
+      datasets: [
+        { label: 'S', data: [1,1,1,0], backgroundColor: '#16a34a' },
+        { label: 'A', data: [8,5,4,7], backgroundColor: '#2563eb' },
+        { label: 'B+', data: [0,0,0,0], backgroundColor: '#0284c7' },
+        { label: 'B', data: [3,5,5,5], backgroundColor: '#d97706' },
+        { label: 'C', data: [0,0,1,0], backgroundColor: '#dc2626' }
+      ]
+    },
+    options: {
+      responsive: true, indexAxis: 'y',
+      scales: { x: { stacked: true, max: 12, ticks: { stepSize: 3 } }, y: { stacked: true } },
+      plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } } }
+    }
+  });
+
+  // Recommendation Pie
+  new Chart(document.getElementById('recPieChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['優秀', '要観察', '要改善'],
+      datasets: [{ data: [4, 5, 1], backgroundColor: ['#16a34a', '#d97706', '#dc2626'], borderWidth: 0 }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, cutout: '60%' }
+  });
+
+  // Scatter: Score x Talk Ratio
+  const scatterData = [
+    { x: 38.2, y: 4.2, label: '亀尾' }, { x: 41.5, y: 3.8, label: '須藤' },
+    { x: 44.8, y: 3.6, label: '山藤' }, { x: 35.6, y: 4.0, label: '蒲池' },
+    { x: 48.1, y: 3.4, label: '太田' }, { x: 46.3, y: 3.2, label: '坂詰' },
+    { x: 32.4, y: 4.6, label: '赤田' }, { x: 52.7, y: 2.8, label: '森田' },
+    { x: 43.9, y: 3.4, label: '安' }, { x: 39.1, y: 3.6, label: '野田' },
+    { x: 45.2, y: 3.2, label: '山口' }, { x: 36.8, y: 3.8, label: '長岡' }
+  ];
+  new Chart(document.getElementById('scatterChart'), {
+    type: 'scatter',
+    data: {
+      datasets: [{
+        data: scatterData.map(d => ({ x: d.x, y: d.y })),
+        backgroundColor: scatterData.map(d => d.y >= 3.8 ? '#16a34a' : d.y >= 3.2 ? '#d97706' : '#dc2626'),
+        pointRadius: 8, pointHoverRadius: 10
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: { title: { display: true, text: '話者比率 (%)', font: { size: 12 } }, min: 25, max: 60,
+          grid: { color: function(ctx) { return (ctx.tick.value >= 30 && ctx.tick.value <= 40) ? 'rgba(37,99,235,0.08)' : '#f1f5f9'; } }
+        },
+        y: { title: { display: true, text: '総合スコア', font: { size: 12 } }, min: 2, max: 5 }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function(ctx) { return scatterData[ctx.dataIndex].label + ' (' + ctx.parsed.x + '%, ' + ctx.parsed.y + ')'; } } },
+        annotation: {
+          annotations: {
+            idealZone: { type: 'box', xMin: 30, xMax: 40, backgroundColor: 'rgba(37,99,235,0.05)', borderColor: 'rgba(37,99,235,0.2)', borderWidth: 1, label: { content: '理想レンジ', display: true, position: 'start', font: { size: 10 }, color: '#2563eb' } }
+          }
+        }
+      }
+    }
+  });
+
+  // Trend Line
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: ['2026-01', '2026-02', '2026-03'],
+      datasets: [
+        { label: 'ヒアリング力', data: [3.2, 3.5, 3.8], borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)', tension: 0.3, fill: false },
+        { label: '課題設定力', data: [3.0, 3.2, 3.5], borderColor: '#16a34a', backgroundColor: 'rgba(22,163,106,0.1)', tension: 0.3, fill: false },
+        { label: '提案力', data: [2.8, 3.0, 3.3], borderColor: '#d97706', backgroundColor: 'rgba(217,119,6,0.1)', tension: 0.3, fill: false },
+        { label: 'クロージング力', data: [3.0, 3.1, 3.4], borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,0.1)', tension: 0.3, fill: false }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: { y: { min: 2, max: 5, ticks: { stepSize: 0.5 } } },
+      plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } } }
+    }
+  });
 }
 
 function closeDetail() {
