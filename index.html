@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<title>ailead Sales Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif; background: #f5f6fa; color: #333; display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar { width: 200px; background: #fff; border-right: 1px solid #e8e8e8; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 0; position: fixed; height: 100vh; z-index: 10; }
+  .sidebar-top { }
+  .sidebar-logo { padding: 0 20px; margin-bottom: 32px; display: flex; align-items: center; gap: 8px; }
+  .sidebar-logo svg { width: 28px; height: 28px; }
+  .sidebar-logo .logo-text { font-size: 18px; font-weight: 700; color: #2563eb; }
+  .sidebar-logo .logo-sub { font-size: 11px; color: #94a3b8; display: block; margin-top: 2px; }
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav li { padding: 10px 20px; font-size: 14px; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+  .sidebar-nav li.active { color: #2563eb; background: #eff6ff; border-right: 3px solid #2563eb; font-weight: 600; }
+  .sidebar-nav li:hover { background: #f8fafc; }
+  .sidebar-nav li svg { width: 18px; height: 18px; }
+  .sidebar-bottom { padding: 0 20px; }
+  .sidebar-client { display: flex; align-items: center; gap: 8px; padding: 12px 0; border-top: 1px solid #e8e8e8; }
+  .sidebar-client-icon { width: 32px; height: 32px; background: #1e293b; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+  .sidebar-client-name { font-size: 13px; color: #334155; font-weight: 500; }
+  .sidebar-account { display: flex; align-items: center; gap: 8px; padding-top: 12px; font-size: 13px; color: #64748b; cursor: pointer; }
+  .sidebar-account svg { width: 18px; height: 18px; }
+
+  /* Main */
+  .main { margin-left: 200px; flex: 1; padding: 32px 40px; }
+  .page-title { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 24px; }
+
+  /* Summary Cards */
+  .summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .card { background: #fff; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .card-label { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+  .card-value { font-size: 32px; font-weight: 700; color: #1e293b; }
+  .card-value .unit { font-size: 14px; font-weight: 400; color: #94a3b8; margin-left: 2px; }
+  .card-value .sub { font-size: 14px; font-weight: 400; color: #94a3b8; }
+
+  /* Toolbar */
+  .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-box { flex: 1; max-width: 280px; padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; outline: none; background: #fff; }
+  .search-box:focus { border-color: #2563eb; }
+  .btn-outline { padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #fff; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .btn-outline:hover { background: #f8fafc; }
+
+  /* Table */
+  .table-wrap { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { text-align: left; padding: 12px 16px; color: #94a3b8; font-weight: 500; font-size: 12px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; cursor: pointer; user-select: none; }
+  thead th:hover { color: #64748b; }
+  thead th .sort-icon { display: inline-block; margin-left: 4px; font-size: 10px; }
+  tbody td { padding: 12px 16px; border-bottom: 1px solid #f8fafc; white-space: nowrap; }
+  tbody tr:hover { background: #fafbfd; }
+  .member-name { color: #2563eb; font-weight: 500; }
+  .member-name a { color: inherit; text-decoration: none; cursor: pointer; }
+  .member-name a:hover { text-decoration: underline; }
+  .link-icon { font-size: 11px; color: #94a3b8; margin-left: 4px; }
+
+  /* Grade badge */
+  .grade { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 24px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+  .grade-s  { background: #dcfce7; color: #16a34a; }
+  .grade-a  { background: #dbeafe; color: #2563eb; }
+  .grade-b-plus { background: #e0f2fe; color: #0284c7; }
+  .grade-b  { background: #fef3c7; color: #d97706; }
+  .grade-b-minus { background: #fed7aa; color: #ea580c; }
+  .grade-c  { background: #fee2e2; color: #dc2626; }
+
+  /* Recommendation badge */
+  .rec-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .rec-yes { background: #dcfce7; color: #16a34a; }
+  .rec-hold { background: #fef3c7; color: #d97706; }
+  .rec-no { background: #fee2e2; color: #dc2626; }
+
+  .score { font-weight: 600; }
+  .ratio { color: #64748b; }
+  .deal-name { color: #475569; font-size: 12px; }
+
+  /* ===== Detail Panel ===== */
+  .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 100; }
+  .overlay.active { display: block; }
+
+  .detail-panel { display: none; position: fixed; top: 0; right: 0; width: 560px; height: 100vh; background: #fff; z-index: 200; box-shadow: -4px 0 24px rgba(0,0,0,0.1); overflow-y: auto; }
+  .detail-panel.active { display: block; }
+
+  .detail-header { padding: 24px 28px 16px; border-bottom: 1px solid #f1f5f9; }
+  .detail-header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .detail-member-name { font-size: 18px; font-weight: 700; color: #1e293b; }
+  .detail-header-actions { display: flex; gap: 8px; }
+  .detail-btn { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid #e2e8f0; background: #fff; color: #2563eb; }
+  .detail-btn:hover { background: #eff6ff; }
+  .detail-btn-close { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid #e2e8f0; background: #fff; color: #64748b; }
+  .detail-btn-close:hover { background: #f8fafc; }
+
+  /* Detail summary cards */
+  .detail-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 20px 28px; border-bottom: 1px solid #f1f5f9; }
+  .detail-card { text-align: center; }
+  .detail-card-label { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
+  .detail-card-value { font-size: 24px; font-weight: 700; color: #1e293b; }
+  .detail-card-value .d-unit { font-size: 12px; font-weight: 400; color: #94a3b8; }
+  .detail-card-value .d-grade { font-size: 20px; }
+  .detail-card-value .d-rec { font-size: 13px; }
+
+  /* Radar chart */
+  .radar-section { padding: 20px 28px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: center; }
+  .radar-wrap { width: 320px; height: 320px; }
+
+  /* Section */
+  .detail-section { padding: 20px 28px; border-bottom: 1px solid #f1f5f9; }
+  .detail-section-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 16px; }
+
+  /* Criteria card */
+  .criteria-card { background: #f8fafc; border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
+  .criteria-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .criteria-name { font-size: 13px; font-weight: 600; color: #334155; }
+  .criteria-right { display: flex; align-items: center; gap: 8px; }
+  .criteria-score { font-size: 14px; font-weight: 700; color: #1e293b; }
+
+  .criteria-block { margin-bottom: 10px; }
+  .criteria-block:last-child { margin-bottom: 0; }
+  .criteria-label { font-size: 11px; font-weight: 600; color: #94a3b8; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .criteria-text { font-size: 13px; color: #475569; line-height: 1.6; }
+  .criteria-quote { font-size: 13px; color: #64748b; line-height: 1.6; font-style: italic; background: #fff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #e2e8f0; }
+
+  /* Overall comment */
+  .comment-block { margin-bottom: 14px; }
+  .comment-block:last-child { margin-bottom: 0; }
+  .comment-label { font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 6px; }
+  .comment-text { font-size: 13px; color: #334155; line-height: 1.7; }
+  .comment-positive { border-left: 3px solid #16a34a; padding-left: 12px; }
+  .comment-negative { border-left: 3px solid #dc2626; padding-left: 12px; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-top">
+    <div class="sidebar-logo">
+      <div>
+        <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#2563eb"/><path d="M10 22V12l6-4 6 4v10" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 22v-5h4v5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <span class="logo-text">ailead</span>
+        <span class="logo-sub">Sales Dashboard</span>
+      </div>
+    </div>
+    <ul class="sidebar-nav">
+      <li class="active">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"/></svg>
+        一覧
+      </li>
+      <li>
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm8-3a1 1 0 00-1 1v3a1 1 0 00.293.707l2 2a1 1 0 001.414-1.414L11 10.586V8a1 1 0 00-1-1z"/></svg>
+        レポート
+      </li>
+    </ul>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="sidebar-client">
+      <div class="sidebar-client-icon" style="background:#2563eb;">a</div>
+      <span class="sidebar-client-name">ailead</span>
+    </div>
+    <div class="sidebar-account">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+      アカウント
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+  <div class="page-title">一覧</div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="card">
+      <div class="card-label">総商談数</div>
+      <div class="card-value">216<span class="unit">件</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">平均総合スコア</div>
+      <div class="card-value">3.4<span class="sub"> /5.0</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">受注率</div>
+      <div class="card-value">32<span class="unit">%</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">直近7日の評価数</div>
+      <div class="card-value">47<span class="unit">件</span></div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <input type="text" class="search-box" placeholder="メンバー名で検索">
+    <button class="btn-outline">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M3 3a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L13 9.414V15a1 1 0 01-.293.707l-2 2A1 1 0 019 17V9.414L5.293 5.707A1 1 0 015 5V3z"/></svg>
+      表示項目
+    </button>
+    <button class="btn-outline">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      CSV
+    </button>
+    <button class="btn-outline">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L13 9.414V15a1 1 0 01-.293.707l-2 2A1 1 0 019 17V9.414L5.293 5.707A1 1 0 015 5V3z"/></svg>
+      フィルター
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>メンバー名 <span class="sort-icon">↕</span></th>
+          <th>商談名</th>
+          <th>総合グレード <span class="sort-icon">↕</span></th>
+          <th>総合スコア <span class="sort-icon">↕</span></th>
+          <th>ヒアリング力 <span class="sort-icon">↕</span></th>
+          <th>課題設定力 <span class="sort-icon">↕</span></th>
+          <th>提案力 <span class="sort-icon">↕</span></th>
+          <th>クロージング力 <span class="sort-icon">↕</span></th>
+          <th>推薦</th>
+          <th>話者比率</th>
+          <th>商談数</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="member-name"><a onclick="openDetail('kameo')">亀尾 悠人</a> <span class="link-icon">↗</span></td>
+          <td class="deal-name">フジテック様_初回提案</td>
+          <td><span class="grade grade-a">A</span></td>
+          <td class="score">4.2</td>
+          <td>4.0</td>
+          <td>4.5</td>
+          <td>4.0</td>
+          <td>4.0</td>
+          <td><span class="rec-badge rec-yes">優秀</span></td>
+          <td class="ratio">38.2%</td>
+          <td>31</td>
+        </tr>
+        <tr>
+          <td class="member-name"><a onclick="openDetail('sudo')">須藤 遼</a> <span class="link-icon">↗</span></td>
+          <td class="deal-name">三和HD様_要件ヒアリング</td>
+          <td><span class="grade grade-b-plus">B+</span></td>
+          <td class="score">3.8</td>
+          <td>4.0</td>
+          <td>4.0</td>
+          <td>3.0</td>
+          <td>4.0</td>
+          <td><span class="rec-badge rec-yes">優秀</span></td>
+          <td class="ratio">41.5%</td>
+          <td>28</td>
+        </tr>
+        <tr>
+          <td class="member-name"><a onclick="openDetail('santo')">山藤 将希</a> <span class="link-icon">↗</span></td>
+          <td class="deal-name">日本管財様_2回目提案</td>
+          <td><span class="grade grade-b-plus">B+</span></td>
+          <td class="score">3.6</td>
+          <td>4.0</td>
+          <td>3.0</td>
+          <td>4.0</td>
+          <td>3.0</td>
+          <td><span class="rec-badge rec-hold">要観察</span></td>
+          <td class="ratio">44.8%</td>
+          <td>26</td>
+        </tr>
+        <tr>
+          <td class="member-name"><a onclick="openDetail('kamachi')">蒲池 和哉</a> <span class="link-icon">↗</span></td>
+          <td class="deal-name">東急コミュニティー様_デモ</td>
+          <td><span class="grade grade-a">A</span></td>
+          <td class="score">4.0</td>
+          <td>4.0</td>
+          <td>4.0</td>
+          <td>4.0</td>
+          <td>4.0</td>
+          <td><span class="rec-badge rec-yes">優秀</span></td>
+          <td class="ratio">35.6%</td>
+          <td>22</td>
+        </tr>
+        <tr>
+          <td class="member-name"><a onclick="openDetail('ota')">太田 啓友</a> <span class="link-icon">↗</span></td>
+          <td class="deal-name">セコム様_初回ヒアリング</td>
+          <td><span class="grade grade-b">B</span></td>
+          <td class="score">3.4</td>
+          <td>3.0</td>
+          <td>4.0</td>
+          <td>3.0</td>
+          <td>3.0</td>
+          <td><span class="rec-badge rec-hold">要観察</span></td>
+          <td class="ratio">48.1%</td>
+          <td>13</td>
+        </tr>
+        <tr>
+          <td class="member-name"><a onclick="openDetail('sakazume')">坂詰 未来</a> <span class="link-icon">↗</span></td>
+          <td class="deal-name">大成建設様_課題整理</td>
+          <td><span class="grade grade-b">B</span></td>
+          <td class="score">3.2</td>
+          <td>3.0</td>
+          <td>3.0</td>
+          <td>4.0</td>
+          <td>3.0</td>
+          <td><span class="rec-badge rec-hold">要観察</span></td>
+          <td class="ratio">46.3%</td>
+          <td>12</td>
+        </tr>
+        <tr>
+          <td class="member-name"><a onclick="openDetail('akada')">赤田 夏実</a> <span class="link-icon">↗</span></td>
+          <td class="deal-name">野村不動産様_最終提案</td>
+          <td><span class="grade grade-s">S</span></td>
+          <td class="score">4.6</td>
+          <td>5.0</td>
+          <td>4.0</td>
+          <td>5.0</td>
+          <td>4.0</td>
+          <td><span class="rec-badge rec-yes">優秀</span></td>
+          <td class="ratio">32.4%</td>
+          <td>11</td>
+        </tr>
+        <tr>
+          <td class="member-name"><a onclick="openDetail('morita')">森田 博隆</a> <span class="link-icon">↗</span></td>
+          <td class="deal-name">清水建設様_初回説明</td>
+          <td><span class="grade grade-b-minus">B-</span></td>
+          <td class="score">2.8</td>
+          <td>3.0</td>
+          <td>3.0</td>
+          <td>2.0</td>
+          <td>3.0</td>
+          <td><span class="rec-badge rec-no">要改善</span></td>
+          <td class="ratio">52.7%</td>
+          <td>11</td>
+        </tr>
+        <tr>
+          <td class="member-name"><a onclick="openDetail('an')">安 裕在</a> <span class="link-icon">↗</span></td>
+          <td class="deal-name">住友不動産様_ニーズ確認</td>
+          <td><span class="grade grade-b">B</span></td>
+          <td class="score">3.4</td>
+          <td>4.0</td>
+          <td>3.0</td>
+          <td>3.0</td>
+          <td>3.0</td>
+          <td><span class="rec-badge rec-hold">要観察</span></td>
+          <td class="ratio">43.9%</td>
+          <td>11</td>
+        </tr>
+        <tr>
+          <td class="member-name"><a onclick="openDetail('noda')">野田 茜里</a> <span class="link-icon">↗</span></td>
+          <td class="deal-name">ALSOK様_規制対応相談</td>
+          <td><span class="grade grade-b-plus">B+</span></td>
+          <td class="score">3.6</td>
+          <td>4.0</td>
+          <td>3.0</td>
+          <td>4.0</td>
+          <td>3.0</td>
+          <td><span class="rec-badge rec-hold">要観察</span></td>
+          <td class="ratio">39.1%</td>
+          <td>9</td>
+        </tr>
+        <tr>
+          <td class="member-name"><a onclick="openDetail('yamaguchi')">山口 ひな子</a> <span class="link-icon">↗</span></td>
+          <td class="deal-name">鹿島建設様_システム移行</td>
+          <td><span class="grade grade-b">B</span></td>
+          <td class="score">3.2</td>
+          <td>3.0</td>
+          <td>3.0</td>
+          <td>3.0</td>
+          <td>4.0</td>
+          <td><span class="rec-badge rec-hold">要観察</span></td>
+          <td class="ratio">45.2%</td>
+          <td>9</td>
+        </tr>
+        <tr>
+          <td class="member-name"><a onclick="openDetail('nagaoka')">長岡 正樹</a> <span class="link-icon">↗</span></td>
+          <td class="deal-name">三井不動産様_クロージング</td>
+          <td><span class="grade grade-b-plus">B+</span></td>
+          <td class="score">3.8</td>
+          <td>4.0</td>
+          <td>4.0</td>
+          <td>3.0</td>
+          <td>4.0</td>
+          <td><span class="rec-badge rec-yes">優秀</span></td>
+          <td class="ratio">36.8%</td>
+          <td>8</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay" onclick="closeDetail()"></div>
+
+<!-- Detail Panel -->
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <div class="detail-header-top">
+      <div class="detail-member-name" id="detailName"></div>
+      <div class="detail-header-actions">
+        <button class="detail-btn" onclick="return false;">aileadで開く</button>
+        <button class="detail-btn-close" onclick="closeDetail()">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Summary -->
+  <div class="detail-summary">
+    <div class="detail-card">
+      <div class="detail-card-label">総合スコア</div>
+      <div class="detail-card-value" id="detailScore"></div>
+    </div>
+    <div class="detail-card">
+      <div class="detail-card-label">総合グレード</div>
+      <div class="detail-card-value" id="detailGrade"></div>
+    </div>
+    <div class="detail-card">
+      <div class="detail-card-label">推薦</div>
+      <div class="detail-card-value" id="detailRec"></div>
+    </div>
+    <div class="detail-card">
+      <div class="detail-card-label">話者比率</div>
+      <div class="detail-card-value" id="detailRatio"></div>
+    </div>
+  </div>
+
+  <!-- Radar Chart -->
+  <div class="radar-section">
+    <div class="radar-wrap">
+      <canvas id="radarChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Criteria Section -->
+  <div class="detail-section">
+    <div class="detail-section-title">評価基準別スコア</div>
+    <div id="detailCriteria"></div>
+  </div>
+
+  <!-- Overall Comment Section -->
+  <div class="detail-section">
+    <div class="detail-section-title">総合コメント</div>
+    <div id="detailComment"></div>
+  </div>
+</div>
+
+<script>
+const members = {
+  kameo: {
+    name: '亀尾 悠人（カメオ ユウト）',
+    score: '4.2', grade: 'A', gradeClass: 'grade-a', rec: '優秀', recClass: 'rec-yes', ratio: '38.2%',
+    criteria: [
+      {
+        name: 'ヒアリング力', grade: 'A', gradeClass: 'grade-a', score: '4.0',
+        quote: '御社の現状の入退室管理はどのような体制でしょうか？現場ごとに異なる運用をされていると伺いましたが、具体的にどのあたりに課題を感じていらっしゃいますか',
+        context: '商談序盤で顧客の現状課題を具体的に深掘りする質問を投げかけ、顧客から詳細な情報を引き出すことに成功した。相手の発言を受けて追加質問を重ねる姿勢も見られた。',
+        memo: '課題の優先度づけまで踏み込んだヒアリングができるとさらに良い'
+      },
+      {
+        name: '課題設定力', grade: 'S', gradeClass: 'grade-s', score: '4.5',
+        quote: '今の運用だと、本社側で各拠点の入退室状況をリアルタイムで把握できないという点が一番の課題ではないでしょうか',
+        context: '顧客のヒアリング内容から本質的な課題を正確に特定し、顧客自身が明確に言語化できていなかった課題を構造的に整理して提示した。',
+        memo: '課題設定の精度は高い。業界特有の規制要件との紐づけも加えると提案の説得力がさらに上がる'
+      },
+      {
+        name: '提案力', grade: 'A', gradeClass: 'grade-a', score: '4.0',
+        quote: 'クラウド上で一元管理いただくことで、監査対応の工数が大幅に削減できます。実際にA社様では導入後3ヶ月で監査準備工数が60%削減されました',
+        context: '課題に対する解決策を具体的な導入事例と数値を交えて提案した。顧客の反応を見ながら提案内容を調整する柔軟性も見られた。',
+        memo: 'ROI試算を顧客の規模に合わせてカスタマイズするとクロージングに繋がりやすい'
+      },
+      {
+        name: 'クロージング力', grade: 'A', gradeClass: 'grade-a', score: '4.0',
+        quote: 'まずは1拠点でのトライアルから始めていただき、効果を確認いただいた上で全社展開を検討いただければと思います。来週中にトライアルのご提案書をお送りしてもよろしいでしょうか',
+        context: '顧客の導入ハードルを下げる段階的な提案を行い、具体的なネクストアクションを明示した。',
+        memo: '決裁者の同席を次回に設定する動きがあるとさらに良い'
+      }
+    ],
+    comment: {
+      summary: '商談全体を通じて顧客の課題を丁寧にヒアリングし、本質的な課題設定から具体的な提案、ネクストアクションの設定まで一貫した流れで進行できている。話者比率38.2%と適切なバランスで、顧客に多く話させることで信頼構築にも成功している。',
+      positive: '課題の構造化が的確／導入事例を交えた提案の説得力が高い／段階的なクロージングで顧客の心理的ハードルを下げている',
+      negative: '決裁プロセスの確認が不十分／ROI試算を顧客の規模に合わせてカスタマイズする余地がある'
+    }
+  },
+  morita: {
+    name: '森田 博隆（モリタ ヒロタカ）',
+    score: '2.8', grade: 'B-', gradeClass: 'grade-b-minus', rec: '要改善', recClass: 'rec-no', ratio: '52.7%',
+    criteria: [
+      {
+        name: 'ヒアリング力', grade: 'B', gradeClass: 'grade-b', score: '3.0',
+        quote: '御社ではセキュリティ面で何かお困りのことはありますか',
+        context: '質問自体は投げかけているが、抽象度が高く顧客から具体的な情報を引き出せていない。深掘りの追加質問が不足しており、表面的なヒアリングに留まった。',
+        memo: '業界・規模に応じた具体的な質問を事前に準備し、仮説を持ったヒアリングを心がけるとよい'
+      },
+      {
+        name: '課題設定力', grade: 'B', gradeClass: 'grade-b', score: '3.0',
+        quote: 'セキュリティの課題があるということですね、弊社のソリューションで解決できます',
+        context: '顧客の発言をそのまま受け止めるに留まり、背景にある本質的な課題の構造化には至っていない。顧客が言語化した課題をそのまま繰り返す場面が目立った。',
+        memo: '顧客の発言を「なぜそれが課題なのか」まで掘り下げ、構造的に整理する練習が必要'
+      },
+      {
+        name: '提案力', grade: 'C', gradeClass: 'grade-c', score: '2.0',
+        quote: '弊社のシステムは多くの企業様にご導入いただいておりまして、機能も充実しております',
+        context: '提案が一般的な機能紹介に終始し、顧客の課題に紐づいた具体的な解決策の提示ができていない。導入事例や数値的な根拠も示されなかった。',
+        memo: '顧客の課題と機能を1対1で対応させ、具体的な事例・数値を交えた提案ストーリーを構築すること'
+      },
+      {
+        name: 'クロージング力', grade: 'B', gradeClass: 'grade-b', score: '3.0',
+        quote: 'ご検討いただけますと幸いです、また何かありましたらいつでもご連絡ください',
+        context: '具体的なネクストアクションの設定がなく、曖昧なまま商談が終了した。次のステップを顧客に委ねてしまっている。',
+        memo: '「いつまでに」「何を」「誰が」を明示したネクストアクションを必ず設定すること'
+      }
+    ],
+    comment: {
+      summary: '商談全体を通じて話者比率52.7%と自分が話しすぎる傾向があり、顧客から十分な情報を引き出せていない。課題の深掘りが浅く、提案が一般的な機能紹介に留まっているため、顧客にとっての具体的な導入メリットが伝わりにくい状態。ネクストアクションの設定も曖昧で、商談の推進力に課題がある。',
+      positive: '商談の基本的な流れ（ヒアリング→提案→クロージング）は踏めている／顧客との関係構築には丁寧な姿勢が見られる',
+      negative: '話者比率が高く顧客の発言機会を奪っている／課題設定が表面的で提案に深みがない／ネクストアクションが不明確で商談が前に進まない'
+    }
+  },
+  sudo: {
+    name: '須藤 遼（ストウ リョウ）',
+    score: '3.8', grade: 'B+', gradeClass: 'grade-b-plus', rec: '優秀', recClass: 'rec-yes', ratio: '41.5%',
+    criteria: [
+      { name: 'ヒアリング力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: '現在の管理体制について、特に複数拠点間での情報共有はどのようにされていますか', context: '顧客の運用実態を具体的に把握するための質問を効果的に展開。複数の観点から深掘りできている。', memo: '競合製品の利用状況まで踏み込めるとより良い' },
+      { name: '課題設定力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: '拠点間の情報格差が属人的な管理から来ているのではないかと感じました', context: '顧客の発言から構造的な課題を抽出できている。仮説を持った課題提示が的確。', memo: '課題の優先度づけまでリードできると更に良い' },
+      { name: '提案力', grade: 'B', gradeClass: 'grade-b', score: '3.0', quote: '弊社のクラウド管理基盤でこの課題は解決可能です', context: '課題との紐づけはできているが、事例や数値の裏付けが不足。', memo: '具体的な導入事例と数値を必ずセットで提示すること' },
+      { name: 'クロージング力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: '来週木曜までに詳細なご提案書をお送りします。金曜にお時間いただけますか', context: '具体的な日程を伴うネクストアクションを明確に設定できている。', memo: '決裁者の巻き込みタイミングも併せて確認できると更に良い' }
+    ],
+    comment: { summary: 'ヒアリングから課題設定、クロージングまでバランスの取れた商談進行。提案パートの具体性を高めることでさらなる成長が見込める。', positive: '課題設定の構造化が的確／ネクストアクション設定が具体的', negative: '提案時の事例・数値の活用が不足' }
+  },
+  santo: {
+    name: '山藤 将希（サントウ マサキ）',
+    score: '3.6', grade: 'B+', gradeClass: 'grade-b-plus', rec: '要観察', recClass: 'rec-hold', ratio: '44.8%',
+    criteria: [
+      { name: 'ヒアリング力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: '導入の背景として、直近で何かきっかけとなる出来事がありましたか', context: '導入動機の背景まで掘り下げる質問ができている。', memo: '時系列で整理する質問を加えるとより効果的' },
+      { name: '課題設定力', grade: 'B', gradeClass: 'grade-b', score: '3.0', quote: '管理の煩雑さが課題ということですね', context: '顧客の発言を整理しているが、独自の視点での課題再定義までには至っていない。', memo: '「つまり〜ということでしょうか」と仮説を提示する習慣をつけるとよい' },
+      { name: '提案力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: 'B社様では同様の課題に対して弊社システムを導入し、管理工数を40%削減されました', context: '事例を交えた具体的な提案ができている。', memo: '顧客の業界に近い事例を選択できるとさらに説得力が増す' },
+      { name: 'クロージング力', grade: 'B', gradeClass: 'grade-b', score: '3.0', quote: '次回、より詳細なご説明の機会をいただけますか', context: 'ネクストアクションは設定しているが具体的な日程提示が弱い。', memo: 'その場で日程を確定させる動きが必要' }
+    ],
+    comment: { summary: 'ヒアリングと提案のバランスは良い。課題設定の深度とクロージングの具体性を高めることが次の成長ポイント。', positive: '導入事例を活用した提案力が高い／顧客の背景まで掘り下げるヒアリング', negative: '課題の再定義が弱い／ネクストアクションの日程が曖昧になりがち' }
+  },
+  kamachi: {
+    name: '蒲池 和哉（カマチ カズヤ）',
+    score: '4.0', grade: 'A', gradeClass: 'grade-a', rec: '優秀', recClass: 'rec-yes', ratio: '35.6%',
+    criteria: [
+      { name: 'ヒアリング力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: '現場の方々の日常業務の中で、特に時間を取られている作業は何でしょうか', context: '現場目線での課題を引き出す質問設計が優れている。', memo: '管理者目線と現場目線の両方を意識的に切り替えられるとより良い' },
+      { name: '課題設定力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: '現場の工数負荷と本社のガバナンス強化、この2つを同時に解決する必要がありますね', context: '複数の課題を統合的に捉え、解決の方向性を明示できている。', memo: '課題間の因果関係まで示せるとさらに良い' },
+      { name: '提案力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: '現場の負荷を増やさずに本社管理を強化できる仕組みをご提案します', context: '課題設定と提案が一貫しており、顧客にとっての価値が明確。', memo: 'コスト面のメリットも数値で示せるとより説得力が高まる' },
+      { name: 'クロージング力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: '来週、現場の責任者の方にもご同席いただいてデモをお見せしたいのですが、ご調整可能でしょうか', context: '決裁プロセスを意識した次のアクション設定ができている。', memo: '稟議スケジュールの確認も併せて行えるとベスト' }
+    ],
+    comment: { summary: '話者比率35.6%と理想的なバランスで、顧客の発言を最大限引き出している。課題設定から提案、クロージングまで一貫性のある商談進行が特徴。', positive: '話者比率が理想的／課題の統合的把握が優れている／決裁プロセスを意識したクロージング', negative: 'コスト面の定量的な訴求がやや弱い' }
+  },
+  akada: {
+    name: '赤田 夏実（アカダ ナツミ）',
+    score: '4.6', grade: 'S', gradeClass: 'grade-s', rec: '優秀', recClass: 'rec-yes', ratio: '32.4%',
+    criteria: [
+      { name: 'ヒアリング力', grade: 'S', gradeClass: 'grade-s', score: '5.0', quote: '先ほど監査対応に工数がかかるとおっしゃいましたが、具体的にはどのプロセスで何時間ほどかかっていますか', context: '顧客の発言を即座に深掘りし、定量的な情報まで引き出している。非常に高い傾聴力とヒアリング力。', memo: '模範的なヒアリング。他メンバーの育成教材として活用可能' },
+      { name: '課題設定力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: '監査対応の工数問題の根本は、データが分散していることによるエビデンス収集の非効率にあると考えます', context: '表面的な課題から本質的な構造課題まで的確に深掘りできている。', memo: '顧客の業界規制との関連まで触れられると更に良い' },
+      { name: '提案力', grade: 'S', gradeClass: 'grade-s', score: '5.0', quote: 'C社様では導入後、監査準備工数が年間240時間から80時間に削減されました。御社の規模感では同程度以上の効果が見込めます', context: '具体的な数値と顧客規模への適用を組み合わせた説得力の高い提案。顧客の反応を見ながら提案の粒度を調整する柔軟性も際立つ。', memo: '提案スキルは最高水準。社内のベストプラクティスとして展開すべき' },
+      { name: 'クロージング力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: '来週水曜にトライアル環境をご用意します。木曜の午後にセットアップのお手伝いに伺ってもよろしいですか', context: '非常に具体的かつ顧客の負荷を最小化するネクストアクション設定。', memo: '決裁タイムラインの確認も加えると完璧' }
+    ],
+    comment: { summary: '話者比率32.4%は全メンバー中最も低く、顧客に最大限話させることで深い情報収集を実現している。ヒアリングから提案までの一連の流れが極めて高水準で、他メンバーの模範となる商談スタイル。', positive: '圧倒的な傾聴力とヒアリング精度／数値を活用した説得力の高い提案／顧客負荷を考慮したネクストアクション設定', negative: '強いて言えば決裁タイムラインの確認が抜けることがある程度で、大きな改善点は見当たらない' }
+  },
+  ota: {
+    name: '太田 啓友（オオタ ヒロトモ）',
+    score: '3.4', grade: 'B', gradeClass: 'grade-b', rec: '要観察', recClass: 'rec-hold', ratio: '48.1%',
+    criteria: [
+      { name: 'ヒアリング力', grade: 'B', gradeClass: 'grade-b', score: '3.0', quote: '現状どのような課題をお持ちですか', context: 'オープンクエスチョンで始めているが、深掘りが不足。', memo: '仮説を持った質問を事前に準備すること' },
+      { name: '課題設定力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: '複数システムの併用による管理コスト増が根本的な課題ですね', context: '顧客の断片的な情報から課題を適切に構造化できている。', memo: 'ヒアリング力が上がればさらに精度が上がる' },
+      { name: '提案力', grade: 'B', gradeClass: 'grade-b', score: '3.0', quote: '弊社のシステムで一元管理が可能です', context: '提案内容は適切だが具体性に欠ける。', memo: '事例と数値を必ず添えること' },
+      { name: 'クロージング力', grade: 'B', gradeClass: 'grade-b', score: '3.0', quote: '資料をお送りしますので、ご確認いただけますか', context: 'ネクストアクションが弱い。', memo: '「いつまでに回答をいただけるか」まで確認する習慣を' }
+    ],
+    comment: { summary: '課題設定力に光るものがある。ヒアリングと提案の具体性を高めることで大きく伸びるポテンシャルを持っている。', positive: '課題の構造化能力が高い', negative: '話者比率がやや高い／提案とクロージングの具体性不足' }
+  },
+  sakazume: {
+    name: '坂詰 未来（サカヅメ ミク）',
+    score: '3.2', grade: 'B', gradeClass: 'grade-b', rec: '要観察', recClass: 'rec-hold', ratio: '46.3%',
+    criteria: [
+      { name: 'ヒアリング力', grade: 'B', gradeClass: 'grade-b', score: '3.0', quote: '導入をご検討されている背景を教えていただけますか', context: '基本的な質問はできているが、回答への深掘りが不十分。', memo: '「具体的には？」「なぜそう感じましたか？」の追加質問を意識する' },
+      { name: '課題設定力', grade: 'B', gradeClass: 'grade-b', score: '3.0', quote: 'コスト削減が課題なのですね', context: '顧客の発言をそのまま受け取る傾向がある。', memo: '課題の裏にある「なぜ」を考える習慣をつける' },
+      { name: '提案力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: 'D社様の事例ですが、月額コストを30%削減しながらセキュリティレベルを向上させました', context: '事例を効果的に活用した提案ができている。', memo: '顧客の状況により近い事例を選択できるとさらに良い' },
+      { name: 'クロージング力', grade: 'B', gradeClass: 'grade-b', score: '3.0', quote: 'ご興味があればデモのお時間をいただけますか', context: '意欲は見せているが、具体的な日程設定に踏み込めていない。', memo: 'その場でカレンダーを開いて日程を確定させること' }
+    ],
+    comment: { summary: '提案パートでの事例活用は良い。ヒアリングと課題設定の深度を高め、クロージングの具体性を上げることが成長課題。', positive: '事例を活用した提案力がある', negative: 'ヒアリングの深掘りが不足／クロージングが曖昧' }
+  },
+  an: {
+    name: '安 裕在（アン ユジェ）',
+    score: '3.4', grade: 'B', gradeClass: 'grade-b', rec: '要観察', recClass: 'rec-hold', ratio: '43.9%',
+    criteria: [
+      { name: 'ヒアリング力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: '現在の運用で特にストレスを感じるポイントはどこですか', context: '感情面にも踏み込んだヒアリングで顧客の本音を引き出せている。', memo: '定量的な情報も併せて収集できるとバランスが良くなる' },
+      { name: '課題設定力', grade: 'B', gradeClass: 'grade-b', score: '3.0', quote: '運用の煩雑さが課題ですね', context: '課題の特定はできているが、構造化の深度がもう一歩。', memo: '課題を階層化して整理する練習をすると良い' },
+      { name: '提案力', grade: 'B', gradeClass: 'grade-b', score: '3.0', quote: '弊社のシステムで運用を簡素化できます', context: '方向性は合っているが具体的な裏付けが弱い。', memo: '導入効果の数値化と事例の活用を心がけること' },
+      { name: 'クロージング力', grade: 'B', gradeClass: 'grade-b', score: '3.0', quote: 'ぜひ次のステップとしてデモをご覧いただきたいのですが', context: '意欲は見せているが日程の確定まで至っていない。', memo: '具体的な日時提案を2-3つ用意して提示すること' }
+    ],
+    comment: { summary: 'ヒアリング力に強みがある。感情面に寄り添う姿勢は顧客からの信頼獲得に繋がっている。提案・クロージングの具体性向上が次の課題。', positive: '顧客の本音を引き出すヒアリング力', negative: '課題設定の構造化と提案の具体性が不足' }
+  },
+  noda: {
+    name: '野田 茜里（ノダ アカリ）',
+    score: '3.6', grade: 'B+', gradeClass: 'grade-b-plus', rec: '要観察', recClass: 'rec-hold', ratio: '39.1%',
+    criteria: [
+      { name: 'ヒアリング力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: '御社の業界では最近どのような規制変更がありましたか、それが日常業務にどう影響していますか', context: '業界動向と日常業務を結びつけた高い視座のヒアリング。', memo: '非常に良い質問設計。この視点を他メンバーにも共有してほしい' },
+      { name: '課題設定力', grade: 'B', gradeClass: 'grade-b', score: '3.0', quote: '規制対応の負荷が増えているということですね', context: '事実の確認はできているが、独自の視点での再定義が弱い。', memo: '「つまり本質的には〜」と踏み込む練習を' },
+      { name: '提案力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: '規制対応を自動化することで、本来の業務に集中いただける環境を整えられます。E社様では対応工数が半減しました', context: '顧客のペインに直結した提案と事例の活用ができている。', memo: '業界特化の事例をさらに増やしていくと良い' },
+      { name: 'クロージング力', grade: 'B', gradeClass: 'grade-b', score: '3.0', quote: '詳細な資料を整理してお送りします', context: 'ネクストアクションの具体性がもう一歩。', memo: '次回MTGの日程を必ずその場で確定させること' }
+    ],
+    comment: { summary: 'ヒアリングの視座が高く、業界理解に基づいた質問ができている。提案力もあるが、クロージングで具体性に欠ける傾向。', positive: '業界動向を踏まえた高い視座のヒアリング／事例を活用した提案', negative: 'クロージングの具体性不足／課題の再定義が表面的' }
+  },
+  yamaguchi: {
+    name: '山口 ひな子（ヤマグチ ヒナコ）',
+    score: '3.2', grade: 'B', gradeClass: 'grade-b', rec: '要観察', recClass: 'rec-hold', ratio: '45.2%',
+    criteria: [
+      { name: 'ヒアリング力', grade: 'B', gradeClass: 'grade-b', score: '3.0', quote: '現在お使いのシステムについて教えていただけますか', context: '基本的なヒアリングはできているが、深掘りが不足。', memo: '「それによってどんな影響がありますか」と因果関係を聞く質問を追加する' },
+      { name: '課題設定力', grade: 'B', gradeClass: 'grade-b', score: '3.0', quote: 'システムの老朽化が課題ですね', context: '顧客の発言をまとめる力はあるが、本質的な課題の抽出までは至っていない。', memo: '表面的な課題の裏にある本質的な問題を探る習慣をつける' },
+      { name: '提案力', grade: 'B', gradeClass: 'grade-b', score: '3.0', quote: '最新のクラウドシステムへの移行をご提案します', context: '提案の方向性は適切だが、顧客固有の価値提案になっていない。', memo: '「御社にとっては特に〜」と個別化した価値を示すこと' },
+      { name: 'クロージング力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: '来週月曜に技術担当者を交えたデモを実施させていただきたいのですが、14時か16時でいかがでしょうか', context: '具体的な日時と参加者を提示したクロージングができている。', memo: 'クロージング力は良い。ヒアリングと提案が強化されればさらに活きる' }
+    ],
+    comment: { summary: 'クロージングの具体性は評価できる。ヒアリング・課題設定・提案の各パートでの深度を高めることで、総合的なスキルアップが見込める。', positive: '具体的な日時提案を含むクロージング力', negative: 'ヒアリングの深掘り不足／提案が一般的になりがち' }
+  },
+  nagaoka: {
+    name: '長岡 正樹（ナガオカ マサキ）',
+    score: '3.8', grade: 'B+', gradeClass: 'grade-b-plus', rec: '優秀', recClass: 'rec-yes', ratio: '36.8%',
+    criteria: [
+      { name: 'ヒアリング力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: '今回のプロジェクトの予算感と、意思決定のプロセスについて教えていただけますか', context: '商談の早い段階でBANT情報を確認する意識が高い。', memo: '課題ヒアリングとBANT確認のバランスが良い' },
+      { name: '課題設定力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: 'コンプライアンス対応と業務効率化を両立させることが御社の最優先課題ですね', context: '複数の要素を統合した課題設定ができている。', memo: '課題の優先順位づけまでリードできると更に良い' },
+      { name: '提案力', grade: 'B', gradeClass: 'grade-b', score: '3.0', quote: '弊社のシステムであれば両方の課題を一度に解決できます', context: '方向性は適切だが事例や数値の具体性が不足。', memo: '「具体的には〜」と踏み込んだ説明を心がけること' },
+      { name: 'クロージング力', grade: 'A', gradeClass: 'grade-a', score: '4.0', quote: '次回は御社の情報システム部門の方にもご参加いただき、技術面の要件を詰めさせていただきたいのですが', context: '決裁プロセスを意識した戦略的なネクストアクション設定。', memo: '稟議のスケジュール感も併せて確認できるとベスト' }
+    ],
+    comment: { summary: '話者比率36.8%と適切なバランス。BANT確認の意識が高く、決裁プロセスを見据えた商談進行ができている。提案パートの具体性を高めることが次のステップ。', positive: 'BANT情報の早期確認／決裁プロセスを意識した戦略的クロージング', negative: '提案時の事例・数値の活用不足' }
+  }
+};
+
+function openDetail(id) {
+  const m = members[id];
+  if (!m) return;
+
+  document.getElementById('detailName').textContent = m.name;
+  document.getElementById('detailScore').innerHTML = m.score;
+  document.getElementById('detailGrade').innerHTML = '<span class="grade ' + m.gradeClass + ' d-grade">' + m.grade + '</span>';
+  document.getElementById('detailRec').innerHTML = '<span class="rec-badge ' + m.recClass + ' d-rec">' + m.rec + '</span>';
+  document.getElementById('detailRatio').innerHTML = m.ratio;
+
+  // Criteria
+  let criteriaHtml = '';
+  m.criteria.forEach(c => {
+    criteriaHtml += '<div class="criteria-card">';
+    criteriaHtml += '<div class="criteria-header"><span class="criteria-name">' + c.name + '</span>';
+    criteriaHtml += '<div class="criteria-right"><span class="grade ' + c.gradeClass + '">' + c.grade + '</span><span class="criteria-score">' + c.score + '</span></div></div>';
+    criteriaHtml += '<div class="criteria-block"><div class="criteria-label">引用</div><div class="criteria-quote">' + c.quote + '</div></div>';
+    criteriaHtml += '<div class="criteria-block"><div class="criteria-label">文脈分析</div><div class="criteria-text">' + c.context + '</div></div>';
+    criteriaHtml += '<div class="criteria-block"><div class="criteria-label">改善メモ</div><div class="criteria-text">' + c.memo + '</div></div>';
+    criteriaHtml += '</div>';
+  });
+  document.getElementById('detailCriteria').innerHTML = criteriaHtml;
+
+  // Comment
+  let commentHtml = '';
+  commentHtml += '<div class="comment-block"><div class="comment-label">総合所見</div><div class="comment-text">' + m.comment.summary + '</div></div>';
+  commentHtml += '<div class="comment-block"><div class="comment-label">ポジティブ要素</div><div class="comment-text comment-positive">' + m.comment.positive + '</div></div>';
+  commentHtml += '<div class="comment-block"><div class="comment-label">ネガティブ要素</div><div class="comment-text comment-negative">' + m.comment.negative + '</div></div>';
+  document.getElementById('detailComment').innerHTML = commentHtml;
+
+  // Radar chart
+  if (window._radarChart) { window._radarChart.destroy(); }
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  const scores = m.criteria.map(c => parseFloat(c.score));
+  const labels = m.criteria.map(c => c.name);
+  window._radarChart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: m.name.split('（')[0],
+        data: scores,
+        backgroundColor: 'rgba(37, 99, 235, 0.15)',
+        borderColor: 'rgba(37, 99, 235, 0.8)',
+        borderWidth: 2,
+        pointBackgroundColor: 'rgba(37, 99, 235, 1)',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      scales: {
+        r: {
+          min: 0,
+          max: 5,
+          ticks: { stepSize: 1, font: { size: 11 }, backdropColor: 'transparent', color: '#94a3b8' },
+          grid: { color: '#e2e8f0' },
+          angleLines: { color: '#e2e8f0' },
+          pointLabels: { font: { size: 13, weight: '600' }, color: '#334155' }
+        }
+      },
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+
+  document.getElementById('overlay').classList.add('active');
+  document.getElementById('detailPanel').classList.add('active');
+}
+
+function closeDetail() {
+  document.getElementById('overlay').classList.remove('active');
+  document.getElementById('detailPanel').classList.remove('active');
+}
+</script>
+
+</body>
+</html>
