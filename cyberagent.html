@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<title>ailead Sales Dashboard - CyberAgent 次世代メディア営業部</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif; background: #f5f6fa; color: #333; display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar { width: 220px; background: #fff; border-right: 1px solid #e8e8e8; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 0; position: fixed; height: 100vh; z-index: 10; }
+  .sidebar-logo { padding: 0 20px; margin-bottom: 28px; display: flex; align-items: center; gap: 10px; }
+  .sidebar-logo svg { width: 28px; height: 28px; }
+  .sidebar-logo .logo-text { font-size: 18px; font-weight: 700; color: #2563eb; }
+  .sidebar-logo .logo-sub { font-size: 11px; color: #94a3b8; display: block; margin-top: 2px; }
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav li { padding: 10px 20px; font-size: 14px; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+  .sidebar-nav li.active { color: #2563eb; background: #eff6ff; border-right: 3px solid #2563eb; font-weight: 600; }
+  .sidebar-nav li:hover { background: #f8fafc; }
+  .sidebar-nav li svg { width: 18px; height: 18px; }
+  .sidebar-bottom { padding: 0 20px; }
+  .sidebar-client { display: flex; align-items: center; gap: 8px; padding: 12px 0; border-top: 1px solid #e8e8e8; }
+  .sidebar-client-icon { width: 32px; height: 32px; background: #0ac274; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+  .sidebar-client-name { font-size: 12px; color: #334155; font-weight: 600; line-height: 1.3; }
+  .sidebar-client-sub { font-size: 10px; color: #94a3b8; }
+  .sidebar-account { display: flex; align-items: center; gap: 8px; padding-top: 12px; font-size: 13px; color: #64748b; cursor: pointer; }
+  .sidebar-account svg { width: 18px; height: 18px; }
+  .back-to-top { display: inline-flex; align-items: center; gap: 6px; margin: 4px 20px 12px; font-size: 11px; color: #94a3b8; text-decoration: none; border: 1px solid #e2e8f0; padding: 5px 10px; border-radius: 6px; background: #f8fafc; }
+  .back-to-top:hover { color: #2563eb; border-color: #cbd5e1; }
+
+  /* Main */
+  .main { margin-left: 220px; flex: 1; padding: 32px 40px; }
+  .page-title { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+  .page-title .pill { background: #dcfce7; color: #0ac274; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 10px; }
+  .page-desc { font-size: 12px; color: #94a3b8; margin-bottom: 20px; }
+
+  /* Summary Cards */
+  .summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .card { background: #fff; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .card-label { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+  .card-value { font-size: 32px; font-weight: 700; color: #1e293b; }
+  .card-value .unit { font-size: 14px; font-weight: 400; color: #94a3b8; margin-left: 2px; }
+  .card-value .sub { font-size: 14px; font-weight: 400; color: #94a3b8; }
+  .card-trend { font-size: 11px; color: #0ac274; margin-top: 4px; }
+
+  /* Toolbar */
+  .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-box { flex: 1; max-width: 260px; padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; outline: none; background: #fff; }
+  .search-box:focus { border-color: #2563eb; }
+  .btn-outline { padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #fff; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .btn-outline:hover { background: #f8fafc; }
+  .filter-chip { padding: 4px 12px; border-radius: 14px; font-size: 11px; border: 1px solid #e2e8f0; color: #64748b; background: #fff; cursor: pointer; }
+  .filter-chip.active { background: #eff6ff; border-color: #2563eb; color: #2563eb; font-weight: 600; }
+
+  /* Table */
+  .table-wrap { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { text-align: left; padding: 12px 14px; color: #94a3b8; font-weight: 500; font-size: 11px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; cursor: pointer; user-select: none; }
+  thead th:hover { color: #64748b; }
+  thead th .sort-icon { display: inline-block; margin-left: 4px; font-size: 10px; }
+  tbody td { padding: 12px 14px; border-bottom: 1px solid #f8fafc; white-space: nowrap; font-size: 12px; }
+  tbody tr:hover { background: #fafbfd; }
+  .member-name { color: #2563eb; font-weight: 500; }
+  .member-name a { color: inherit; text-decoration: none; cursor: pointer; }
+  .member-name a:hover { text-decoration: underline; }
+  .link-icon { font-size: 10px; color: #94a3b8; margin-left: 4px; }
+
+  /* Grade badge */
+  .grade { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 24px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+  .grade-s  { background: #dcfce7; color: #16a34a; }
+  .grade-a  { background: #dbeafe; color: #2563eb; }
+  .grade-b-plus { background: #e0f2fe; color: #0284c7; }
+  .grade-b  { background: #fef3c7; color: #d97706; }
+  .grade-b-minus { background: #fed7aa; color: #ea580c; }
+  .grade-c  { background: #fee2e2; color: #dc2626; }
+
+  /* Recommendation badge */
+  .rec-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .rec-yes { background: #dcfce7; color: #16a34a; }
+  .rec-hold { background: #fef3c7; color: #d97706; }
+  .rec-no { background: #fee2e2; color: #dc2626; }
+
+  .score { font-weight: 600; }
+  .ratio { color: #64748b; }
+  .deal-name { color: #475569; font-size: 12px; }
+  .deal-date { color: #94a3b8; font-size: 11px; }
+
+  /* Prompt tag */
+  .prompt-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+  .tag-p1 { background: #eff6ff; color: #2563eb; }
+  .tag-p2 { background: #f0fdf4; color: #0ac274; }
+
+  /* ===== Report Page ===== */
+  .page { display: none; }
+  .page.active { display: block; }
+  .report-section { background: #fff; border-radius: 12px; padding: 24px 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 20px; }
+  .report-section-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .report-summary-text { font-size: 13px; color: #475569; line-height: 1.8; }
+  .report-summary-text li { margin-bottom: 6px; }
+  .report-kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 12px; }
+  .report-kpi-card { background: #f8fafc; border-radius: 10px; padding: 18px; text-align: center; }
+  .report-kpi-label { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
+  .report-kpi-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+  .report-kpi-value .kpi-unit { font-size: 13px; font-weight: 400; color: #94a3b8; }
+  .ai-insight { background: #eff6ff; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
+  .ai-insight-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #2563eb; color: #fff; border-radius: 50%; font-size: 11px; font-weight: 700; margin-right: 8px; }
+  .ai-insight-text { font-size: 13px; color: #334155; line-height: 1.7; display: inline; }
+  .ai-badge { display: inline-block; background: #dbeafe; color: #2563eb; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-bottom: 12px; }
+  .ai-timestamp { font-size: 11px; color: #94a3b8; margin-bottom: 16px; }
+  .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .chart-container { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .chart-title { font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 16px; }
+  .heatmap-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .heatmap-table th { padding: 8px 10px; text-align: left; color: #94a3b8; font-weight: 500; border-bottom: 1px solid #f1f5f9; font-size: 11px; }
+  .heatmap-table td { padding: 8px 10px; border-bottom: 1px solid #f8fafc; }
+  .heatmap-cell { display: inline-block; width: 38px; height: 24px; border-radius: 4px; text-align: center; line-height: 24px; font-weight: 600; font-size: 11px; }
+  .heat-5 { background: #dcfce7; color: #16a34a; }
+  .heat-4 { background: #dbeafe; color: #2563eb; }
+  .heat-3 { background: #fef3c7; color: #d97706; }
+  .heat-2 { background: #fed7aa; color: #ea580c; }
+  .heat-1 { background: #fee2e2; color: #dc2626; }
+  .heatmap-name { color: #334155; font-weight: 500; font-size: 12px; }
+  .heatmap-avg { font-size: 11px; color: #94a3b8; font-weight: 500; }
+
+  /* Prompt info cards */
+  .prompt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .prompt-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 22px; }
+  .prompt-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .prompt-card-tag { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
+  .prompt-card-title { font-size: 15px; font-weight: 700; color: #1e293b; }
+  .prompt-card-desc { font-size: 12px; color: #64748b; line-height: 1.6; margin-bottom: 12px; }
+  .prompt-axis-list { list-style: none; }
+  .prompt-axis-list li { font-size: 12px; color: #334155; padding: 5px 0; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; }
+  .prompt-axis-list li:first-child { border-top: none; }
+  .axis-score { font-weight: 700; color: #2563eb; }
+
+  /* ===== Detail Panel ===== */
+  .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 100; }
+  .overlay.active { display: block; }
+  .detail-panel { display: none; position: fixed; top: 0; right: 0; width: 600px; height: 100vh; background: #fff; z-index: 200; box-shadow: -4px 0 24px rgba(0,0,0,0.1); overflow-y: auto; }
+  .detail-panel.active { display: block; }
+  .detail-header { padding: 24px 28px 16px; border-bottom: 1px solid #f1f5f9; }
+  .detail-header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .detail-member-name { font-size: 18px; font-weight: 700; color: #1e293b; }
+  .detail-deal-name { font-size: 12px; color: #64748b; margin-top: 4px; }
+  .detail-header-actions { display: flex; gap: 8px; }
+  .detail-btn { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid #e2e8f0; background: #fff; color: #2563eb; }
+  .detail-btn:hover { background: #eff6ff; }
+  .detail-btn-close { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid #e2e8f0; background: #fff; color: #64748b; }
+  .detail-btn-close:hover { background: #f8fafc; }
+
+  .detail-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 20px 28px; border-bottom: 1px solid #f1f5f9; }
+  .detail-card { text-align: center; }
+  .detail-card-label { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
+  .detail-card-value { font-size: 24px; font-weight: 700; color: #1e293b; }
+  .detail-card-value .d-unit { font-size: 12px; font-weight: 400; color: #94a3b8; }
+  .detail-card-value .d-grade { font-size: 20px; }
+  .detail-card-value .d-rec { font-size: 13px; }
+
+  .radar-section { padding: 20px 28px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: center; }
+  .radar-wrap { width: 360px; height: 360px; }
+
+  .detail-section { padding: 20px 28px; border-bottom: 1px solid #f1f5f9; }
+  .detail-section-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 16px; }
+  .detail-section-sub { font-size: 11px; color: #94a3b8; font-weight: 500; margin: 6px 0 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .criteria-card { background: #f8fafc; border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
+  .criteria-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .criteria-name { font-size: 13px; font-weight: 600; color: #334155; }
+  .criteria-right { display: flex; align-items: center; gap: 8px; }
+  .criteria-score { font-size: 14px; font-weight: 700; color: #1e293b; }
+  .criteria-block { margin-bottom: 10px; }
+  .criteria-block:last-child { margin-bottom: 0; }
+  .criteria-label { font-size: 11px; font-weight: 600; color: #94a3b8; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .criteria-text { font-size: 13px; color: #475569; line-height: 1.6; }
+  .criteria-quote { font-size: 13px; color: #64748b; line-height: 1.6; font-style: italic; background: #fff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #e2e8f0; }
+
+  .comment-block { margin-bottom: 14px; }
+  .comment-block:last-child { margin-bottom: 0; }
+  .comment-label { font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 6px; }
+  .comment-text { font-size: 13px; color: #334155; line-height: 1.7; }
+  .comment-positive { border-left: 3px solid #16a34a; padding-left: 12px; }
+  .comment-negative { border-left: 3px solid #dc2626; padding-left: 12px; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div>
+    <div class="sidebar-logo">
+      <div>
+        <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#2563eb"/><path d="M10 22V12l6-4 6 4v10" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 22v-5h4v5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <span class="logo-text">ailead</span>
+        <span class="logo-sub">Sales Dashboard</span>
+      </div>
+    </div>
+    <a href="index.html" class="back-to-top">← 他クライアント</a>
+    <ul class="sidebar-nav">
+      <li class="active" id="nav-list" onclick="showPage('list')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"/></svg>
+        商談一覧
+      </li>
+      <li id="nav-report" onclick="showPage('report')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm8-3a1 1 0 00-1 1v3a1 1 0 00.293.707l2 2a1 1 0 001.414-1.414L11 10.586V8a1 1 0 00-1-1z"/></svg>
+        レポート
+      </li>
+      <li id="nav-prompt" onclick="showPage('prompt')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm3 5a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm0 4a1 1 0 011-1h7a1 1 0 110 2H8a1 1 0 01-1-1z"/></svg>
+        カスタムプロンプト
+      </li>
+    </ul>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="sidebar-client">
+      <div class="sidebar-client-icon">CA</div>
+      <div>
+        <div class="sidebar-client-name">株式会社サイバーエージェント</div>
+        <div class="sidebar-client-sub">次世代メディア営業部</div>
+      </div>
+    </div>
+    <div class="sidebar-account">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+      アカウント
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+
+<!-- ===== LIST PAGE ===== -->
+<div class="page active" id="page-list">
+  <div class="page-title">商談一覧 <span class="pill">次世代メディア営業部</span></div>
+  <div class="page-desc">「初回商談ヒアリング×価値想起」「相手に言わせる4スキル」2プロンプトで自動評価された最新商談ログ</div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="card">
+      <div class="card-label">総商談数（直近90日）</div>
+      <div class="card-value">184<span class="unit">件</span></div>
+      <div class="card-trend">▲ 前期比 +22件</div>
+    </div>
+    <div class="card">
+      <div class="card-label">平均総合スコア</div>
+      <div class="card-value">3.5<span class="sub"> /5.0</span></div>
+      <div class="card-trend">▲ 前期比 +0.3</div>
+    </div>
+    <div class="card">
+      <div class="card-label">次回商談化率</div>
+      <div class="card-value">58<span class="unit">%</span></div>
+      <div class="card-trend">▲ 前期比 +7pt</div>
+    </div>
+    <div class="card">
+      <div class="card-label">AIフィードバック実行数</div>
+      <div class="card-value">128<span class="unit">件</span></div>
+      <div class="card-trend">直近7日: 31件</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <input type="text" class="search-box" placeholder="メンバー名／商談名で検索">
+    <span class="filter-chip active">全て</span>
+    <span class="filter-chip">初回商談</span>
+    <span class="filter-chip">提案フェーズ</span>
+    <span class="filter-chip">要観察</span>
+    <button class="btn-outline" style="margin-left:auto;">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      CSVエクスポート
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>メンバー <span class="sort-icon">↕</span></th>
+          <th>商談名</th>
+          <th>商談日時 <span class="sort-icon">↕</span></th>
+          <th>プロンプト</th>
+          <th>総合 <span class="sort-icon">↕</span></th>
+          <th>スコア</th>
+          <th>ヒアリング設計</th>
+          <th>価値想起提案</th>
+          <th>Yes-But対応</th>
+          <th>第三者話法</th>
+          <th>Yes積み上げ</th>
+          <th>言わせる設計</th>
+          <th>話者比率</th>
+          <th>推薦</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+<!-- END LIST PAGE -->
+
+<!-- ===== REPORT PAGE ===== -->
+<div class="page" id="page-report">
+  <div class="page-title">レポート <span class="pill">次世代メディア営業部</span></div>
+  <div class="page-desc">直近90日・10メンバー・184商談の集計インサイト</div>
+
+  <div class="report-section">
+    <div class="report-section-title">サマリー</div>
+    <ul class="report-summary-text">
+      <li>メンバーの<strong>40%が優秀評価</strong>（10名中4名）— 前期32%から改善</li>
+      <li>総合スコア: 平均 <strong>3.5</strong> / 中央値 3.5（範囲: 2.9 - 4.5）</li>
+      <li><strong>ヒアリング設計力が最も高評価</strong>（平均3.7）、<strong>Yes-But対応力が最も改善余地あり</strong>（平均3.0）</li>
+      <li>話者比率の平均は<strong>43.2%</strong>（理想範囲: 30-40%）— やや話しすぎ傾向</li>
+      <li>「相手に言わせる4スキル」導入後、<strong>次回商談化率が+7pt（51%→58%）</strong>に改善</li>
+      <li>要観察 4名、要改善 2名</li>
+    </ul>
+  </div>
+
+  <div class="report-section">
+    <div class="report-section-title">AI分析インサイト</div>
+    <div class="ai-badge">AI生成</div>
+    <div class="ai-timestamp">2026/04/20 08:00 生成</div>
+
+    <div class="ai-insight">
+      <span class="ai-insight-num">1</span>
+      <span class="ai-insight-text"><strong>ヒアリング設計力（平均3.7）</strong>はチーム最大の強み。「解決対象課題を深掘りし意思決定情報を整理」基準のスコアが特に高く、初回で予算・時期・決裁までBANT整理できているメンバーが80%を占める。この強みを活かし、次フェーズでは<strong>抽出済み情報を価値提案へ橋渡しする型</strong>の標準化が有効である。</span>
+    </div>
+    <div class="ai-insight">
+      <span class="ai-insight-num">2</span>
+      <span class="ai-insight-text"><strong>Yes-But対応力（平均3.0）</strong>は4スキル中最も低く、特に「受容後に別視点・代替案を提示」基準で苦戦。顧客の否定に対し反射的な反論・即説明返しが発生しているメンバーが半数。河原Mgr主導のロープレ会で<strong>『受容→視点転換→再確認』の3ステップ</strong>を徹底することで組織的な底上げが見込める。</span>
+    </div>
+    <div class="ai-insight">
+      <span class="ai-insight-num">3</span>
+      <span class="ai-insight-text">話者比率40%以下のメンバー（4名）は平均総合スコア<strong>3.9</strong>、40%超（6名）は平均<strong>3.2</strong>と明確な負の相関。特に「相手に言わせる設計力」が高いメンバーほど話者比率が低く、<strong>顧客主導の対話設計こそが勝ちパターン</strong>であることを示している。</span>
+    </div>
+    <div class="ai-insight">
+      <span class="ai-insight-num">4</span>
+      <span class="ai-insight-text">佐伯（S評価・話者比率31.2%）の商談パターンは「第三者話法→Yesの積み上げ→顧客に言わせる」の連鎖が自然に機能しており、チーム内ベストプラクティス。録画を抽出し<strong>新人向け教材＋プロンプト改善のリファレンス</strong>に転用すべき。</span>
+    </div>
+  </div>
+
+  <div class="report-section">
+    <div class="report-section-title">プロンプト別平均スコア</div>
+    <div class="prompt-grid">
+      <div class="prompt-card">
+        <div class="prompt-card-head">
+          <span class="prompt-card-tag tag-p1">プロンプト①</span>
+          <div class="prompt-card-title">初回商談フィードバック</div>
+        </div>
+        <div class="prompt-card-desc">顧客が自ら課題を語り、価値を想起する状態を作れているかを評価（2026-01-14版）</div>
+        <ul class="prompt-axis-list">
+          <li><span>ヒアリング設計力</span><span class="axis-score">3.7</span></li>
+          <li><span>価値想起提案力</span><span class="axis-score">3.4</span></li>
+        </ul>
+      </div>
+      <div class="prompt-card">
+        <div class="prompt-card-head">
+          <span class="prompt-card-tag tag-p2">プロンプト②</span>
+          <div class="prompt-card-title">相手に言わせる4スキル</div>
+        </div>
+        <div class="prompt-card-desc">Yes-But対応／第三者話法／Yes積み上げ／言わせる設計で顧客主導の対話品質を評価（2026-01-28版）</div>
+        <ul class="prompt-axis-list">
+          <li><span>否定意見への建設的対応力</span><span class="axis-score">3.0</span></li>
+          <li><span>第三者話法による納得形成力</span><span class="axis-score">3.5</span></li>
+          <li><span>Yesを積み上げる合意形成力</span><span class="axis-score">3.4</span></li>
+          <li><span>相手発話を引き出す設計力</span><span class="axis-score">3.3</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-section">
+    <div class="report-section-title">効率化指標</div>
+    <div class="report-kpi">
+      <div class="report-kpi-card">
+        <div class="report-kpi-label">人手想定時間</div>
+        <div class="report-kpi-value">184.0<span class="kpi-unit"> 時間</span></div>
+      </div>
+      <div class="report-kpi-card">
+        <div class="report-kpi-label">削減時間</div>
+        <div class="report-kpi-value">174.8<span class="kpi-unit"> 時間</span></div>
+      </div>
+      <div class="report-kpi-card">
+        <div class="report-kpi-label">削減率</div>
+        <div class="report-kpi-value">95.0<span class="kpi-unit"> %</span></div>
+      </div>
+      <div class="report-kpi-card">
+        <div class="report-kpi-label">コスト換算</div>
+        <div class="report-kpi-value" style="font-size:22px;">&yen;786,600</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:#94a3b8;">算出根拠: 人手評価 60分/件、AI処理 3分/件、時給 4,500円で試算</div>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-container">
+      <div class="chart-title">6評価軸の得点分布</div>
+      <canvas id="gradeDistChart" height="220"></canvas>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">推薦ステータス</div>
+      <div style="display:flex;align-items:center;gap:20px;">
+        <canvas id="recPieChart" height="200" style="max-width:200px;"></canvas>
+        <div style="font-size:12px;color:#475569;line-height:2;">
+          <div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#16a34a;margin-right:6px;"></span>優秀 (4)</div>
+          <div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#d97706;margin-right:6px;"></span>要観察 (4)</div>
+          <div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#dc2626;margin-right:6px;"></span>要改善 (2)</div>
+          <div style="margin-top:8px;font-size:20px;font-weight:700;color:#1e293b;">10<span style="font-size:12px;font-weight:400;color:#94a3b8;"> 名</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-section">
+    <div class="report-section-title">メンバー×6評価軸ヒートマップ</div>
+    <table class="heatmap-table">
+      <thead>
+        <tr><th></th><th>ヒアリング設計</th><th>価値想起提案</th><th>Yes-But対応</th><th>第三者話法</th><th>Yes積み上げ</th><th>言わせる設計</th></tr>
+      </thead>
+      <tbody id="heatBody"></tbody>
+    </table>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-container">
+      <div class="chart-title">スコア × 話者比率</div>
+      <canvas id="scatterChart" height="250"></canvas>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">月別スコア推移（2026-01 → 2026-03）</div>
+      <canvas id="trendChart" height="250"></canvas>
+    </div>
+  </div>
+
+</div>
+<!-- END REPORT PAGE -->
+
+<!-- ===== PROMPT PAGE ===== -->
+<div class="page" id="page-prompt">
+  <div class="page-title">カスタムプロンプト <span class="pill">次世代メディア営業部</span></div>
+  <div class="page-desc">次世代メディア営業部専用に設計された2種類のカスタムフィードバックプロンプト</div>
+
+  <div class="report-section">
+    <div class="report-section-title"><span class="prompt-card-tag tag-p1">プロンプト①</span> 次世代メディア営業部専用：初回商談フィードバックプロンプト</div>
+    <div style="font-size:12px;color:#94a3b8;margin-bottom:12px;">バージョン: 2026-01-14 ／ 対象: 初回商談</div>
+    <p style="font-size:13px;color:#475569;line-height:1.8;margin-bottom:16px;"><strong>説明：</strong>初回商談におけるヒアリングと価値提示、意思決定整理の質を評価する。一言一句の再現ではなく、フェーズごとの目的に沿った進行ができているかを基準に、良い点と改善点を明確にフィードバックする。</p>
+
+    <div id="prompt1Detail"></div>
+  </div>
+
+  <div class="report-section">
+    <div class="report-section-title"><span class="prompt-card-tag tag-p2">プロンプト②</span> 相手に言わせる4スキル（初回商談フィードバックプロンプト）</div>
+    <div style="font-size:12px;color:#94a3b8;margin-bottom:12px;">バージョン: 2026-01-28 ／ 対象: 初回商談</div>
+    <p style="font-size:13px;color:#475569;line-height:1.8;margin-bottom:16px;"><strong>説明：</strong>初回商談の営業を対象に、Yes-But対応・第三者話法・Yesの積み上げ・相手に言わせる設計の4スキルで商談を自動評価する。マネージャー不在でも改善点と次回アクションが明確になるフィードバックを生成する。</p>
+
+    <div id="prompt2Detail"></div>
+  </div>
+</div>
+<!-- END PROMPT PAGE -->
+
+</div>
+<!-- END MAIN -->
+
+<div class="overlay" id="overlay" onclick="closeDetail()"></div>
+
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <div class="detail-header-top">
+      <div>
+        <div class="detail-member-name" id="detailName"></div>
+        <div class="detail-deal-name" id="detailDeal"></div>
+      </div>
+      <div class="detail-header-actions">
+        <button class="detail-btn">aileadで開く</button>
+        <button class="detail-btn-close" onclick="closeDetail()">閉じる</button>
+      </div>
+    </div>
+  </div>
+  <div class="detail-summary">
+    <div class="detail-card"><div class="detail-card-label">総合スコア</div><div class="detail-card-value" id="detailScore"></div></div>
+    <div class="detail-card"><div class="detail-card-label">総合グレード</div><div class="detail-card-value" id="detailGrade"></div></div>
+    <div class="detail-card"><div class="detail-card-label">推薦</div><div class="detail-card-value" id="detailRec"></div></div>
+    <div class="detail-card"><div class="detail-card-label">話者比率</div><div class="detail-card-value" id="detailRatio"></div></div>
+  </div>
+  <div class="radar-section"><div class="radar-wrap"><canvas id="radarChart"></canvas></div></div>
+  <div class="detail-section">
+    <div class="detail-section-title">評価基準別スコア</div>
+    <div class="detail-section-sub">プロンプト① 初回商談フィードバック</div>
+    <div id="detailCriteria1"></div>
+    <div class="detail-section-sub">プロンプト② 相手に言わせる4スキル</div>
+    <div id="detailCriteria2"></div>
+  </div>
+  <div class="detail-section">
+    <div class="detail-section-title">総合コメント</div>
+    <div id="detailComment"></div>
+  </div>
+</div>
+
+<script>
+// ============ DATA ============
+const AXES = ['ヒアリング設計','価値想起提案','Yes-But対応','第三者話法','Yes積み上げ','言わせる設計'];
+
+// 6軸: ヒアリング設計 / 価値想起提案 / Yes-But対応 / 第三者話法 / Yes積み上げ / 言わせる設計
+const members = [
+  {
+    id:'saeki', name:'佐伯 玲奈（サエキ レナ）', deal:'大手EC様_新規媒体提案', date:'2026/04/18 14:00',
+    score:'4.5', grade:'S', gradeClass:'grade-s', rec:'優秀', recClass:'rec-yes', ratio:'31.2%',
+    scores:[5,4,4,5,5,4],
+    criteria1:[
+      {name:'ヒアリング設計力',grade:'S',gradeClass:'grade-s',score:'5.0',
+        quote:'現在の広告運用で「ここは効いている」と感じる施策と、逆に「効果が読めない」と感じる領域をそれぞれ教えていただけますか',
+        context:'課題テーマを横に広げつつ深掘りすぎない絶妙な設計。第三者事例を挟みながら御社の状況を聞く動線が機能し、相手の発話量が確保されている。',
+        memo:'全社の模範。質問設計ドキュメントとしてナレッジ化する価値あり'},
+      {name:'価値想起提案力',grade:'A',gradeClass:'grade-a',score:'4.0',
+        quote:'もしこの仕組みが使えたら、翌週の役員報告はどう変わりそうですか',
+        context:'機能説明に終始せず、顧客が利用後の状態を自ら描写するよう促している。Before/Afterを顧客の口から引き出せている。',
+        memo:'業界文脈での説明を加えるとさらに強い'}
+    ],
+    criteria2:[
+      {name:'否定意見への建設的対応力',grade:'A',gradeClass:'grade-a',score:'4.0',
+        quote:'おっしゃる通り、その懸念は重要です。その前提を置いた場合、別の評価軸ではいかがでしょうか',
+        context:'否定発言を遮らず受容したうえで、視点転換の意図を明示して代替案を提示。受容と提案を分けて話せている。',
+        memo:'文句なし。相手の前提を壊さない提案が自然'},
+      {name:'第三者話法による納得形成力',grade:'S',gradeClass:'grade-s',score:'5.0',
+        quote:'同じ媒体予算帯の通販事業者様で、新規獲得コストを23%下げた事例があります',
+        context:'相手業界に近い実在しそうな事例を数値とともに引用。誇張表現や自慢になっておらず、顧客判断を尊重している。',
+        memo:'事例ライブラリ化が必要なレベル'},
+      {name:'Yesを積み上げる合意形成力',grade:'S',gradeClass:'grade-s',score:'5.0',
+        quote:'この粒度で進めるイメージで問題ないですか？／次はROAS目標を握り直す、ここまでは合意で良いでしょうか',
+        context:'小さなYesを連続で取りに行き、判断負荷を分割できている。納得が段階的に積み上がっている。',
+        memo:'クロージング前の布石として極めて有効'},
+      {name:'相手発話を引き出す設計力',grade:'A',gradeClass:'grade-a',score:'4.0',
+        quote:'どこに最も価値を感じていただけそうですか',
+        context:'価値定義を顧客基準に委ね、営業の結論を急がない。相手の言葉で価値が語られている。',
+        memo:'Yes/Noで終わらせない問い返しを全編で徹底できている'}
+    ],
+    comment:{summary:'話者比率31.2%はチーム最低値で、顧客に最大限話させることで深い情報収集と信頼構築を両立している。「第三者話法→Yes積み上げ→言わせる設計」の連鎖が自然に機能し、他メンバーの模範となる商談スタイル。',
+      positive:'圧倒的な傾聴力／事例活用の自然さ／顧客主導の対話設計',
+      negative:'強いて言えば業界特化事例のストックがまだ薄い。事例DB整備で更に磨かれる'}
+  },
+  {
+    id:'matsumoto', name:'松本 蒼（マツモト ソウ）', deal:'食品メーカー様_季節キャンペーン', date:'2026/04/17 11:00',
+    score:'4.2', grade:'A', gradeClass:'grade-a', rec:'優秀', recClass:'rec-yes', ratio:'34.8%',
+    scores:[4,4,4,4,5,4],
+    criteria1:[
+      {name:'ヒアリング設計力',grade:'A',gradeClass:'grade-a',score:'4.0',
+        quote:'昨年の夏キャンペーンで「ここはもう一度やりたい」と感じた要素と、「次は変えたい」と感じた点を教えていただけますか',
+        context:'過去施策の振り返りを起点に課題テーマを複数把握。相手が自分の言葉で話している。',
+        memo:'深掘りの角度をもう一段増やすと更に強い'},
+      {name:'価値想起提案力',grade:'A',gradeClass:'grade-a',score:'4.0',
+        quote:'このクリエイティブテストの仕組みが入ると、キャンペーン中の意思決定スピードはどう変わりそうですか',
+        context:'問いかけで顧客の利用後イメージを引き出している。',
+        memo:'Before/After を数値で示せると更に強い'}
+    ],
+    criteria2:[
+      {name:'否定意見への建設的対応力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'ご指摘の予算制約は確かに重要ですね。その上で段階導入の可能性はいかがでしょうか',context:'否定を正面から受容し、別視点で代替案を提示。',memo:'受容→転換のリズムが良い'},
+      {name:'第三者話法による納得形成力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'同じFMCG業界でCPA30%改善した事例があります',context:'業界近接事例を数値で引用。',memo:'数字の裏付けが効いている'},
+      {name:'Yesを積み上げる合意形成力',grade:'S',gradeClass:'grade-s',score:'5.0',quote:'ここまでの進め方で違和感ございませんか／次はKPI設計、ここは合意でよろしいですか',context:'小さなYesを連続で取れている。',memo:'模範レベル'},
+      {name:'相手発話を引き出す設計力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'御社にとって最大のボトルネックはどこでしょうか',context:'判断軸を顧客に委ねる問い設計。',memo:'良好'}
+    ],
+    comment:{summary:'話者比率34.8%と理想レンジ。Yesの積み上げが秀逸で、商談終盤の合意形成がスムーズ。',
+      positive:'Yes積み上げ設計の巧みさ／事例活用の自然さ',
+      negative:'提案時のBefore/Afterを定量化できるとさらに説得力向上'}
+  },
+  {
+    id:'kobayashi', name:'小林 瑞樹（コバヤシ ミズキ）', deal:'自動車メーカー様_動画広告刷新', date:'2026/04/17 16:00',
+    score:'4.0', grade:'A', gradeClass:'grade-a', rec:'優秀', recClass:'rec-yes', ratio:'36.5%',
+    scores:[4,4,3,4,4,5],
+    criteria1:[
+      {name:'ヒアリング設計力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'御社のブランドリフト指標で「この数値はもっと伸ばしたい」と感じているのはどこですか',context:'優先度の高い課題を引き出せている。',memo:'良好'},
+      {name:'価値想起提案力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'このフォーマットで展開すると、記憶想起率はどの層で最も上がると思われますか',context:'価値を顧客に想像させる問いかけ。',memo:'相手の反応を拾う動きも良い'}
+    ],
+    criteria2:[
+      {name:'否定意見への建設的対応力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'おっしゃる通りですが、一方で...',context:'受容は入れるが、即反論に近い形で視点転換している場面あり。',memo:'受容をもう少し長く置く練習を'},
+      {name:'第三者話法による納得形成力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'同じ自動車カテゴリのA社様では、想起率が1.4倍に改善しました',context:'業界近接事例を効果的に使用。',memo:'良好'},
+      {name:'Yesを積み上げる合意形成力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'ここまでの整理でズレはありませんか',context:'確認の問いを途中で挟んでいる。',memo:'頻度を上げるとさらに良い'},
+      {name:'相手発話を引き出す設計力',grade:'S',gradeClass:'grade-s',score:'5.0',quote:'どこに一番可能性を感じられますか',context:'価値定義を完全に顧客基準に委ねている。発言を次の話題に自然に活用している。',memo:'言わせる設計は模範レベル'}
+    ],
+    comment:{summary:'言わせる設計力が突出。顧客が自分の言葉で価値を語る展開を一貫して作れている。',
+      positive:'顧客主導の対話設計／業界事例の活用',
+      negative:'Yes-But対応で受容時間が短く、反論的に聞こえる瞬間あり'}
+  },
+  {
+    id:'tanaka', name:'田中 悠里（タナカ ユリ）', deal:'ゲーム会社様_インフィード提案', date:'2026/04/16 13:30',
+    score:'3.8', grade:'B+', gradeClass:'grade-b-plus', rec:'優秀', recClass:'rec-yes', ratio:'38.9%',
+    scores:[4,4,3,4,3,4],
+    criteria1:[
+      {name:'ヒアリング設計力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'直近タイトルのCPI推移で特に課題を感じているフェーズはどこですか',context:'課題テーマを具体的に引き出せている。',memo:'深掘りがもう一段ほしい'},
+      {name:'価値想起提案力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'このクリエイティブ自動生成が入ると、制作リードタイムはどう変わりそうですか',context:'利用後のイメージを顧客に想像させる。',memo:'顧客の言葉で語らせる余白を持てるとさらに良い'}
+    ],
+    criteria2:[
+      {name:'否定意見への建設的対応力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'確かに、ただですね...',context:'否定を遮らずは聞けているが「ただ」の即転換が多い。',memo:'受容フレーズをもう少し丁寧に'},
+      {name:'第三者話法による納得形成力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'同ジャンルのB社様で、インストール単価を18%改善した実績があります',context:'ジャンル近接事例を引用。',memo:'顧客判断を尊重する姿勢が良い'},
+      {name:'Yesを積み上げる合意形成力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'よろしいですね、次に進みます',context:'同意確認が形式的で、温度感の確認が弱い。',memo:'「違和感はないですか」と聞く習慣を'},
+      {name:'相手発話を引き出す設計力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'どの部分が最もチームに刺さりそうですか',context:'意見を求める問い返しができている。',memo:'良好'}
+    ],
+    comment:{summary:'ヒアリング〜提案のバランスは良い。Yes積み上げの温度感確認とYes-But時の受容を強化することでさらなる成長が見込める。',
+      positive:'問い返し設計／事例活用',
+      negative:'Yesが形式的／Yes-But時の即転換傾向'}
+  },
+  {
+    id:'ishida', name:'石田 涼介（イシダ リョウスケ）', deal:'金融機関様_ブランドリフト', date:'2026/04/15 10:00',
+    score:'3.6', grade:'B+', gradeClass:'grade-b-plus', rec:'要観察', recClass:'rec-hold', ratio:'42.3%',
+    scores:[4,3,3,4,3,3],
+    criteria1:[
+      {name:'ヒアリング設計力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'規制面の制約が業務にどう影響しているかもう少し教えてください',context:'業界規制の文脈で質問設計。',memo:'良好'},
+      {name:'価値想起提案力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'当社のプランでしたら効果が期待できます',context:'機能説明寄りで価値想起が弱い。',memo:'利用シーンを描写する練習を'}
+    ],
+    criteria2:[
+      {name:'否定意見への建設的対応力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'ご懸念はわかります、ただ当社では...',context:'受容短く即反論。',memo:'視点転換の意図を明示するフレーズを持つ'},
+      {name:'第三者話法による納得形成力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'金融業界のC社様で、認知想起率が1.3倍になった事例があります',context:'業界事例を活用。',memo:'良好'},
+      {name:'Yesを積み上げる合意形成力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'よろしければ進めます',context:'Yesを取りにいく姿勢が弱い。',memo:'確認問いの頻度を上げる'},
+      {name:'相手発話を引き出す設計力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'いかがでしょうか',context:'問いが広すぎ反応を引き出せていない。',memo:'具体の論点に絞った問いに'}
+    ],
+    comment:{summary:'ヒアリングは良いが、提案後の合意形成と問い返しの設計が弱い。',
+      positive:'規制文脈のヒアリング',
+      negative:'提案が機能説明寄り／Yes積み上げ不足'}
+  },
+  {
+    id:'okabe', name:'岡部 美咲（オカベ ミサキ）', deal:'美容ブランド様_インフルエンサー連携', date:'2026/04/15 15:00',
+    score:'3.5', grade:'B+', gradeClass:'grade-b-plus', rec:'要観察', recClass:'rec-hold', ratio:'44.1%',
+    scores:[4,3,3,3,3,4],
+    criteria1:[
+      {name:'ヒアリング設計力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'現状のインフルエンサー施策で「再現性がない」と感じる瞬間はどこですか',context:'具体的課題を引き出している。',memo:'良好'},
+      {name:'価値想起提案力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'当社のマッチング機能はご満足いただけるはずです',context:'一方的説明で双方向性が弱い。',memo:'各ポイントで問いかけを'}
+    ],
+    criteria2:[
+      {name:'否定意見への建設的対応力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'そうですね、しかし...',context:'受容は短く転換が急。',memo:'感情面の共感を言葉で'},
+      {name:'第三者話法による納得形成力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'他社様でも好評です',context:'具体性に乏しい第三者引用。',memo:'数値・業界文脈を添える'},
+      {name:'Yesを積み上げる合意形成力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'進めてよろしいですか',context:'粒度の大きい合意を一度に取ろうとする。',memo:'判断を分割する'},
+      {name:'相手発話を引き出す設計力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'どのクリエイターイメージがチームに響きそうですか',context:'顧客に判断を委ねる問い。',memo:'良好'}
+    ],
+    comment:{summary:'言わせる設計は良いが、第三者話法と Yes の積み上げに改善余地。',
+      positive:'顧客に判断を委ねる問い返し',
+      negative:'事例の具体性不足／合意粒度が大きい'}
+  },
+  {
+    id:'hashimoto', name:'橋本 翔太（ハシモト ショウタ）', deal:'スポーツブランド様_通年提案', date:'2026/04/14 11:00',
+    score:'3.4', grade:'B', gradeClass:'grade-b', rec:'要観察', recClass:'rec-hold', ratio:'45.2%',
+    scores:[3,4,3,3,3,4],
+    criteria1:[
+      {name:'ヒアリング設計力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'現状の施策はいかがですか',context:'質問の抽象度が高く深掘りが不十分。',memo:'仮説提示型の問いへ'},
+      {name:'価値想起提案力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'通年でブランド接点を設計すると、購入前の想起率が段階的に積み上がります',context:'価値をシーン描写で伝えている。',memo:'良好'}
+    ],
+    criteria2:[
+      {name:'否定意見への建設的対応力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'たしかに...ですが',context:'受容短め。',memo:'受容→転換を分けて'},
+      {name:'第三者話法による納得形成力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'他のスポーツブランドさんでも好評でした',context:'誇張寄りで数値根拠が弱い。',memo:'数値と具体状況を添える'},
+      {name:'Yesを積み上げる合意形成力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'ここまででご質問ありますか',context:'理解確認が形式的。',memo:'温度感の確認へ'},
+      {name:'相手発話を引き出す設計力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'どの月が最もブランド接点を強化したいですか',context:'顧客基準で問い返せている。',memo:'良好'}
+    ],
+    comment:{summary:'価値提案と言わせる設計は良好。ヒアリングの仮説設計と Yes-But 時の丁寧さが成長課題。',
+      positive:'シーン描写の提案力',
+      negative:'ヒアリングが抽象的／事例の数値根拠が弱い'}
+  },
+  {
+    id:'watanabe', name:'渡邉 桃子（ワタナベ モモコ）', deal:'化粧品EC様_動画戦略刷新', date:'2026/04/14 16:00',
+    score:'3.3', grade:'B', gradeClass:'grade-b', rec:'要観察', recClass:'rec-hold', ratio:'46.5%',
+    scores:[4,3,3,3,3,3],
+    criteria1:[
+      {name:'ヒアリング設計力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'動画広告のどのフェーズで最も離脱が気になりますか',context:'具体論点で深掘りできている。',memo:'良好'},
+      {name:'価値想起提案力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'機能的にはこれで解決できます',context:'機能説明寄り。',memo:'利用シーンの描写を'}
+    ],
+    criteria2:[
+      {name:'否定意見への建設的対応力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'ご指摘もっともです、ただ...',context:'受容はあるが即転換。',memo:'視点転換の意図を言語化'},
+      {name:'第三者話法による納得形成力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'他社でもよくある課題ですね',context:'抽象的で事例になっていない。',memo:'具体企業名・業界・数値を用意'},
+      {name:'Yesを積み上げる合意形成力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'よろしいでしょうか',context:'確認問いが形式的。',memo:'判断の分割を'},
+      {name:'相手発話を引き出す設計力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'ご意見いかがですか',context:'問いが広く発話を引き出しきれていない。',memo:'具体論点に絞った問いに'}
+    ],
+    comment:{summary:'ヒアリングは良いが、提案以降の4スキル全般に底上げ余地。',
+      positive:'ヒアリングの論点設計',
+      negative:'4スキル全般が「形式的」に留まっている'}
+  },
+  {
+    id:'nakamura', name:'中村 壮介（ナカムラ ソウスケ）', deal:'不動産ポータル様_新媒体提案', date:'2026/04/12 14:00',
+    score:'3.0', grade:'B-', gradeClass:'grade-b-minus', rec:'要改善', recClass:'rec-no', ratio:'49.8%',
+    scores:[3,3,2,3,3,3],
+    criteria1:[
+      {name:'ヒアリング設計力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'課題をお聞かせください',context:'抽象度が高い質問で、具体情報を引き出せていない。',memo:'仮説持参のヒアリングへ'},
+      {name:'価値想起提案力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'弊社の新媒体はリーチが広く機能も豊富です',context:'機能説明に終始し、価値想起が弱い。',memo:'利用後の状態変化を問いで引き出す'}
+    ],
+    criteria2:[
+      {name:'否定意見への建設的対応力',grade:'C',gradeClass:'grade-c',score:'2.0',quote:'いえ、そんなことはなくてですね',context:'否定発言に対して反射的に反論。受容ステップがない。',memo:'まず「そう感じられる背景を伺えますか」の一呼吸を'},
+      {name:'第三者話法による納得形成力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'他社さんでも導入が進んでいます',context:'抽象的で具体性なし。',memo:'事例データベースの活用を'},
+      {name:'Yesを積み上げる合意形成力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'いかがでしょうか',context:'形式的な確認。',memo:'温度感確認の問いを入れる'},
+      {name:'相手発話を引き出す設計力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'どう思いますか',context:'問いが広く発話が広がっていない。',memo:'具体論点に絞る'}
+    ],
+    comment:{summary:'話者比率49.8%と話しすぎ傾向が強い。Yes-But時の反論癖が商談の対話を止めている。',
+      positive:'媒体知識と熱量は高い',
+      negative:'受容ステップがなく反論的／事例の具体性皆無／話者比率過多'}
+  },
+  {
+    id:'yamada', name:'山田 隆志（ヤマダ タカシ）', deal:'人材サービス様_LTV改善提案', date:'2026/04/12 10:30',
+    score:'2.9', grade:'B-', gradeClass:'grade-b-minus', rec:'要改善', recClass:'rec-no', ratio:'52.6%',
+    scores:[3,3,2,3,3,3],
+    criteria1:[
+      {name:'ヒアリング設計力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'現状の採用広告についてはどうですか',context:'抽象的で相手の発話量を確保できていない。',memo:'論点を絞った問いへ'},
+      {name:'価値想起提案力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'弊社では最新のプロダクトを提供しておりまして',context:'一方通行の説明。',memo:'問いかけで反応を拾う'}
+    ],
+    criteria2:[
+      {name:'否定意見への建設的対応力',grade:'C',gradeClass:'grade-c',score:'2.0',quote:'それは誤解で、実はですね',context:'否定を正面から否定する対応。対立構造に。',memo:'受容→視点転換を徹底。Yes-But 専用ロープレ要'},
+      {name:'第三者話法による納得形成力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'他の人材企業さんでも使われています',context:'事例が具体性を欠く。',memo:'数値と業界を添える'},
+      {name:'Yesを積み上げる合意形成力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'進めていいですか',context:'粒度の大きな合意を一度に要求。',memo:'判断を分割する'},
+      {name:'相手発話を引き出す設計力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'いかがですか',context:'問いが広く、発話が広がらない。',memo:'具体論点で聞く'}
+    ],
+    comment:{summary:'話者比率52.6%で話しすぎ。Yes-But時の対立構造が商談を前に進めなくしている。ロープレ・コーチングの最優先対象。',
+      positive:'商談準備の丁寧さ・媒体知識',
+      negative:'Yes-But対応が対立構造／話者比率過多／4スキル全般が未形成'}
+  }
+];
+
+// ============ RENDER TABLE ============
+function renderTable(){
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = members.map(m => {
+    const s = m.scores;
+    const cell = v => `<td class="score">${v.toFixed(1)}</td>`;
+    return `<tr>
+      <td class="member-name"><a onclick="openDetail('${m.id}')">${m.name.split('（')[0]}</a> <span class="link-icon">↗</span></td>
+      <td class="deal-name">${m.deal}</td>
+      <td class="deal-date">${m.date}</td>
+      <td><span class="prompt-tag tag-p1">①</span> <span class="prompt-tag tag-p2">②</span></td>
+      <td><span class="grade ${m.gradeClass}">${m.grade}</span></td>
+      <td class="score">${m.score}</td>
+      ${cell(s[0])}${cell(s[1])}${cell(s[2])}${cell(s[3])}${cell(s[4])}${cell(s[5])}
+      <td class="ratio">${m.ratio}</td>
+      <td><span class="rec-badge ${m.recClass}">${m.rec}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ============ RENDER HEATMAP ============
+function renderHeatmap(){
+  const tbody = document.getElementById('heatBody');
+  const avg = AXES.map((_, i) => (members.reduce((s,m)=>s+m.scores[i],0)/members.length).toFixed(1));
+  const head = `<tr><td class="heatmap-avg"></td>${avg.map(a=>`<td class="heatmap-avg">平均 ${a}</td>`).join('')}</tr>`;
+  const rows = [...members].sort((a,b)=>parseFloat(b.score)-parseFloat(a.score)).map(m => {
+    const cells = m.scores.map(v => {
+      const cls = v>=4.5?'heat-5':v>=3.5?'heat-4':v>=2.5?'heat-3':v>=1.5?'heat-2':'heat-1';
+      return `<td><span class="heatmap-cell ${cls}">${v.toFixed(1)}</span></td>`;
+    }).join('');
+    return `<tr><td class="heatmap-name">${m.name.split('（')[0]}</td>${cells}</tr>`;
+  }).join('');
+  tbody.innerHTML = head + rows;
+}
+
+// ============ RENDER PROMPT DETAIL ============
+const prompt1Axes = [
+  {name:'ヒアリング設計力', goal:'顧客が自ら課題を語り、次工程につながる情報を構造的に引き出せている',
+    criteria:[
+      '課題テーマを横に広げ、深掘りしすぎず論点を複数把握できている',
+      '解決対象課題を深掘りし意思決定情報を整理できている',
+      '予算・時期・決裁など意思決定条件を曖昧にせず確認できている']},
+  {name:'価値想起提案力', goal:'機能説明に終始せず、顧客が使った未来を具体的に想像できている',
+    criteria:[
+      '課題とプロダクトを自然に接続し価値を想起させている',
+      '一方的に話さず顧客の反応を取り込みながら進めている']}
+];
+const prompt2Axes = [
+  {name:'否定意見への建設的対応力', goal:'顧客の否定や懸念を正面から受け止めた上で、視点を変えた提案により対話を前進させる状態を作る',
+    criteria:[
+      '顧客の否定・懸念・批判に対して、感情面を含めて受容する姿勢を明確に示している',
+      '受容後に別視点・代替案を提示し、思考の切り替えを促している',
+      'Yes-Butが信頼低下ではなく対話深化につながっている']},
+  {name:'第三者話法による納得形成力', goal:'自分の主張ではなく第三者視点を用いて、顧客が安心して判断できる状態を作る',
+    criteria:[
+      '第三者・他社・一般論を適切に引用している',
+      '第三者話法が顧客の不安軽減につながっている',
+      '第三者話法後に顧客の反応を確認している']},
+  {name:'Yesを積み上げる合意形成力', goal:'小さな納得や同意を確認しながら商談を進め、顧客自身が前向きに判断できる状態を作る',
+    criteria:[
+      '説明や提案の途中で顧客の理解・納得を意識的に確認している',
+      '小さなYesを積み上げ、心理的ハードルを下げている',
+      'Yesの積み上げが次回商談への前進につながっている']},
+  {name:'相手発話を引き出す設計力', goal:'価値や魅力を営業が語るのではなく、顧客自身の言葉で語らせる対話構造を作る',
+    criteria:[
+      '価値や選択理由を顧客の口から語らせている',
+      '顧客の発話が商談の軸として活用されている',
+      '相手に言わせる設計が納得感と前進を生んでいる']}
+];
+function renderPromptDetail(){
+  const render = (axes, tag) => axes.map((a,i)=>`
+    <div style="background:#f8fafc;border-radius:10px;padding:16px 18px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span class="prompt-card-tag ${tag}">評価軸${i+1}</span>
+        <strong style="font-size:14px;color:#1e293b;">${a.name}</strong>
+      </div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:10px;"><strong>評価目標：</strong>${a.goal}</div>
+      <ul style="list-style:none;padding:0;">
+        ${a.criteria.map((c,j)=>`<li style="font-size:12px;color:#334155;padding:6px 0 6px 18px;border-top:${j?'1px solid #e2e8f0':'none'};position:relative;"><span style="position:absolute;left:0;color:#94a3b8;">基準${j+1}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${c}</li>`).join('')}
+      </ul>
+    </div>`).join('');
+  document.getElementById('prompt1Detail').innerHTML = render(prompt1Axes, 'tag-p1');
+  document.getElementById('prompt2Detail').innerHTML = render(prompt2Axes, 'tag-p2');
+}
+
+// ============ DETAIL PANEL ============
+function openDetail(id){
+  const m = members.find(x => x.id===id);
+  if(!m) return;
+  document.getElementById('detailName').textContent = m.name;
+  document.getElementById('detailDeal').textContent = `${m.deal} ・ ${m.date}`;
+  document.getElementById('detailScore').textContent = m.score;
+  document.getElementById('detailGrade').innerHTML = `<span class="grade ${m.gradeClass} d-grade">${m.grade}</span>`;
+  document.getElementById('detailRec').innerHTML = `<span class="rec-badge ${m.recClass} d-rec">${m.rec}</span>`;
+  document.getElementById('detailRatio').textContent = m.ratio;
+
+  const renderCriteria = (list) => list.map(c => `
+    <div class="criteria-card">
+      <div class="criteria-header"><span class="criteria-name">${c.name}</span>
+        <div class="criteria-right"><span class="grade ${c.gradeClass}">${c.grade}</span><span class="criteria-score">${c.score}</span></div></div>
+      <div class="criteria-block"><div class="criteria-label">引用</div><div class="criteria-quote">${c.quote}</div></div>
+      <div class="criteria-block"><div class="criteria-label">文脈分析</div><div class="criteria-text">${c.context}</div></div>
+      <div class="criteria-block"><div class="criteria-label">改善メモ</div><div class="criteria-text">${c.memo}</div></div>
+    </div>`).join('');
+  document.getElementById('detailCriteria1').innerHTML = renderCriteria(m.criteria1);
+  document.getElementById('detailCriteria2').innerHTML = renderCriteria(m.criteria2);
+
+  document.getElementById('detailComment').innerHTML =
+    `<div class="comment-block"><div class="comment-label">総合所見</div><div class="comment-text">${m.comment.summary}</div></div>
+     <div class="comment-block"><div class="comment-label">ポジティブ要素</div><div class="comment-text comment-positive">${m.comment.positive}</div></div>
+     <div class="comment-block"><div class="comment-label">ネガティブ要素</div><div class="comment-text comment-negative">${m.comment.negative}</div></div>`;
+
+  if(window._radarChart) window._radarChart.destroy();
+  window._radarChart = new Chart(document.getElementById('radarChart').getContext('2d'), {
+    type:'radar',
+    data:{ labels: AXES, datasets:[{ label: m.name.split('（')[0], data: m.scores,
+      backgroundColor:'rgba(37,99,235,0.15)', borderColor:'rgba(37,99,235,0.8)', borderWidth:2,
+      pointBackgroundColor:'rgba(37,99,235,1)', pointBorderColor:'#fff', pointBorderWidth:2, pointRadius:5 }] },
+    options:{ responsive:true, maintainAspectRatio:true,
+      scales:{ r:{ min:0, max:5, ticks:{ stepSize:1, font:{size:11}, backdropColor:'transparent', color:'#94a3b8' },
+        grid:{ color:'#e2e8f0' }, angleLines:{ color:'#e2e8f0' },
+        pointLabels:{ font:{size:12, weight:'600'}, color:'#334155' } } },
+      plugins:{ legend:{ display:false } } }
+  });
+
+  document.getElementById('overlay').classList.add('active');
+  document.getElementById('detailPanel').classList.add('active');
+}
+function closeDetail(){
+  document.getElementById('overlay').classList.remove('active');
+  document.getElementById('detailPanel').classList.remove('active');
+}
+
+// ============ PAGE SWITCH ============
+function showPage(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.sidebar-nav li').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.getElementById('nav-'+p).classList.add('active');
+  if(p==='report') initReportCharts();
+  if(p==='prompt') renderPromptDetail();
+}
+
+// ============ REPORT CHARTS ============
+let reportInit = false;
+function initReportCharts(){
+  if(reportInit) return; reportInit = true;
+
+  // Grade distribution across 6 axes
+  const counts = AXES.map((_, i) => {
+    const c = {S:0,A:0,B:0,Cneg:0};
+    members.forEach(m => {
+      const v = m.scores[i];
+      if(v>=4.5) c.S++; else if(v>=3.5) c.A++; else if(v>=2.5) c.B++; else c.Cneg++;
+    });
+    return c;
+  });
+  new Chart(document.getElementById('gradeDistChart'), {
+    type:'bar',
+    data:{ labels: AXES,
+      datasets:[
+        {label:'S', data: counts.map(c=>c.S), backgroundColor:'#16a34a'},
+        {label:'A', data: counts.map(c=>c.A), backgroundColor:'#2563eb'},
+        {label:'B', data: counts.map(c=>c.B), backgroundColor:'#d97706'},
+        {label:'C', data: counts.map(c=>c.Cneg), backgroundColor:'#dc2626'} ] },
+    options:{ responsive:true, indexAxis:'y',
+      scales:{ x:{ stacked:true, max:10, ticks:{stepSize:2} }, y:{ stacked:true } },
+      plugins:{ legend:{ position:'top', labels:{boxWidth:12, font:{size:11}} } } }
+  });
+
+  new Chart(document.getElementById('recPieChart'), {
+    type:'doughnut',
+    data:{ labels:['優秀','要観察','要改善'], datasets:[{ data:[4,4,2], backgroundColor:['#16a34a','#d97706','#dc2626'], borderWidth:0 }] },
+    options:{ responsive:true, plugins:{ legend:{ display:false } }, cutout:'60%' }
+  });
+
+  const scatterData = members.map(m => ({ x: parseFloat(m.ratio), y: parseFloat(m.score), label: m.name.split('（')[0] }));
+  new Chart(document.getElementById('scatterChart'), {
+    type:'scatter',
+    data:{ datasets:[{
+      data: scatterData.map(d=>({x:d.x, y:d.y})),
+      backgroundColor: scatterData.map(d => d.y>=3.8?'#16a34a':d.y>=3.2?'#d97706':'#dc2626'),
+      pointRadius:8, pointHoverRadius:10 }] },
+    options:{ responsive:true,
+      scales:{
+        x:{ title:{display:true, text:'話者比率 (%)'}, min:25, max:60 },
+        y:{ title:{display:true, text:'総合スコア'}, min:2, max:5 } },
+      plugins:{ legend:{display:false},
+        tooltip:{ callbacks:{ label:ctx => `${scatterData[ctx.dataIndex].label} (${ctx.parsed.x}%, ${ctx.parsed.y})` } } } }
+  });
+
+  new Chart(document.getElementById('trendChart'), {
+    type:'line',
+    data:{ labels:['2026-01','2026-02','2026-03','2026-04'],
+      datasets:[
+        {label:'ヒアリング設計', data:[3.3,3.5,3.7,3.7], borderColor:'#2563eb', tension:0.3, fill:false},
+        {label:'価値想起提案', data:[3.0,3.1,3.3,3.4], borderColor:'#16a34a', tension:0.3, fill:false},
+        {label:'Yes-But対応', data:[2.6,2.7,2.9,3.0], borderColor:'#dc2626', tension:0.3, fill:false},
+        {label:'第三者話法', data:[3.1,3.2,3.4,3.5], borderColor:'#d97706', tension:0.3, fill:false},
+        {label:'Yes積み上げ', data:[2.9,3.1,3.3,3.4], borderColor:'#0284c7', tension:0.3, fill:false},
+        {label:'言わせる設計', data:[2.8,3.0,3.2,3.3], borderColor:'#7c3aed', tension:0.3, fill:false} ] },
+    options:{ responsive:true, scales:{ y:{min:2, max:5, ticks:{stepSize:0.5}} },
+      plugins:{ legend:{position:'top', labels:{boxWidth:10, font:{size:10}} } } }
+  });
+}
+
+// ============ INIT ============
+renderTable();
+renderHeatmap();
+</script>
+
+</body>
+</html>
