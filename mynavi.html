@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<title>ailead 育成ダッシュボード - マイナビ ゼネラルチーム</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif; background: #f5f6fa; color: #333; display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar { width: 220px; background: #fff; border-right: 1px solid #e8e8e8; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 0; position: fixed; height: 100vh; z-index: 10; }
+  .sidebar-logo { padding: 0 20px; margin-bottom: 28px; display: flex; align-items: center; gap: 10px; }
+  .sidebar-logo .logo-text { font-size: 18px; font-weight: 700; color: #2563eb; }
+  .sidebar-logo .logo-sub { font-size: 11px; color: #94a3b8; display: block; margin-top: 2px; }
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav li { padding: 10px 20px; font-size: 14px; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+  .sidebar-nav li.active { color: #2563eb; background: #eff6ff; border-right: 3px solid #2563eb; font-weight: 600; }
+  .sidebar-nav li:hover { background: #f8fafc; }
+  .sidebar-nav li svg { width: 18px; height: 18px; }
+  .sidebar-bottom { padding: 0 20px; }
+  .sidebar-client { display: flex; align-items: center; gap: 8px; padding: 12px 0; border-top: 1px solid #e8e8e8; }
+  .sidebar-client-icon { width: 32px; height: 32px; background: #ef4444; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+  .sidebar-client-name { font-size: 12px; color: #334155; font-weight: 600; line-height: 1.3; }
+  .sidebar-client-sub { font-size: 10px; color: #94a3b8; }
+  .sidebar-account { display: flex; align-items: center; gap: 8px; padding-top: 12px; font-size: 13px; color: #64748b; cursor: pointer; }
+
+  /* Main */
+  .main { margin-left: 220px; flex: 1; padding: 32px 40px; }
+  .page-title { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+  .page-title .pill { background: #fee2e2; color: #ef4444; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 10px; }
+  .page-desc { font-size: 12px; color: #94a3b8; margin-bottom: 20px; }
+
+  /* Role tab */
+  .role-tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 2px solid #e2e8f0; }
+  .role-tab { padding: 12px 24px; cursor: pointer; font-size: 14px; font-weight: 600; color: #94a3b8; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .2s; }
+  .role-tab.active { color: #2563eb; border-bottom-color: #2563eb; }
+  .role-tab:hover { color: #2563eb; }
+  .role-count { display: inline-block; background: #f1f5f9; color: #64748b; font-size: 10px; padding: 2px 8px; border-radius: 10px; margin-left: 6px; font-weight: 500; }
+  .role-tab.active .role-count { background: #dbeafe; color: #2563eb; }
+
+  /* Cards */
+  .summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .card { background: #fff; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .card-label { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+  .card-value { font-size: 32px; font-weight: 700; color: #1e293b; }
+  .card-value .unit { font-size: 14px; font-weight: 400; color: #94a3b8; margin-left: 2px; }
+  .card-value .sub { font-size: 14px; font-weight: 400; color: #94a3b8; }
+  .card-trend { font-size: 11px; color: #0ac274; margin-top: 4px; }
+  .card-trend.warn { color: #ef4444; }
+
+  /* Toolbar */
+  .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-box { flex: 1; max-width: 260px; padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; outline: none; background: #fff; }
+  .search-box:focus { border-color: #2563eb; }
+  .btn-outline { padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #fff; color: #64748b; cursor: pointer; }
+  .btn-outline:hover { background: #f8fafc; }
+  .filter-chip { padding: 4px 12px; border-radius: 14px; font-size: 11px; border: 1px solid #e2e8f0; color: #64748b; background: #fff; cursor: pointer; user-select: none; }
+  .filter-chip.active { background: #eff6ff; border-color: #2563eb; color: #2563eb; font-weight: 600; }
+  .filter-chip:hover { border-color: #cbd5e1; }
+
+  /* Table */
+  .table-wrap { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { text-align: left; padding: 12px 14px; color: #94a3b8; font-weight: 500; font-size: 11px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; cursor: pointer; user-select: none; }
+  thead th:hover { color: #2563eb; }
+  thead th.sorted { color: #2563eb; }
+  thead th .sort-icon { display: inline-block; margin-left: 4px; font-size: 10px; }
+  tbody td { padding: 12px 14px; border-bottom: 1px solid #f8fafc; white-space: nowrap; font-size: 12px; }
+  tbody tr:hover { background: #fafbfd; }
+  tbody tr.control { opacity: 0.55; background: #fafafa; }
+  tbody tr.control:hover { opacity: 0.85; }
+  .member-name { color: #2563eb; font-weight: 500; }
+  .member-name a { color: inherit; text-decoration: none; cursor: pointer; }
+  .member-name a:hover { text-decoration: underline; }
+  .link-icon { font-size: 10px; color: #94a3b8; margin-left: 4px; }
+  .group-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 9px; font-weight: 700; margin-left: 6px; }
+  .group-treatment { background: #dbeafe; color: #2563eb; }
+  .group-control { background: #f1f5f9; color: #64748b; }
+
+  /* Grade */
+  .grade { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 24px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+  .grade-l4 { background: #dcfce7; color: #16a34a; }
+  .grade-l3 { background: #dbeafe; color: #2563eb; }
+  .grade-l2 { background: #fef3c7; color: #d97706; }
+  .grade-l1 { background: #fee2e2; color: #dc2626; }
+
+  .rec-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .rec-yes { background: #dcfce7; color: #16a34a; }
+  .rec-hold { background: #fef3c7; color: #d97706; }
+  .rec-no { background: #fee2e2; color: #dc2626; }
+
+  .score { font-weight: 600; }
+  .deal-name { color: #475569; font-size: 12px; }
+  .deal-date { color: #94a3b8; font-size: 11px; }
+
+  .prompt-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+  .tag-ca { background: #fee2e2; color: #ef4444; }
+  .tag-ra { background: #dbeafe; color: #2563eb; }
+
+  /* Pages */
+  .page { display: none; }
+  .page.active { display: block; }
+  .role-page { display: none; }
+  .role-page.active { display: block; }
+  .report-section { background: #fff; border-radius: 12px; padding: 24px 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 20px; }
+  .report-section-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 16px; }
+  .report-summary-text { font-size: 13px; color: #475569; line-height: 1.8; }
+  .report-summary-text li { margin-bottom: 6px; }
+  .report-kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 12px; }
+  .report-kpi-card { background: #f8fafc; border-radius: 10px; padding: 18px; text-align: center; }
+  .report-kpi-label { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
+  .report-kpi-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+  .report-kpi-value .kpi-unit { font-size: 13px; font-weight: 400; color: #94a3b8; }
+  .ai-insight { background: #eff6ff; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
+  .ai-insight-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #2563eb; color: #fff; border-radius: 50%; font-size: 11px; font-weight: 700; margin-right: 8px; }
+  .ai-insight-text { font-size: 13px; color: #334155; line-height: 1.7; display: inline; }
+  .ai-badge { display: inline-block; background: #dbeafe; color: #2563eb; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-bottom: 12px; }
+  .ai-timestamp { font-size: 11px; color: #94a3b8; margin-bottom: 16px; }
+  .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .chart-container { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .chart-title { font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+  .chart-title-sub { font-size: 11px; color: #94a3b8; font-weight: 400; }
+  .heatmap-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .heatmap-table th { padding: 8px 10px; text-align: left; color: #94a3b8; font-weight: 500; border-bottom: 1px solid #f1f5f9; font-size: 11px; }
+  .heatmap-table td { padding: 8px 10px; border-bottom: 1px solid #f8fafc; }
+  .heatmap-cell { display: inline-block; width: 38px; height: 24px; border-radius: 4px; text-align: center; line-height: 24px; font-weight: 600; font-size: 11px; cursor: help; }
+  .heat-5 { background: #dcfce7; color: #16a34a; }
+  .heat-4 { background: #dbeafe; color: #2563eb; }
+  .heat-3 { background: #fef3c7; color: #d97706; }
+  .heat-2 { background: #fed7aa; color: #ea580c; }
+  .heat-1 { background: #fee2e2; color: #dc2626; }
+  .heatmap-name { color: #334155; font-weight: 500; font-size: 12px; }
+  .heatmap-avg { font-size: 11px; color: #94a3b8; font-weight: 500; }
+
+  /* Skill map 3-way */
+  .skillmap-3way { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .skillmap-3way th { padding: 10px 12px; text-align: center; color: #94a3b8; font-weight: 600; border-bottom: 2px solid #e2e8f0; font-size: 11px; background: #f8fafc; }
+  .skillmap-3way th.col-cat { text-align: left; }
+  .skillmap-3way td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+  .skillmap-3way td.cat { font-weight: 500; color: #334155; }
+  .skillmap-3way td.subcat { color: #64748b; font-size: 12px; }
+  .skillmap-3way td.center { text-align: center; }
+  .skillmap-3way tr.gap { background: #fef3c7; }
+  .skillmap-3way tr.gap td { border-bottom: 1px solid #fde68a; }
+  .sm-mark { display: inline-block; width: 26px; height: 26px; border-radius: 6px; text-align: center; line-height: 26px; font-weight: 700; font-size: 14px; }
+  .sm-double { background: #dcfce7; color: #16a34a; }
+  .sm-circle { background: #dbeafe; color: #2563eb; }
+  .sm-tri { background: #fed7aa; color: #ea580c; }
+  .sm-cross { background: #fee2e2; color: #dc2626; }
+  .gap-flag { display: inline-block; padding: 2px 8px; background: #f59e0b; color: #fff; font-size: 10px; font-weight: 700; border-radius: 4px; margin-left: 6px; }
+
+  /* Prompt */
+  .prompt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .prompt-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 22px; }
+  .prompt-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .prompt-card-tag { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
+  .prompt-card-title { font-size: 15px; font-weight: 700; color: #1e293b; }
+  .prompt-axis-list { list-style: none; }
+  .prompt-axis-list li { font-size: 12px; color: #334155; padding: 5px 0; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; }
+  .prompt-axis-list li:first-child { border-top: none; }
+  .axis-score { font-weight: 700; color: #2563eb; }
+
+  /* Coaching */
+  .coaching-controls { background: #fff; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 20px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .coaching-select-label { font-size: 12px; color: #64748b; font-weight: 600; }
+  .coaching-select { padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #fff; color: #1e293b; min-width: 220px; cursor: pointer; }
+
+  .coaching-card { background: #fff; border: 2px solid #2563eb; border-radius: 16px; padding: 28px 32px; box-shadow: 0 4px 12px rgba(37,99,235,0.08); margin-bottom: 20px; position: relative; overflow: hidden; }
+  .coaching-card.regen .ai-process-bar { animation: aiProcess 1.2s ease-in-out; }
+  .ai-process-bar { position: absolute; top: 0; left: 0; height: 3px; width: 0; background: linear-gradient(90deg, #2563eb, #7c3aed); transition: none; }
+  @keyframes aiProcess { 0% { width: 0; } 60% { width: 80%; } 100% { width: 100%; opacity: 0; } }
+  .coaching-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #f1f5f9; }
+  .coaching-card-title { font-size: 18px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 10px; }
+  .ai-mark { background: linear-gradient(135deg, #2563eb, #7c3aed); color: #fff; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; }
+  .ai-mark::before { content: '⚡'; }
+  .coaching-card-meta { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+  .coaching-card-section { margin-bottom: 20px; }
+  .coaching-card-section:last-child { margin-bottom: 0; }
+  .coaching-card-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .coaching-card-label .icon { font-size: 16px; }
+  .coaching-point { background: #fee2e2; border-left: 4px solid #ef4444; padding: 14px 18px; border-radius: 6px; font-size: 14px; color: #1e293b; line-height: 1.6; }
+  .coaching-script { background: #f8fafc; border-left: 4px solid #2563eb; padding: 16px 20px; border-radius: 6px; font-size: 14px; color: #334155; line-height: 1.8; white-space: pre-wrap; }
+  .coaching-quote { background: #eff6ff; padding: 12px 16px; border-radius: 6px; font-size: 13px; color: #2563eb; font-style: italic; line-height: 1.6; margin-top: 8px; }
+  .coaching-question { background: #f0fdf4; border-left: 4px solid #16a34a; padding: 14px 18px; border-radius: 6px; font-size: 14px; color: #1e293b; line-height: 1.6; }
+  .coaching-skillmap { background: #faf5ff; border-left: 4px solid #7c3aed; padding: 14px 18px; border-radius: 6px; font-size: 13px; color: #1e293b; line-height: 1.6; }
+
+  /* Coaching Status Bar */
+  .coaching-status-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #f1f5f9; }
+  .coaching-status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .badge-priority-high { background: #fee2e2; color: #dc2626; }
+  .badge-priority-mid { background: #fef3c7; color: #d97706; }
+  .badge-priority-low { background: #f0fdf4; color: #16a34a; }
+  .badge-trend-down { background: #fee2e2; color: #dc2626; }
+  .badge-trend-flat { background: #f1f5f9; color: #64748b; }
+  .badge-trend-up { background: #dcfce7; color: #16a34a; }
+  .badge-stage { background: #eff6ff; color: #2563eb; }
+  .badge-streak { background: #fef3c7; color: #d97706; }
+
+  /* Metrics row */
+  .coaching-metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .coaching-metric-card { background: #f8fafc; border-radius: 10px; padding: 14px; text-align: center; }
+  .coaching-metric-label { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
+  .coaching-metric-value { font-size: 22px; font-weight: 700; color: #1e293b; }
+  .coaching-metric-value .delta-down { font-size: 13px; color: #dc2626; margin-left: 4px; }
+  .coaching-metric-value .delta-up { font-size: 13px; color: #16a34a; margin-left: 4px; }
+  .coaching-metric-sub { font-size: 10px; color: #94a3b8; margin-top: 4px; }
+
+  /* TOP3 improvement */
+  .coaching-top3 { background: #f8fafc; border-radius: 10px; padding: 16px 18px; }
+  .coaching-top3-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid #e2e8f0; }
+  .coaching-top3-item:first-child { border-top: none; }
+  .coaching-top3-rank { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: #2563eb; color: #fff; border-radius: 50%; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .coaching-top3-rank.r2 { background: #64748b; }
+  .coaching-top3-rank.r3 { background: #94a3b8; }
+  .coaching-top3-name { font-size: 13px; font-weight: 600; color: #1e293b; min-width: 110px; }
+  .coaching-top3-bar-wrap { flex: 1; }
+  .coaching-top3-bar-line { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .coaching-top3-bar-label { font-size: 11px; color: #64748b; min-width: 60px; }
+  .coaching-top3-bar { flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; position: relative; }
+  .coaching-top3-bar-fill { height: 100%; border-radius: 4px; }
+  .bar-self { background: linear-gradient(90deg, #ef4444, #f59e0b); }
+  .bar-hp { background: linear-gradient(90deg, #10b981, #059669); }
+  .coaching-top3-bar-val { font-size: 11px; font-weight: 600; color: #1e293b; min-width: 32px; text-align: right; }
+
+  /* Comparison panel */
+  .coaching-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+  .coaching-compare-col { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; }
+  .coaching-compare-col.self { border-left: 3px solid #ef4444; }
+  .coaching-compare-col.hp { border-left: 3px solid #16a34a; }
+  .coaching-compare-head { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .coaching-compare-col.self .coaching-compare-head { color: #ef4444; }
+  .coaching-compare-col.hp .coaching-compare-head { color: #16a34a; }
+  .coaching-compare-text { font-size: 13px; color: #334155; line-height: 1.7; font-style: italic; }
+
+  /* Action checklist */
+  .coaching-actions { background: #f0fdf4; border-radius: 8px; padding: 14px 18px; }
+  .coaching-action-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-top: 1px solid #d1fae5; font-size: 13px; color: #1e293b; line-height: 1.6; }
+  .coaching-action-item:first-child { border-top: none; }
+  .coaching-action-check { width: 18px; height: 18px; border: 2px solid #16a34a; border-radius: 4px; flex-shrink: 0; margin-top: 1px; cursor: pointer; }
+
+  /* Memo */
+  .coaching-memo-textarea { width: 100%; min-height: 80px; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #334155; font-family: inherit; outline: none; resize: vertical; }
+  .coaching-memo-textarea:focus { border-color: #2563eb; }
+  .coaching-memo-actions { display: flex; gap: 8px; margin-top: 8px; }
+
+  /* History */
+  .coaching-history { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 18px; }
+  .coaching-history-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid #f1f5f9; font-size: 12px; }
+  .coaching-history-item:first-child { border-top: none; }
+  .coaching-history-date { color: #94a3b8; min-width: 90px; }
+  .coaching-history-topic { flex: 1; color: #334155; font-weight: 500; }
+  .coaching-history-result { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+  .result-improved { background: #dcfce7; color: #16a34a; }
+  .result-stagnant { background: #fef3c7; color: #d97706; }
+  .result-declined { background: #fee2e2; color: #dc2626; }
+
+  /* AI Loading state */
+  .ai-loading-card { background: #fff; border: 2px solid #2563eb; border-radius: 16px; padding: 60px 40px; text-align: center; box-shadow: 0 4px 12px rgba(37,99,235,0.08); margin-bottom: 20px; }
+  .ai-loading-spinner { width: 56px; height: 56px; border: 4px solid #e2e8f0; border-top-color: #2563eb; border-right-color: #7c3aed; border-radius: 50%; animation: spin 0.9s linear infinite; margin: 0 auto 24px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ai-loading-title { font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+  .ai-loading-title::before { content: '⚡ '; }
+  .ai-loading-sub { font-size: 12px; color: #94a3b8; margin-bottom: 24px; }
+  .ai-loading-steps { max-width: 380px; margin: 0 auto; text-align: left; }
+  .ai-loading-step { padding: 10px 16px; border-radius: 8px; font-size: 13px; color: #94a3b8; margin-bottom: 6px; background: #f8fafc; transition: all .3s; display: flex; align-items: center; gap: 10px; }
+  .ai-loading-step::before { content: '○'; color: #cbd5e1; font-size: 16px; }
+  .ai-loading-step.active { background: #eff6ff; color: #2563eb; font-weight: 600; }
+  .ai-loading-step.active::before { content: '◐'; color: #2563eb; animation: pulse 0.8s ease-in-out infinite; }
+  .ai-loading-step.done { background: #f0fdf4; color: #16a34a; }
+  .ai-loading-step.done::before { content: '✓'; color: #16a34a; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* Stronger regen visualization */
+  .coaching-card.regen .ai-process-bar { animation: aiProcess 2s ease-in-out; height: 4px; }
+  @keyframes aiProcess { 0% { width: 0; opacity: 1; } 70% { width: 100%; opacity: 1; } 100% { width: 100%; opacity: 0; } }
+  .coaching-card.regen { animation: cardFadeIn 0.6s ease-out; }
+  @keyframes cardFadeIn { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }
+
+  .skillmap-section { background: #fff; border-radius: 12px; padding: 24px 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 20px; }
+  .skillmap-section-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+  .skillmap-section-desc { font-size: 12px; color: #94a3b8; margin-bottom: 16px; line-height: 1.6; }
+
+  /* Detail Panel */
+  .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 100; }
+  .overlay.active { display: block; }
+  .detail-panel { display: none; position: fixed; top: 0; right: 0; width: 600px; height: 100vh; background: #fff; z-index: 200; box-shadow: -4px 0 24px rgba(0,0,0,0.1); overflow-y: auto; }
+  .detail-panel.active { display: block; }
+  .detail-header { padding: 24px 28px 16px; border-bottom: 1px solid #f1f5f9; }
+  .detail-header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .detail-member-name { font-size: 18px; font-weight: 700; color: #1e293b; }
+  .detail-deal-name { font-size: 12px; color: #64748b; margin-top: 4px; }
+  .detail-header-actions { display: flex; gap: 8px; }
+  .detail-btn { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid #e2e8f0; background: #fff; color: #2563eb; }
+  .detail-btn:hover { background: #eff6ff; }
+  .detail-btn-primary { background: #2563eb; color: #fff; border-color: #2563eb; }
+  .detail-btn-primary:hover { background: #1e40af; }
+  .detail-btn-close { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid #e2e8f0; background: #fff; color: #64748b; }
+  .detail-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 20px 28px; border-bottom: 1px solid #f1f5f9; }
+  .detail-card { text-align: center; }
+  .detail-card-label { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
+  .detail-card-value { font-size: 24px; font-weight: 700; color: #1e293b; }
+  .detail-card-value .d-grade { font-size: 20px; }
+  .detail-card-value .d-rec { font-size: 13px; }
+  .radar-section { padding: 20px 28px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: center; }
+  .radar-wrap { width: 360px; height: 360px; }
+  .detail-section { padding: 20px 28px; border-bottom: 1px solid #f1f5f9; }
+  .detail-section-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 16px; }
+  .criteria-card { background: #f8fafc; border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
+  .criteria-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .criteria-name { font-size: 13px; font-weight: 600; color: #334155; }
+  .criteria-score { font-size: 14px; font-weight: 700; color: #1e293b; }
+  .criteria-block { margin-bottom: 10px; }
+  .criteria-block:last-child { margin-bottom: 0; }
+  .criteria-label { font-size: 11px; font-weight: 600; color: #94a3b8; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .criteria-text { font-size: 13px; color: #475569; line-height: 1.6; }
+  .criteria-quote { font-size: 13px; color: #64748b; line-height: 1.6; font-style: italic; background: #fff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #e2e8f0; }
+  .comment-block { margin-bottom: 14px; }
+  .comment-label { font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 6px; }
+  .comment-text { font-size: 13px; color: #334155; line-height: 1.7; }
+  .comment-positive { border-left: 3px solid #16a34a; padding-left: 12px; }
+  .comment-negative { border-left: 3px solid #dc2626; padding-left: 12px; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div>
+    <div class="sidebar-logo">
+      <div>
+        <span class="logo-text">ailead</span>
+        <span class="logo-sub">育成ダッシュボード</span>
+      </div>
+    </div>
+    <ul class="sidebar-nav">
+      <li class="active" id="nav-list" onclick="showPage('list')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"/></svg>
+        商談一覧
+      </li>
+      <li id="nav-report" onclick="showPage('report')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm8-3a1 1 0 00-1 1v3a1 1 0 00.293.707l2 2a1 1 0 001.414-1.414L11 10.586V8a1 1 0 00-1-1z"/></svg>
+        レポート
+      </li>
+      <li id="nav-coaching" onclick="showPage('coaching')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        1on1指導カード
+      </li>
+      <li id="nav-skillmap" onclick="showPage('skillmap')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
+        スキルマップ
+      </li>
+      <li id="nav-prompt" onclick="showPage('prompt')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm3 5a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm0 4a1 1 0 011-1h7a1 1 0 110 2H8a1 1 0 01-1-1z"/></svg>
+        評価軸（プロンプト）
+      </li>
+    </ul>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="sidebar-client">
+      <div class="sidebar-client-icon">M</div>
+      <div>
+        <div class="sidebar-client-name">株式会社マイナビ</div>
+        <div class="sidebar-client-sub">ゼネラルチーム</div>
+      </div>
+    </div>
+    <div class="sidebar-account">
+      <svg viewBox="0 0 20 20" fill="currentColor" style="width:18px;height:18px;"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+      アカウント
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- LIST -->
+<div class="page active" id="page-list">
+  <div class="page-title">商談一覧 <span class="pill">育成枠 ゼネラルチーム</span></div>
+  <div class="page-desc">aileadに蓄積された対話データ × 植村様作成スキルマップで自動評価された商談ログ ／ <strong>介入群10名 + 対照群10名</strong></div>
+
+  <div class="role-tabs">
+    <div class="role-tab active" data-role="ca" onclick="switchRole('list','ca')">CA商談 <span class="role-count" id="ca-count">10名</span></div>
+    <div class="role-tab" data-role="ra" onclick="switchRole('list','ra')">RA商談 <span class="role-count" id="ra-count">10名</span></div>
+  </div>
+
+  <!-- CA -->
+  <div class="role-page active" id="list-ca">
+    <div class="summary-cards">
+      <div class="card">
+        <div class="card-label">CA商談数（直近90日）</div>
+        <div class="card-value">87<span class="unit">件</span></div>
+        <div class="card-trend">▲ 前期比 +12件</div>
+      </div>
+      <div class="card">
+        <div class="card-label">介入群 整理フェーズ実施率</div>
+        <div class="card-value">82<span class="unit">%</span></div>
+        <div class="card-trend warn">HP平均 87.7% との差 -5.7pt</div>
+      </div>
+      <div class="card">
+        <div class="card-label">次回合意率</div>
+        <div class="card-value">49<span class="unit">%</span></div>
+        <div class="card-trend">整理フェーズあり=56% / なし=16%</div>
+      </div>
+      <div class="card">
+        <div class="card-label">スキルマップL2以上</div>
+        <div class="card-value">3<span class="sub"> /5名</span></div>
+        <div class="card-trend">介入群5名のうち</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" class="search-box" id="ca-search" placeholder="メンバー名／商談名で検索" oninput="applyTableFilter('ca')">
+      <span class="filter-chip active" data-filter="all" onclick="setFilter('ca','all')">全て</span>
+      <span class="filter-chip" data-filter="treatment" onclick="setFilter('ca','treatment')">介入群</span>
+      <span class="filter-chip" data-filter="control" onclick="setFilter('ca','control')">対照群</span>
+      <span class="filter-chip" data-filter="hold" onclick="setFilter('ca','hold')">要観察</span>
+      <button class="btn-outline" style="margin-left:auto;" onclick="exportCSV('ca')">📥 CSVエクスポート</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th data-sort="name" onclick="sortTable('ca','name')">メンバー <span class="sort-icon">↕</span></th>
+            <th data-sort="deal" onclick="sortTable('ca','deal')">商談名</th>
+            <th data-sort="date" onclick="sortTable('ca','date')">商談日時 <span class="sort-icon">↕</span></th>
+            <th>SM</th>
+            <th data-sort="score" onclick="sortTable('ca','score')">総合 <span class="sort-icon">↕</span></th>
+            <th data-sort="s0" onclick="sortTable('ca','s0')">整理フェーズ</th>
+            <th data-sort="s1" onclick="sortTable('ca','s1')">深掘り</th>
+            <th data-sort="s2" onclick="sortTable('ca','s2')">共感3語</th>
+            <th data-sort="s3" onclick="sortTable('ca','s3')">提案</th>
+            <th data-sort="s4" onclick="sortTable('ca','s4')">優先度整理</th>
+            <th data-sort="s5" onclick="sortTable('ca','s5')">次回具体性</th>
+            <th>次回合意</th>
+          </tr>
+        </thead>
+        <tbody id="caTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- RA -->
+  <div class="role-page" id="list-ra">
+    <div class="summary-cards">
+      <div class="card">
+        <div class="card-label">RA商談数（直近90日）</div>
+        <div class="card-value">112<span class="unit">件</span></div>
+        <div class="card-trend">▲ 前期比 +18件</div>
+      </div>
+      <div class="card">
+        <div class="card-label">介入群 サービス説明時間比率</div>
+        <div class="card-value">45<span class="unit">%</span></div>
+        <div class="card-trend warn">HP平均 22% との差 +23pt（過多）</div>
+      </div>
+      <div class="card">
+        <div class="card-label">HP10パターン到達</div>
+        <div class="card-value">3.2<span class="sub"> /10</span></div>
+        <div class="card-trend">介入群平均（HP平均7.5）</div>
+      </div>
+      <div class="card">
+        <div class="card-label">スキルマップL2以上</div>
+        <div class="card-value">2<span class="sub"> /5名</span></div>
+        <div class="card-trend">介入群5名のうち</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" class="search-box" id="ra-search" placeholder="メンバー名／商談名で検索" oninput="applyTableFilter('ra')">
+      <span class="filter-chip active" data-filter="all" onclick="setFilter('ra','all')">全て</span>
+      <span class="filter-chip" data-filter="treatment" onclick="setFilter('ra','treatment')">介入群</span>
+      <span class="filter-chip" data-filter="control" onclick="setFilter('ra','control')">対照群</span>
+      <span class="filter-chip" data-filter="hold" onclick="setFilter('ra','hold')">要観察</span>
+      <button class="btn-outline" style="margin-left:auto;" onclick="exportCSV('ra')">📥 CSVエクスポート</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th data-sort="name" onclick="sortTable('ra','name')">メンバー</th>
+            <th data-sort="deal" onclick="sortTable('ra','deal')">商談名</th>
+            <th data-sort="date" onclick="sortTable('ra','date')">商談日時</th>
+            <th>SM</th>
+            <th data-sort="score" onclick="sortTable('ra','score')">総合 <span class="sort-icon">↕</span></th>
+            <th data-sort="s0" onclick="sortTable('ra','s0')">喚起トーク3型</th>
+            <th data-sort="s1" onclick="sortTable('ra','s1')">スクリーニング</th>
+            <th data-sort="s2" onclick="sortTable('ra','s2')">ターゲット拡大</th>
+            <th data-sort="s3" onclick="sortTable('ra','s3')">求人票踏込</th>
+            <th data-sort="s4" onclick="sortTable('ra','s4')">お見送り転換</th>
+            <th data-sort="s5" onclick="sortTable('ra','s5')">選考改善</th>
+            <th>次回合意</th>
+          </tr>
+        </thead>
+        <tbody id="raTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT -->
+<div class="page" id="page-report">
+  <div class="page-title">レポート <span class="pill">育成枠 ゼネラルチーム</span></div>
+  <div class="page-desc">直近90日・育成枠CA/RA介入群10名 + 対照群10名 集計</div>
+
+  <div class="role-tabs">
+    <div class="role-tab active" data-role="ca" onclick="switchRole('report','ca')">CA</div>
+    <div class="role-tab" data-role="ra" onclick="switchRole('report','ra')">RA</div>
+  </div>
+
+  <!-- CA REPORT -->
+  <div class="role-page active" id="report-ca">
+    <div class="report-section">
+      <div class="report-section-title">サマリー</div>
+      <ul class="report-summary-text">
+        <li>CA介入群5名のうち<strong>3名がスキルマップL2以上</strong>に到達 — 前期2名から改善</li>
+        <li>整理フェーズ実施率: 介入群<strong>82%</strong> vs 対照群<strong>78%</strong>（HP平均 87.7%）</li>
+        <li><strong>深掘り回数が最大の改善余地</strong>（介入群2.6回 / HP平均4.1回 / +58% 余地）</li>
+        <li><strong>整理フェーズの有無で次回合意率3.5倍差</strong>（あり 56.2% vs なし 16.2%）</li>
+      </ul>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">AI分析インサイト</div>
+      <div class="ai-badge">⚡ AI生成</div>
+      <div class="ai-timestamp">2026/05/01 08:00 生成</div>
+
+      <div class="ai-insight">
+        <span class="ai-insight-num">1</span>
+        <span class="ai-insight-text"><strong>整理フェーズ実施が次回合意率の最大ドライバー</strong>。CA213件分析より、整理フェーズあり商談の次回合意率は56.2%、なし商談は16.2%と<strong>3.5倍差</strong>。介入群5名のうち2名が整理フェーズ未実施傾向。スキルマップL2「進捗の全体像を把握、転職軸を随時整理」の徹底が即効性高い。</span>
+      </div>
+      <div class="ai-insight">
+        <span class="ai-insight-num">2</span>
+        <span class="ai-insight-text"><strong>深掘り回数</strong>はHPと育成枠で<strong>+58%差</strong>（HP4.1回／介入群2.6回）。「なぜ」を重ねて転職理由・価値観の核を特定する型の習得が必要。スキルマップL2「『なぜ』を重ねて価値観の核を特定」の指導を集中投下すべき領域。</span>
+      </div>
+      <div class="ai-insight">
+        <span class="ai-insight-num">3</span>
+        <span class="ai-insight-text">山本HP（L4）の商談パターンは「導入→ヒアリング→深掘り→<strong>整理</strong>→提案→合意」の標準フローを毎回完遂し、共感91回・提案7件と高水準。<strong>介入群ロールモデル</strong>として実発言テンプレ抽出済。</span>
+      </div>
+      <div class="ai-insight">
+        <span class="ai-insight-num">4</span>
+        <span class="ai-insight-text">成約商談は深掘り回数が全体平均の<strong>約2倍（5.7回）</strong>。介入群の深掘り改善は<strong>成約率に直接連動</strong>する見込み。</span>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">指導工数削減 効率化指標</div>
+      <div class="report-kpi">
+        <div class="report-kpi-card">
+          <div class="report-kpi-label">マネージャー従来工数</div>
+          <div class="report-kpi-value">3〜5<span class="kpi-unit"> h/週</span></div>
+        </div>
+        <div class="report-kpi-card">
+          <div class="report-kpi-label">ダッシュボード後</div>
+          <div class="report-kpi-value">1<span class="kpi-unit"> h/週</span></div>
+        </div>
+        <div class="report-kpi-card">
+          <div class="report-kpi-label">削減率</div>
+          <div class="report-kpi-value">75<span class="kpi-unit"> %</span></div>
+        </div>
+        <div class="report-kpi-card">
+          <div class="report-kpi-label">月間削減コスト換算</div>
+          <div class="report-kpi-value" style="font-size:22px;">¥216,000</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#94a3b8;">算出根拠: マネージャー時給4,500円、週3時間削減×4週、5名分</div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-container">
+        <div class="chart-title">6評価軸の得点分布 <span class="chart-title-sub">介入群5名</span></div>
+        <canvas id="caGradeDist" height="220"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">スキルマップL別 メンバー数 <span class="chart-title-sub">介入群5名</span></div>
+        <canvas id="caStagePie" height="200"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-container">
+        <div class="chart-title">介入群 vs 対照群 月別推移 <span class="chart-title-sub">総合スコア</span></div>
+        <canvas id="caTrend" height="220"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">スコア × 整理フェーズ実施率 <span class="chart-title-sub">介入群</span></div>
+        <canvas id="caScatter" height="220"></canvas>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">CA介入群 メンバー × 6評価軸ヒートマップ</div>
+      <table class="heatmap-table">
+        <thead>
+          <tr><th></th><th>整理フェーズ</th><th>深掘り</th><th>共感3語</th><th>提案</th><th>優先度整理</th><th>次回具体性</th></tr>
+        </thead>
+        <tbody id="caHeatBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- RA REPORT -->
+  <div class="role-page" id="report-ra">
+    <div class="report-section">
+      <div class="report-section-title">サマリー</div>
+      <ul class="report-summary-text">
+        <li>RA介入群5名のうち<strong>2名がスキルマップL2以上</strong>に到達</li>
+        <li>サービス説明時間比率: 介入群<strong>45%</strong> vs HP平均22%（介入群が大幅に長い）</li>
+        <li><strong>HP10パターン到達数</strong>介入群平均3.2 / HP平均7.5（差4.3パターン）</li>
+        <li>市場感数字を返せている介入群は5名中1名のみ — <strong>HPパターン2の集中投下</strong>が必要</li>
+      </ul>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">AI分析インサイト</div>
+      <div class="ai-badge">⚡ AI生成</div>
+      <div class="ai-timestamp">2026/05/01 08:00 生成</div>
+
+      <div class="ai-insight">
+        <span class="ai-insight-num">1</span>
+        <span class="ai-insight-text">育成枠242件分析より、<strong>サービス説明テンプレ逐次読み上げが約160件（66%）</strong>で発生。商談時間の30〜60%をサービス説明に費やしている。<strong>サービス説明時間圧縮で本題に時間配分</strong>するだけで質改善が見込める。</span>
+      </div>
+      <div class="ai-insight">
+        <span class="ai-insight-num">2</span>
+        <span class="ai-insight-text"><strong>HPは「企業が持っていない情報を提供」、介入群は「企業が持っている情報を受け取る」</strong>と情報の流れが逆。HPパターン2「市場感数字をその場で返す」を全RAに展開すれば、推薦→面接到達率の改善が期待できる。</span>
+      </div>
+      <div class="ai-insight">
+        <span class="ai-insight-num">3</span>
+        <span class="ai-insight-text">介入群242件中<strong>約200件でチェックリスト型ヒアリング</strong>。「なぜその条件なのか」を掘り下げる場面がほとんどない。<strong>スキルマップL3「根因（なぜ）を3段深掘り」</strong>が次の到達点。</span>
+      </div>
+      <div class="ai-insight">
+        <span class="ai-insight-num">4</span>
+        <span class="ai-insight-text">飯野HP「これ同じ求人3つ作っていいですか？」のような<strong>求人票設計に踏み込む発言は介入群ほぼゼロ</strong>。HPパターン3を発言テンプレ化して横展開する余地が大きい。</span>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">指導工数削減 効率化指標</div>
+      <div class="report-kpi">
+        <div class="report-kpi-card">
+          <div class="report-kpi-label">マネージャー従来工数</div>
+          <div class="report-kpi-value">3〜5<span class="kpi-unit"> h/週</span></div>
+        </div>
+        <div class="report-kpi-card">
+          <div class="report-kpi-label">ダッシュボード後</div>
+          <div class="report-kpi-value">1<span class="kpi-unit"> h/週</span></div>
+        </div>
+        <div class="report-kpi-card">
+          <div class="report-kpi-label">削減率</div>
+          <div class="report-kpi-value">75<span class="kpi-unit"> %</span></div>
+        </div>
+        <div class="report-kpi-card">
+          <div class="report-kpi-label">月間削減コスト換算</div>
+          <div class="report-kpi-value" style="font-size:22px;">¥216,000</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-container">
+        <div class="chart-title">6評価軸の得点分布 <span class="chart-title-sub">介入群5名</span></div>
+        <canvas id="raGradeDist" height="220"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">スキルマップL別 メンバー数 <span class="chart-title-sub">介入群5名</span></div>
+        <canvas id="raStagePie" height="200"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-container">
+        <div class="chart-title">介入群 vs 対照群 月別推移 <span class="chart-title-sub">総合スコア</span></div>
+        <canvas id="raTrend" height="220"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">スコア × HP10パターン到達数 <span class="chart-title-sub">介入群</span></div>
+        <canvas id="raScatter" height="220"></canvas>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">RA介入群 メンバー × 6評価軸ヒートマップ</div>
+      <table class="heatmap-table">
+        <thead>
+          <tr><th></th><th>喚起トーク3型</th><th>スクリーニング</th><th>ターゲット拡大</th><th>求人票踏込</th><th>お見送り転換</th><th>選考改善</th></tr>
+        </thead>
+        <tbody id="raHeatBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- COACHING -->
+<div class="page" id="page-coaching">
+  <div class="page-title">1on1指導カード <span class="pill">マネージャー向け</span></div>
+  <div class="page-desc">直近4週の対話データ × HP差分から、マネージャーの1on1セリフを自動生成</div>
+
+  <div class="role-tabs">
+    <div class="role-tab active" data-role="ca" onclick="switchRole('coaching','ca')">CA</div>
+    <div class="role-tab" data-role="ra" onclick="switchRole('coaching','ra')">RA</div>
+  </div>
+
+  <div class="role-page active" id="coaching-ca">
+    <div class="coaching-controls">
+      <span class="coaching-select-label">対象メンバー</span>
+      <select class="coaching-select" id="coachingSelectCa" onchange="renderCoaching('ca',true)"></select>
+      <button class="btn-outline" style="background:#2563eb;color:#fff;border-color:#2563eb;font-weight:600;" onclick="renderCoaching('ca',true)">🔄 再生成 <span id="regenCountCa" style="background:#fff;color:#2563eb;padding:1px 6px;border-radius:8px;font-size:10px;margin-left:4px;">0</span></button>
+      <span style="margin-left:auto;font-size:11px;color:#94a3b8;">直近4週データ × CAスキルマップで自動生成</span>
+      <button class="btn-outline">📥 PDF出力</button>
+      <button class="btn-outline">📧 マネージャーへ送信</button>
+    </div>
+    <div id="coachingContentCa"></div>
+  </div>
+
+  <div class="role-page" id="coaching-ra">
+    <div class="coaching-controls">
+      <span class="coaching-select-label">対象メンバー</span>
+      <select class="coaching-select" id="coachingSelectRa" onchange="renderCoaching('ra',true)"></select>
+      <button class="btn-outline" style="background:#2563eb;color:#fff;border-color:#2563eb;font-weight:600;" onclick="renderCoaching('ra',true)">🔄 再生成 <span id="regenCountRa" style="background:#fff;color:#2563eb;padding:1px 6px;border-radius:8px;font-size:10px;margin-left:4px;">0</span></button>
+      <span style="margin-left:auto;font-size:11px;color:#94a3b8;">直近4週データ × RAスキルマップで自動生成</span>
+      <button class="btn-outline">📥 PDF出力</button>
+      <button class="btn-outline">📧 マネージャーへ送信</button>
+    </div>
+    <div id="coachingContentRa"></div>
+  </div>
+</div>
+
+<!-- SKILLMAP -->
+<div class="page" id="page-skillmap">
+  <div class="page-title">スキルマップ <span class="pill">3点照合: 自己 × 上司 × ailead</span></div>
+  <div class="page-desc">植村様作成スキルマップ × ailead対話データ自動採点。3ヶ月定点評価サイクルとの並走用。整合性 80%以上を検証ライン化、ズレた項目はハイライト表示します。</div>
+
+  <div class="role-tabs">
+    <div class="role-tab active" data-role="ca" onclick="switchRole('skillmap','ca')">CA</div>
+    <div class="role-tab" data-role="ra" onclick="switchRole('skillmap','ra')">RA</div>
+  </div>
+
+  <div class="role-page active" id="skillmap-ca">
+    <div class="coaching-controls">
+      <span class="coaching-select-label">対象メンバー</span>
+      <select class="coaching-select" id="smSelectCa" onchange="renderSkillmap3way('ca')"></select>
+      <span style="margin-left:auto;font-size:11px;color:#94a3b8;">凡例: ◎ L達成 ／ ○ ほぼ達成 ／ △ 半自動・要レビュー ／ × 未達</span>
+    </div>
+    <div class="skillmap-section">
+      <div class="skillmap-section-title">CAスキルマップ達成度（3点照合）</div>
+      <div class="skillmap-section-desc">3点（自己／上司／ailead自動採点）が一致しないセルは黄色背景で表示。3ヶ月定点評価時にギャップを優先議論できるよう設計。</div>
+      <div id="skillmapCa"></div>
+    </div>
+  </div>
+
+  <div class="role-page" id="skillmap-ra">
+    <div class="coaching-controls">
+      <span class="coaching-select-label">対象メンバー</span>
+      <select class="coaching-select" id="smSelectRa" onchange="renderSkillmap3way('ra')"></select>
+      <span style="margin-left:auto;font-size:11px;color:#94a3b8;">凡例: ◎ L達成 ／ ○ ほぼ達成 ／ △ 半自動・要レビュー ／ × 未達</span>
+    </div>
+    <div class="skillmap-section">
+      <div class="skillmap-section-title">RAスキルマップ達成度（3点照合）</div>
+      <div class="skillmap-section-desc">3点（自己／上司／ailead自動採点）が一致しないセルは黄色背景で表示。3ヶ月定点評価時にギャップを優先議論できるよう設計。</div>
+      <div id="skillmapRa"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROMPT -->
+<div class="page" id="page-prompt">
+  <div class="page-title">評価軸（プロンプト）<span class="pill">CA / RA別</span></div>
+  <div class="page-desc">マイナビゼネラルチーム専用に設計された CA / RA 別カスタムフィードバックプロンプト</div>
+
+  <div class="role-tabs">
+    <div class="role-tab active" data-role="ca" onclick="switchRole('prompt','ca')">CA</div>
+    <div class="role-tab" data-role="ra" onclick="switchRole('prompt','ra')">RA</div>
+  </div>
+
+  <div class="role-page active" id="prompt-ca">
+    <div class="report-section">
+      <div class="report-section-title"><span class="prompt-card-tag tag-ca">CA</span> 候補者面談フィードバックプロンプト</div>
+      <div style="font-size:12px;color:#94a3b8;margin-bottom:12px;">バージョン: 2026-04-29 ／ 対象: CA面談</div>
+      <p style="font-size:13px;color:#475569;line-height:1.8;margin-bottom:16px;"><strong>説明：</strong>マイナビCA面談を対象に、整理フェーズ実施／深掘り／共感3語／提案／優先度整理／次回具体性の6軸で自動評価。植村様作成CAスキルマップL1/L2/L3との対応マッピング済。</p>
+      <div id="caPromptDetail"></div>
+    </div>
+  </div>
+
+  <div class="role-page" id="prompt-ra">
+    <div class="report-section">
+      <div class="report-section-title"><span class="prompt-card-tag tag-ra">RA</span> 企業商談フィードバックプロンプト</div>
+      <div style="font-size:12px;color:#94a3b8;margin-bottom:12px;">バージョン: 2026-04-29 ／ 対象: RA商談</div>
+      <p style="font-size:13px;color:#475569;line-height:1.8;margin-bottom:16px;"><strong>説明：</strong>マイナビRA商談を対象に、HP10パターンを核とした6軸（喚起トーク3型／スクリーニング／ターゲット拡大／求人票踏込／お見送り転換／選考改善）で自動評価。植村様作成RAスキルマップL1/L2/L3との対応マッピング済。</p>
+      <div id="raPromptDetail"></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="overlay" id="overlay" onclick="closeDetail()"></div>
+
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <div class="detail-header-top">
+      <div>
+        <div class="detail-member-name" id="detailName"></div>
+        <div class="detail-deal-name" id="detailDeal"></div>
+      </div>
+      <div class="detail-header-actions">
+        <button class="detail-btn detail-btn-primary" onclick="openCoachingFromDetail()">1on1カード生成</button>
+        <button class="detail-btn">aileadで開く</button>
+        <button class="detail-btn-close" onclick="closeDetail()">閉じる</button>
+      </div>
+    </div>
+  </div>
+  <div class="detail-summary">
+    <div class="detail-card"><div class="detail-card-label">総合スコア</div><div class="detail-card-value" id="detailScore"></div></div>
+    <div class="detail-card"><div class="detail-card-label">スキルマップ</div><div class="detail-card-value" id="detailGrade"></div></div>
+    <div class="detail-card"><div class="detail-card-label">評価</div><div class="detail-card-value" id="detailRec"></div></div>
+    <div class="detail-card"><div class="detail-card-label">次回合意</div><div class="detail-card-value" id="detailRatio"></div></div>
+  </div>
+  <div class="radar-section"><div class="radar-wrap"><canvas id="radarChart"></canvas></div></div>
+  <div class="detail-section">
+    <div class="detail-section-title">評価基準別スコア</div>
+    <div id="detailCriteria"></div>
+  </div>
+  <div class="detail-section">
+    <div class="detail-section-title">総合コメント</div>
+    <div id="detailComment"></div>
+  </div>
+</div>
+
+<script>
+const CA_AXES = ['整理フェーズ','深掘り','共感3語','提案','優先度整理','次回具体性'];
+const RA_AXES = ['喚起トーク3型','スクリーニング','ターゲット拡大','求人票踏込','お見送り転換','選考改善'];
+
+// ===== Members =====
+const caMembers = [
+  // 介入群 (treatment)
+  { group:'treatment', id:'ca-yamamoto', name:'山本 香織', deal:'25歳・営業職→人事希望', date:'2026/04/22 14:00',
+    score:4.4, stage:'L4', stageClass:'grade-l4', rec:'ハイパフォーマー', recClass:'rec-yes', agreement:'合意',
+    scores:[4.6, 4.5, 4.3, 4.5, 4.4, 4.5],
+    skillmap: { '面談-ヒアリング': ['◎','◎','◎'], '面談-目線合わせ': ['◎','◎','○'], '意思決定-関係構築': ['◎','◎','◎'], '意思決定-求職者理解': ['◎','◎','◎'], 'マネジメント-リスク': ['◎','◎','○'] },
+    criteria:[
+      {name:'整理フェーズ実施',score:4.6,quote:'「ここまでお伺いした内容を整理させてください。〜という条件と、〜への興味、優先順位的にはどちら寄りでしょうか」',context:'深掘り後に必ず希望条件を整理し相手に確認。次回合意率3.5倍の根拠指標で安定的に高得点。',memo:'スキルマップL4到達の典型事例'},
+      {name:'深掘り発言',score:4.5,quote:'「なぜ人事を希望されるんですか？」「現職での何の経験がそう思わせていますか？」',context:'転職理由・価値観の核を「なぜ」連鎖で引き出している。',memo:'5回以上の深掘りで成約商談の特徴と一致'},
+      {name:'共感3語パターン',score:4.3,quote:'「そうですね、確かにそういうご経験があれば」「なるほど、それで」',context:'HP3語の集中度0.85で適切な場面で使用。',memo:'機械的にならず文脈に応じて使い分け'}
+    ],
+    comment:{summary:'整理フェーズの実施・深掘りの「なぜ」連鎖・共感3語の場面適合性、いずれもHPの典型例。スキルマップL4到達。介入群のロールモデル候補として実発言テンプレ抽出推奨。',
+      positive:'整理フェーズの安定性／深掘りの粘り強さ／共感の場面適合性',
+      negative:'特になし。継続的な質維持を'} },
+  { group:'treatment', id:'ca-tanaka', name:'田中 美咲', deal:'28歳・経理→管理部門', date:'2026/04/21 11:00',
+    score:3.8, stage:'L3', stageClass:'grade-l3', rec:'安定', recClass:'rec-yes', agreement:'合意',
+    scores:[4.2, 3.5, 4.0, 3.8, 4.1, 3.4],
+    skillmap: { '面談-ヒアリング': ['◎','○','△'], '面談-目線合わせ': ['◎','○','△'], '意思決定-関係構築': ['◎','◎','△'], '意思決定-求職者理解': ['○','◎','△'], 'マネジメント-リスク': ['○','○','△'] },
+    criteria:[
+      {name:'整理フェーズ実施',score:4.2,quote:'「ここまでの整理で大丈夫ですか」',context:'整理フェーズ自体は実施できているが、確認の粒度が浅め。',memo:'山本HPの整理発言を参考に深さを追加すると更に良い'},
+      {name:'深掘り発言',score:3.5,quote:'「なぜそう思われたんですか」（1〜2回）',context:'深掘り回数3.2回で介入群平均より上だがHP平均には届かず。',memo:'スキルマップL2「『なぜ』を重ねて価値観の核を特定」L3到達の伸びしろ'},
+      {name:'次回具体性',score:3.4,quote:'「また日程調整させてください」',context:'具体的な日程・求人票修正への踏み込みが弱い。',memo:'スキルマップL1「ネクストアクション期日を握る」を強化'}
+    ],
+    comment:{summary:'L3到達済。整理・共感は安定的だが、深掘りの量と次回アクションの具体性に伸びしろ。',
+      positive:'整理フェーズの実施／共感の自然さ',
+      negative:'深掘り回数が3回前後で停滞／次回具体性が低い'} },
+  { group:'treatment', id:'ca-suzuki', name:'鈴木 翔太', deal:'24歳・SE→ITコンサル希望', date:'2026/04/19 15:30',
+    score:3.2, stage:'L2', stageClass:'grade-l2', rec:'要観察', recClass:'rec-hold', agreement:'未合意',
+    scores:[3.5, 2.8, 3.4, 3.0, 3.0, 3.2],
+    skillmap: { '面談-ヒアリング': ['◎','△','×'], '面談-目線合わせ': ['○','△','×'], '意思決定-関係構築': ['◎','○','△'], '意思決定-求職者理解': ['○','△','×'], 'マネジメント-リスク': ['○','△','×'] },
+    criteria:[
+      {name:'深掘り発言',score:2.8,quote:'「なぜですか」（途中で説明に転換）',context:'深掘りを始めるが、回答を待たずに自分の説明に切り替えるパターンが多い。',memo:'スキルマップL2の典型的な伸びしろ'},
+      {name:'整理フェーズ実施',score:3.5,quote:'整理フェーズが入る商談と入らない商談が混在',context:'スクリプト通りの場合は実施するが、自然な会話になると省略する傾向。',memo:'スキルマップL2「進捗の全体像を把握、転職軸を随時整理」を意識的に'},
+      {name:'優先度整理',score:3.0,quote:'希望条件は聞くが優先順位の確認が弱い',context:'MUST/WANT/NGの整理が不十分。',memo:'スキルマップL2「志望度・志望順位・条件の優先度を整理し記録」'}
+    ],
+    comment:{summary:'L2到達済だが、深掘りで説明に転換するクセと、優先度整理の弱さが目立つ。指導投下効果が高い。',
+      positive:'共感の自然さ／会話の流れ',
+      negative:'深掘り後に自分が話してしまう／優先度確認が弱い'} },
+  { group:'treatment', id:'ca-sato', name:'佐藤 結衣', deal:'30歳・営業→マーケ希望', date:'2026/04/18 10:00',
+    score:2.8, stage:'L1', stageClass:'grade-l1', rec:'要改善', recClass:'rec-no', agreement:'未合意',
+    scores:[2.4, 2.2, 3.0, 2.6, 2.5, 3.5],
+    skillmap: { '面談-ヒアリング': ['○','△','×'], '面談-目線合わせ': ['△','×','×'], '意思決定-関係構築': ['◎','△','×'], '意思決定-求職者理解': ['△','×','×'], 'マネジメント-リスク': ['○','△','×'] },
+    criteria:[
+      {name:'整理フェーズ実施',score:2.4,quote:'整理フェーズなしで提案に進むケース多数',context:'5商談中3商談で整理フェーズが完全に欠落。最大の改善ポイント。',memo:'整理フェーズあり/なしで合意率3.5倍差。最優先で改善すべき'},
+      {name:'深掘り発言',score:2.2,quote:'チェックリスト型ヒアリングに終始',context:'年齢・年収・希望条件を一問一答で聞き、「なぜ」が出てこない。',memo:'スキルマップL2の根幹未達'},
+      {name:'優先度整理',score:2.5,quote:'MUST/WANTの言及なし',context:'希望条件を網羅的に聞くが、優先順位の整理に至らず。',memo:'スキルマップL2の実装が必要'}
+    ],
+    comment:{summary:'スキルマップL1停滞。整理フェーズ未実施・深掘り不足・優先度未整理が重なり、次回合意率が低い。トライアル介入の最優先対象。',
+      positive:'チェックリスト型での網羅性／次回連絡の徹底',
+      negative:'整理フェーズ未実施／チェックリスト型ヒアリング／優先度未整理'} },
+  { group:'treatment', id:'ca-takahashi', name:'高橋 涼介', deal:'26歳・販売→営業希望', date:'2026/04/17 14:30',
+    score:3.4, stage:'L2', stageClass:'grade-l2', rec:'要観察', recClass:'rec-hold', agreement:'合意',
+    scores:[3.8, 3.0, 3.5, 3.4, 3.2, 3.5],
+    skillmap: { '面談-ヒアリング': ['◎','○','×'], '面談-目線合わせ': ['◎','△','×'], '意思決定-関係構築': ['◎','○','△'], '意思決定-求職者理解': ['◎','○','△'], 'マネジメント-リスク': ['◎','○','△'] },
+    criteria:[
+      {name:'深掘り発言',score:3.0,quote:'「なぜ営業を？」（1回で次の話題へ）',context:'深掘りを1段階で止めてしまう。',memo:'スキルマップL2「『なぜ』を重ねる」の徹底が必要'},
+      {name:'整理フェーズ実施',score:3.8,quote:'「ここまでの整理として」',context:'実施はできているが粒度が浅い。',memo:'山本HPの整理発言の深さを参考に'},
+      {name:'優先度整理',score:3.2,quote:'希望条件の確認はあるがMUST/WANT明示弱',context:'スキルマップL2の実装が部分的。',memo:'L3到達には「優先度の合意形成」まで'}
+    ],
+    comment:{summary:'L2安定。深掘りの粘りと優先度整理が次の伸びしろ。',
+      positive:'整理フェーズの実施／次回への動機づけ',
+      negative:'深掘りが浅い／優先度の合意形成が弱い'} },
+  // 対照群 (control)
+  { group:'control', id:'ca-yoshida', name:'吉田 拓海', deal:'27歳・販売→事務希望', date:'2026/04/22 10:00',
+    score:3.0, stage:'L2', stageClass:'grade-l2', rec:'要観察', recClass:'rec-hold', agreement:'合意',
+    scores:[3.4, 2.6, 3.2, 3.0, 2.8, 3.0],
+    skillmap: { '面談-ヒアリング': ['○','△','×'], '面談-目線合わせ': ['○','△','×'], '意思決定-関係構築': ['◎','○','△'], '意思決定-求職者理解': ['○','△','×'], 'マネジメント-リスク': ['○','△','×'] },
+    criteria:[],
+    comment:{summary:'対照群（テンプレ集のみ受領）。介入なしで標準的な進捗。',positive:'',negative:''} },
+  { group:'control', id:'ca-mori', name:'森 友香', deal:'29歳・経理→人事希望', date:'2026/04/21 13:00',
+    score:3.1, stage:'L2', stageClass:'grade-l2', rec:'要観察', recClass:'rec-hold', agreement:'合意',
+    scores:[3.5, 2.8, 3.3, 3.0, 3.0, 3.1],
+    skillmap: { '面談-ヒアリング': ['○','△','×'], '面談-目線合わせ': ['○','△','×'], '意思決定-関係構築': ['◎','○','△'], '意思決定-求職者理解': ['○','△','×'], 'マネジメント-リスク': ['○','△','×'] },
+    criteria:[],
+    comment:{summary:'対照群。介入なしで標準的な進捗。',positive:'',negative:''} },
+  { group:'control', id:'ca-shimizu', name:'清水 大樹', deal:'25歳・SE→PM希望', date:'2026/04/20 16:00',
+    score:2.9, stage:'L1', stageClass:'grade-l1', rec:'要改善', recClass:'rec-no', agreement:'未合意',
+    scores:[2.6, 2.5, 3.0, 2.8, 2.6, 3.0],
+    skillmap: { '面談-ヒアリング': ['△','×','×'], '面談-目線合わせ': ['△','×','×'], '意思決定-関係構築': ['○','△','×'], '意思決定-求職者理解': ['△','×','×'], 'マネジメント-リスク': ['○','△','×'] },
+    criteria:[],
+    comment:{summary:'対照群。介入なしで標準的な進捗。',positive:'',negative:''} },
+  { group:'control', id:'ca-okada', name:'岡田 真由美', deal:'31歳・営業→企画希望', date:'2026/04/19 14:00',
+    score:3.3, stage:'L2', stageClass:'grade-l2', rec:'要観察', recClass:'rec-hold', agreement:'合意',
+    scores:[3.6, 3.1, 3.4, 3.2, 3.0, 3.3],
+    skillmap: { '面談-ヒアリング': ['◎','○','×'], '面談-目線合わせ': ['○','△','×'], '意思決定-関係構築': ['◎','○','△'], '意思決定-求職者理解': ['○','△','×'], 'マネジメント-リスク': ['○','○','△'] },
+    criteria:[],
+    comment:{summary:'対照群。介入なしで標準的な進捗。',positive:'',negative:''} },
+  { group:'control', id:'ca-arai', name:'新井 優太', deal:'24歳・新卒・営業職', date:'2026/04/18 15:30',
+    score:2.7, stage:'L1', stageClass:'grade-l1', rec:'要改善', recClass:'rec-no', agreement:'未合意',
+    scores:[2.4, 2.3, 3.0, 2.5, 2.6, 2.9],
+    skillmap: { '面談-ヒアリング': ['△','×','×'], '面談-目線合わせ': ['×','×','×'], '意思決定-関係構築': ['○','△','×'], '意思決定-求職者理解': ['△','×','×'], 'マネジメント-リスク': ['○','△','×'] },
+    criteria:[],
+    comment:{summary:'対照群。新卒メンバー。',positive:'',negative:''} }
+];
+
+const raMembers = [
+  // 介入群
+  { group:'treatment', id:'ra-iino', name:'飯野 拓也', deal:'IT企業様_エンジニア採用支援', date:'2026/04/22 10:00',
+    score:4.5, stage:'L4', stageClass:'grade-l4', rec:'ハイパフォーマー', recClass:'rec-yes', agreement:'合意',
+    scores:[4.7, 4.5, 4.4, 4.8, 4.3, 4.4],
+    skillmap: { 'ビジネス-会話': ['◎','◎','○'], '商談準備-業界知識': ['◎','◎','◎'], 'ヒアリング-項目温度感': ['◎','◎','◎'], '提案-要件再設計': ['◎','◎','◎'], '関係構築-長期': ['◎','◎','◎'] },
+    criteria:[
+      {name:'喚起トーク3型',score:4.7,quote:'「今、月300人ぐらいの登録があります。財務希望者50名、うち稼働者20名」',context:'HPパターン2の数値型・市場型を商談中にDB検索しながら即座に返している。',memo:'スキルマップRA L2「市場感数字説明」L4水準'},
+      {name:'求人票踏込',score:4.8,quote:'「これ同じ求人3つ作ってもいいですか？」',context:'求人票の見せ方・設計まで踏み込む発言。HP10パターン3の典型例。',memo:'介入群展開時のテンプレ候補'},
+      {name:'ターゲット拡大',score:4.4,quote:'「購買とか資材調達経験の方も顧客とのやりとりや社内調整をやっている。対象になりませんか？」',context:'スキルマップL3「採用基準の再定義提案」を実装。',memo:'L4水準のロールモデル'}
+    ],
+    comment:{summary:'飯野HPはRAパターンの模範。「企業が持っていない情報を提供する」HPの本質を体現し、求人票設計まで踏み込む。',
+      positive:'数値型市場感の即時提供／求人票設計への踏込／ターゲット拡大の自然さ',
+      negative:'特になし'} },
+  { group:'treatment', id:'ra-nakamura', name:'中村 拓海', deal:'メーカー様_管理職採用', date:'2026/04/21 14:00',
+    score:3.6, stage:'L3', stageClass:'grade-l3', rec:'安定', recClass:'rec-yes', agreement:'合意',
+    scores:[3.8, 3.5, 3.4, 3.7, 3.5, 3.7],
+    skillmap: { 'ビジネス-会話': ['◎','○','△'], '商談準備-業界知識': ['◎','○','△'], 'ヒアリング-項目温度感': ['◎','○','△'], '提案-要件再設計': ['○','○','△'], '関係構築-長期': ['○','◎','△'] },
+    criteria:[
+      {name:'喚起トーク3型',score:3.8,quote:'「マーケットとしては〜」（市場型は使えるが数値型が弱い）',context:'市場型の引用はあるが、具体的な数値の即時提示が弱い。',memo:'飯野HPの数値型・市場型を参考に'},
+      {name:'スクリーニング',score:3.5,quote:'「年齢は」「経験年数は」（チェックリスト型寄り）',context:'スクリーニングの精緻化は途上。「なぜその条件」の深掘りが弱い。',memo:'スキルマップL3「根因（なぜ）を3段深掘り」へ'},
+      {name:'お見送り転換',score:3.5,quote:'お見送り理由はヒアリングするが次の紹介材料への転換が弱い',context:'HPパターン6の実装は部分的。',memo:'飯野HPの「これって特設だったら可能性あったか」型を参考に'}
+    ],
+    comment:{summary:'L3到達済。市場型は使えるが数値型・スクリーニング深掘り・お見送り転換が次の伸びしろ。',
+      positive:'市場型の自然な引用／求人票への意見出し',
+      negative:'数値型不足／スクリーニング浅め／お見送り転換弱い'} },
+  { group:'treatment', id:'ra-watanabe', name:'渡辺 美咲', deal:'医療法人様_看護師採用', date:'2026/04/20 11:00',
+    score:3.0, stage:'L2', stageClass:'grade-l2', rec:'要観察', recClass:'rec-hold', agreement:'合意',
+    scores:[3.2, 2.8, 2.9, 3.2, 2.9, 3.0],
+    skillmap: { 'ビジネス-会話': ['◎','△','×'], '商談準備-業界知識': ['◎','○','△'], 'ヒアリング-項目温度感': ['◎','○','△'], '提案-要件再設計': ['○','△','×'], '関係構築-長期': ['○','○','△'] },
+    criteria:[
+      {name:'喚起トーク3型',score:3.2,quote:'「市況的には」（一般論止まり）',context:'数値の裏付けがなく、抽象的な市場感に留まっている。',memo:'スキルマップL2「市場感を要件/チャネルに反映」を強化'},
+      {name:'求人票踏込',score:3.2,quote:'求人票の文言修正提案は1度のみ',context:'求人票への踏み込みが浅い。',memo:'飯野HPの「3つ作ってもいいか」型を参考に'},
+      {name:'ターゲット拡大',score:2.9,quote:'ターゲット拡大の逆提案なし',context:'HPパターン9の実装が未着手。',memo:'スキルマップL3「採用基準の再定義提案」未到達'}
+    ],
+    comment:{summary:'L2到達。市場感の数値化・求人票踏込み・ターゲット拡大のいずれも実装途上。',
+      positive:'求人票の基本項目網羅／面接FB迅速反映',
+      negative:'市場感が抽象的／求人票への踏込み弱い／ターゲット拡大未実装'} },
+  { group:'treatment', id:'ra-kimura', name:'木村 翔', deal:'小売チェーン様_店長採用', date:'2026/04/19 15:00',
+    score:2.6, stage:'L1', stageClass:'grade-l1', rec:'要改善', recClass:'rec-no', agreement:'未合意',
+    scores:[2.2, 2.4, 2.0, 2.8, 2.5, 2.7],
+    skillmap: { 'ビジネス-会話': ['○','△','×'], '商談準備-業界知識': ['○','△','×'], 'ヒアリング-項目温度感': ['○','△','×'], '提案-要件再設計': ['△','×','×'], '関係構築-長期': ['○','△','×'] },
+    criteria:[
+      {name:'喚起トーク3型',score:2.2,quote:'サービス説明22分（商談時間60分中）',context:'サービス説明テンプレ逐次読み上げに時間を費やし、市場感・数値・競合トークがほぼゼロ。',memo:'介入群242件の典型パターン'},
+      {name:'ターゲット拡大',score:2.0,quote:'求人票通りの要件をそのままヒアリング',context:'チェックリスト型ヒアリングに終始し、ターゲット拡大の逆提案ゼロ。',memo:'スキルマップL2「候補者ターゲットの微調整」未着手'},
+      {name:'求人票踏込',score:2.8,quote:'「ご要望のとおり」(求人票への意見なし)',context:'求人票を企業の言うままに作成。HP10パターン3未実装。',memo:'飯野HPの実発言テンプレ集の活用が必須'}
+    ],
+    comment:{summary:'スキルマップL1停滞。サービス説明過多・チェックリスト型ヒアリング・求人票踏込ゼロ。トライアル介入の最優先対象。',
+      positive:'求人票の基本項目網羅／時間厳守',
+      negative:'サービス説明過多／チェックリスト型ヒアリング／求人票踏込ゼロ／ターゲット拡大未着手'} },
+  { group:'treatment', id:'ra-ito', name:'伊藤 翔太', deal:'物流企業様_倉庫管理者採用', date:'2026/04/18 13:00',
+    score:3.2, stage:'L2', stageClass:'grade-l2', rec:'要観察', recClass:'rec-hold', agreement:'合意',
+    scores:[3.4, 3.0, 3.0, 3.5, 3.0, 3.3],
+    skillmap: { 'ビジネス-会話': ['◎','○','△'], '商談準備-業界知識': ['◎','○','△'], 'ヒアリング-項目温度感': ['◎','△','×'], '提案-要件再設計': ['○','△','×'], '関係構築-長期': ['○','△','×'] },
+    criteria:[
+      {name:'喚起トーク3型',score:3.4,quote:'「物流業界では人手不足が」（市場型は使うが数値弱）',context:'市場型のフレームはあるが裏付け数値が弱い。',memo:'スキルマップL2「各職種の転職市場感を説明」L3到達の伸びしろ'},
+      {name:'スクリーニング',score:3.0,quote:'「経験は何年？」「年齢は？」（一問一答）',context:'スクリーニング基準の精緻化が弱い。',memo:'スキルマップL3「根因を3段深掘り」'},
+      {name:'お見送り転換',score:3.0,quote:'お見送り理由は聞くが次回紹介材料への転換が弱い',context:'HPパターン6の実装途上。',memo:'スキルマップL2「FB迅速反映」L3レベルへ'}
+    ],
+    comment:{summary:'L2到達。市場型のフレームは持つが数値裏付けと深掘りが次の伸びしろ。',
+      positive:'市場感の枠組みは持っている／求人票項目網羅',
+      negative:'市場型の数値裏付け不足／スクリーニング浅め／お見送り転換が弱い'} },
+  // 対照群
+  { group:'control', id:'ra-saito', name:'斎藤 健一', deal:'IT企業様_インフラ採用', date:'2026/04/22 16:00',
+    score:2.8, stage:'L2', stageClass:'grade-l2', rec:'要観察', recClass:'rec-hold', agreement:'合意',
+    scores:[2.6, 2.8, 2.6, 3.2, 2.7, 2.9],
+    skillmap: { 'ビジネス-会話': ['◎','△','×'], '商談準備-業界知識': ['○','△','×'], 'ヒアリング-項目温度感': ['◎','△','×'], '提案-要件再設計': ['○','△','×'], '関係構築-長期': ['○','△','×'] },
+    criteria:[],
+    comment:{summary:'対照群（テンプレ集のみ受領）。',positive:'',negative:''} },
+  { group:'control', id:'ra-hasegawa', name:'長谷川 麻衣', deal:'金融機関様_営業職採用', date:'2026/04/21 11:00',
+    score:3.0, stage:'L2', stageClass:'grade-l2', rec:'要観察', recClass:'rec-hold', agreement:'合意',
+    scores:[2.9, 3.0, 2.8, 3.3, 3.0, 3.0],
+    skillmap: { 'ビジネス-会話': ['◎','○','△'], '商談準備-業界知識': ['○','△','×'], 'ヒアリング-項目温度感': ['◎','△','×'], '提案-要件再設計': ['○','△','×'], '関係構築-長期': ['○','△','×'] },
+    criteria:[],
+    comment:{summary:'対照群。',positive:'',negative:''} },
+  { group:'control', id:'ra-fujita', name:'藤田 健太', deal:'飲食チェーン様_店長採用', date:'2026/04/20 14:00',
+    score:2.7, stage:'L1', stageClass:'grade-l1', rec:'要改善', recClass:'rec-no', agreement:'未合意',
+    scores:[2.3, 2.5, 2.2, 2.9, 2.6, 2.8],
+    skillmap: { 'ビジネス-会話': ['○','△','×'], '商談準備-業界知識': ['○','△','×'], 'ヒアリング-項目温度感': ['○','△','×'], '提案-要件再設計': ['△','×','×'], '関係構築-長期': ['○','△','×'] },
+    criteria:[],
+    comment:{summary:'対照群。',positive:'',negative:''} },
+  { group:'control', id:'ra-aoki', name:'青木 さやか', deal:'コンサル企業様_アナリスト採用', date:'2026/04/19 10:30',
+    score:3.1, stage:'L2', stageClass:'grade-l2', rec:'要観察', recClass:'rec-hold', agreement:'合意',
+    scores:[3.0, 3.0, 2.9, 3.4, 3.0, 3.1],
+    skillmap: { 'ビジネス-会話': ['◎','○','△'], '商談準備-業界知識': ['○','△','×'], 'ヒアリング-項目温度感': ['◎','○','△'], '提案-要件再設計': ['○','△','×'], '関係構築-長期': ['○','△','×'] },
+    criteria:[],
+    comment:{summary:'対照群。',positive:'',negative:''} },
+  { group:'control', id:'ra-mori', name:'森 健介', deal:'製造業様_技術職採用', date:'2026/04/18 15:00',
+    score:2.5, stage:'L1', stageClass:'grade-l1', rec:'要改善', recClass:'rec-no', agreement:'未合意',
+    scores:[2.2, 2.3, 2.1, 2.7, 2.5, 2.6],
+    skillmap: { 'ビジネス-会話': ['○','△','×'], '商談準備-業界知識': ['△','×','×'], 'ヒアリング-項目温度感': ['○','△','×'], '提案-要件再設計': ['△','×','×'], '関係構築-長期': ['○','△','×'] },
+    criteria:[],
+    comment:{summary:'対照群。',positive:'',negative:''} }
+];
+
+// Trend data
+const trendData = {
+  ca: { weeks:['W1','W2','W3','W4','W5','W6','W7','W8'], treatment:[3.1,3.2,3.3,3.4,3.5,3.6,3.7,3.8], control:[3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0] },
+  ra: { weeks:['W1','W2','W3','W4','W5','W6','W7','W8'], treatment:[2.9,3.0,3.0,3.1,3.2,3.3,3.4,3.5], control:[2.8,2.8,2.8,2.8,2.8,2.8,2.8,2.8] }
+};
+
+// ===== Helpers =====
+function getMembers(role) { return role === 'ca' ? caMembers : raMembers; }
+function getAxes(role) { return role === 'ca' ? CA_AXES : RA_AXES; }
+
+const tableState = { ca: { sortKey:'score', sortDir:'desc', filter:'all' }, ra: { sortKey:'score', sortDir:'desc', filter:'all' } };
+
+// ===== TABLE =====
+function renderTable(role){
+  const tbody = document.getElementById(role + 'TableBody');
+  let members = [...getMembers(role)];
+  const st = tableState[role];
+  const search = (document.getElementById(role+'-search')||{}).value || '';
+
+  if(st.filter === 'treatment') members = members.filter(m => m.group === 'treatment');
+  else if(st.filter === 'control') members = members.filter(m => m.group === 'control');
+  else if(st.filter === 'hold') members = members.filter(m => m.recClass === 'rec-hold' || m.recClass === 'rec-no');
+
+  if(search) members = members.filter(m => m.name.includes(search) || m.deal.includes(search));
+
+  members.sort((a,b) => {
+    let va, vb;
+    if(st.sortKey.startsWith('s')) { const i = parseInt(st.sortKey.substring(1)); va = a.scores[i]; vb = b.scores[i]; }
+    else if(st.sortKey === 'score') { va = a.score; vb = b.score; }
+    else if(st.sortKey === 'name') { va = a.name; vb = b.name; }
+    else if(st.sortKey === 'deal') { va = a.deal; vb = b.deal; }
+    else if(st.sortKey === 'date') { va = a.date; vb = b.date; }
+    if(va < vb) return st.sortDir === 'asc' ? -1 : 1;
+    if(va > vb) return st.sortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  tbody.innerHTML = members.map(m => {
+    const cell = v => `<td class="score">${v.toFixed(1)}</td>`;
+    const groupTag = m.group === 'treatment' ? '<span class="group-tag group-treatment">介入</span>' : '<span class="group-tag group-control">対照</span>';
+    return `<tr class="${m.group === 'control' ? 'control' : ''}">
+      <td><span class="member-name"><a onclick="openDetail('${role}','${m.id}')">${m.name}</a> <span class="link-icon">↗</span></span>${groupTag}</td>
+      <td class="deal-name">${m.deal}</td>
+      <td class="deal-date">${m.date}</td>
+      <td><span class="grade ${m.stageClass}">${m.stage}</span></td>
+      <td class="score">${m.score.toFixed(1)}</td>
+      ${m.scores.map(cell).join('')}
+      <td><span class="rec-badge ${m.agreement==='合意'?'rec-yes':'rec-no'}">${m.agreement}</span></td>
+    </tr>`;
+  }).join('');
+
+  // Update sort icons
+  document.querySelectorAll(`#list-${role} thead th`).forEach(th => {
+    th.classList.remove('sorted');
+    const sortKey = th.dataset.sort;
+    if(sortKey === st.sortKey){
+      th.classList.add('sorted');
+      const icon = th.querySelector('.sort-icon');
+      if(icon) icon.textContent = st.sortDir === 'asc' ? '↑' : '↓';
+    } else {
+      const icon = th.querySelector('.sort-icon');
+      if(icon) icon.textContent = '↕';
+    }
+  });
+}
+
+function applyTableFilter(role){ renderTable(role); }
+function setFilter(role, filter){
+  tableState[role].filter = filter;
+  document.querySelectorAll(`#list-${role} .filter-chip`).forEach(c => c.classList.toggle('active', c.dataset.filter === filter));
+  renderTable(role);
+}
+function sortTable(role, key){
+  const st = tableState[role];
+  if(st.sortKey === key) st.sortDir = st.sortDir === 'asc' ? 'desc' : 'asc';
+  else { st.sortKey = key; st.sortDir = 'desc'; }
+  renderTable(role);
+}
+function exportCSV(role){
+  const axes = getAxes(role);
+  const header = ['名前','商談名','日時','SM','総合',...axes,'次回合意','群'].join(',');
+  const rows = getMembers(role).map(m => [m.name,m.deal,m.date,m.stage,m.score,...m.scores,m.agreement,m.group].join(','));
+  const csv = [header, ...rows].join('\n');
+  const blob = new Blob(['﻿'+csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `mynavi-${role}.csv`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ===== HEATMAP =====
+function renderHeatmap(role){
+  const members = getMembers(role).filter(m => m.group === 'treatment');
+  const axes = getAxes(role);
+  const tbody = document.getElementById(role + 'HeatBody');
+  if(!tbody) return;
+  const avg = axes.map((_, i) => (members.reduce((s,m)=>s+m.scores[i],0)/members.length).toFixed(1));
+  const head = `<tr><td class="heatmap-avg"></td>${avg.map(a=>`<td class="heatmap-avg">平均 ${a}</td>`).join('')}</tr>`;
+  const rows = [...members].sort((a,b)=>b.score-a.score).map(m => {
+    const cells = m.scores.map(v => {
+      const cls = v>=4.5?'heat-5':v>=3.5?'heat-4':v>=2.5?'heat-3':v>=1.5?'heat-2':'heat-1';
+      return `<td><span class="heatmap-cell ${cls}" title="スコア ${v.toFixed(1)} / 5.0">${v.toFixed(1)}</span></td>`;
+    }).join('');
+    return `<tr><td class="heatmap-name">${m.name}</td>${cells}</tr>`;
+  }).join('');
+  tbody.innerHTML = head + rows;
+}
+
+// ===== COACHING =====
+function renderCoachingSelects(){
+  ['ca','ra'].forEach(role => {
+    const sel = document.getElementById('coachingSelect' + (role.charAt(0).toUpperCase()+role.slice(1)));
+    sel.innerHTML = getMembers(role).filter(m => m.group === 'treatment').map(m => `<option value="${m.id}">${m.name} (${m.stage})</option>`).join('');
+  });
+}
+
+const caCoachingMap = {
+  '整理フェーズ': {
+    pain: '直近4週、整理フェーズ実施率がHP平均87.7%と差がある（合意率3.5倍差の指標）',
+    hpExample: '「ここまでお伺いした内容を整理させてください。〜という条件と、〜への興味、優先順位的にはどちら寄りでしょうか」（山本HP）',
+    selfQuote: '「では次の求人をご紹介しますね」（深掘り後にそのまま提案に入っている）',
+    script: m => `「${m.name}さん、深掘りで聞いたことをお相手に返して確認するシーンが少なめでした。\n例えば山本HPさんはこう言ってます──\n『〇〇という条件と△△という想いをお伺いしたんですが、優先順位としてはどちら寄りでしょうか』\n深掘りで聞いたことを一度返してから提案に入ると、合意率が3.5倍変わってきます」`,
+    question: '「次回の面談、整理フェーズを意識して1回入れてみてもらえますか？」',
+    actions: ['面談中に「ここまでの整理として」を必ず1回入れる', '希望条件をMUST/WANT/NGに分けて口頭確認する', '整理を踏まえて提案に移行する'],
+    skillmap: 'スキルマップL2「進捗の全体像を把握、転職軸を随時整理」◎ 目標'
+  },
+  '深掘り': {
+    pain: '深掘り回数 HP平均 4.1回 / 介入群平均 2.6回（+58% 差）',
+    hpExample: '「なぜ人事を希望されるんですか？」「現職での何の経験がそう思わせていますか？」（山本HP）',
+    selfQuote: '「なるほどですね。それで他にはどういう希望が」（1段目で次の話題に転換）',
+    script: m => `「${m.name}さん、転職理由を1回聞いた後、すぐ次の話題に行くパターンが多めでした。\nHPの方は「なぜ」を3段重ねて、価値観の核まで掘っています。\n例：『なぜ転職を？』→『なぜ営業から離れたい？』→『現職の何がそう思わせている？』\n沈黙を待つ、これが意外と効きます」`,
+    question: '「次回、『なぜ』を意識的に2回以上重ねてみてもらえますか？」',
+    actions: ['「なぜ」を最低2回連続で重ねる', '相手の回答後3秒沈黙を待つ', '矛盾点があれば追加質問する'],
+    skillmap: 'スキルマップL2「『なぜ』を重ねて転職理由・価値観の核を特定」◎ 目標'
+  },
+  '共感3語': {
+    pain: '共感ワードの集中度が低め（HP集中度 0.85）',
+    hpExample: '「そうですね、確かにそういうご経験があれば」「なるほど、それで」（山本HP）',
+    selfQuote: '「えーと」「ほうほう」「あー」（共感ワードのバリエーション過多）',
+    script: m => `「${m.name}さん、共感の言葉のバリエーションが広めです。\nHPの方は『そうですね』『なるほど』『ですよね』の3語に集中させて使い分けてます。\n機械的にならず、文脈に応じてこの3語を使うと不思議と相手の話が広がります」`,
+    question: '「次回、共感は3語に集中して使ってみてもらえますか？」',
+    actions: ['「そうですね」「なるほど」「ですよね」の3語を意識', '相づちのバリエーションを絞る', '感情の起伏に応じて使い分ける'],
+    skillmap: 'スキルマップL1「丁寧で誠実な対応・安心して話せる関係性」◎ 目標'
+  },
+  '提案': {
+    pain: '提案回数がHP平均 3.3回より少ない',
+    hpExample: '「Aの求人だとこういう点が、Bの求人だとここが、Cもありで…」（複数案の提示）',
+    selfQuote: '「こちらの求人いかがでしょうか」（1案のみ提示、代替案なし）',
+    script: m => `「${m.name}さん、提案回数が少なめです。\n複数の選択肢を提示すると、求職者の意思決定を助けられます」`,
+    question: '「次回、提案を3パターン用意してみてもらえますか？」',
+    actions: ['面談前に提案候補を3件以上準備', 'メイン提案＋視野を広げる代替案', '提案理由・期待メリットを口頭で説明'],
+    skillmap: 'スキルマップL2「メイン職種で応募獲得トーク確立」◎ 目標'
+  },
+  '優先度整理': {
+    pain: 'MUST/WANT/NG整理度が HP平均 95% より低い',
+    hpExample: '「絶対に譲れない条件と、できれば叶えたい条件を分けてお聞きしてもいいですか」',
+    selfQuote: '「希望条件は年収500万、勤務地都内、業界はあまり問わず…」（並列に聞いて優先度確認なし）',
+    script: m => `「${m.name}さん、希望条件は網羅的に聞けてますが、優先順位の確認が弱めです。\nMUST/WANT/NGに分けて整理すると、提案の精度が上がります」`,
+    question: '「次回、優先度を3段階で確認してみてもらえますか？」',
+    actions: ['MUST条件を明示的に聞く', 'WANT条件と区別する', 'NG条件を確認する'],
+    skillmap: 'スキルマップL2「志望度・志望順位・条件の優先度を整理し記録」◎ 目標'
+  },
+  '次回具体性': {
+    pain: '具体的な日程・求人票修正への踏込率が厳しいStep7全体平均 32.5% 水準',
+    hpExample: '「次回は5/15火曜日10時で、求人票修正版を当日お送りします」',
+    selfQuote: '「またご連絡しますね」（具体日程・宿題なし）',
+    script: m => `「${m.name}さん、次回約束は『また連絡』止まりが多いです。\n具体的な日程・宿題まで握ると、求職者の温度感が落ちにくくなります」`,
+    question: '「次回、日程と次のアクションを具体的に握ってみてもらえますか？」',
+    actions: ['面談終わりに具体日程を握る', '求職者に宿題を1つ出す', '次回までのアクションを互いに合意'],
+    skillmap: 'スキルマップL1「ネクストアクション期日を握れている」◎ 目標'
+  }
+};
+const raCoachingMap = {
+  '喚起トーク3型': {
+    pain: '市場感数字発言率が HP平均 88% より低い',
+    hpExample: '「月300人ぐらいの登録があります。財務希望者50名、うち稼働者20名」（飯野HP）',
+    selfQuote: '「市場としては厳しい状況です」（具体的な数値なし、抽象表現）',
+    script: m => `「${m.name}さん、市場感を抽象的に伝えるシーンが多めでした。\nHPの方は数字を即時に返しています。\n例：『財務希望者の今月の登録は50名、稼働者20名』──こういう数値を商談中にDB検索して即返すと、企業の信頼度が一気に変わります」`,
+    question: '「次回までに自分の領域の数値カードを3つ作ってもらえますか？」',
+    actions: ['担当領域の登録者数の数値を準備', '稼働者数・転職決定数のデータを把握', '商談中に即DB検索できる体制に'],
+    skillmap: 'スキルマップL2「各職種の転職市場感を説明出来る」◎ 目標'
+  },
+  'スクリーニング': {
+    pain: 'スクリーニング基準の精緻化率が HP平均 92% より低い',
+    hpExample: '「2年のところが本当にダメなのか、1年10ヶ月でも内容が良ければ相談可能なのか」（柴田HP）',
+    selfQuote: '「経験年数は2年以上ですね、わかりました」（要件を確認するだけで終了）',
+    script: m => `「${m.name}さん、年齢・経験年数を聞くだけで終わるパターンが目立ちました。\nHPは『ギリギリのゾーン』を攻めて、企業から本音を引き出してます。\n例：『2年が本当にダメなのか、1年10ヶ月でも内容で見るのか』──ここを聞くと、実は要件が緩むケースがあります」`,
+    question: '「次回、要件のギリギリのラインを1つだけ確認してみてもらえますか？」',
+    actions: ['要件の例外条件を聞き出す', 'ギリギリのゾーンを攻める質問', '実用的な採用要件に落とし込む'],
+    skillmap: 'スキルマップL3「根因（なぜ）を3段深掘り」◎ 目標'
+  },
+  'ターゲット拡大': {
+    pain: 'ターゲット拡大逆提案実施率が HP平均 62% より低い',
+    hpExample: '「購買とか資材調達経験の方も顧客とのやりとりや社内調整をやっている。対象になりませんか？」（高嶋HP）',
+    selfQuote: '「では営業経験5年以上で探しますね」（求人票通りの要件で受領）',
+    script: m => `「${m.name}さん、求人票通りの要件でヒアリングするパターンが多めでした。\nHPは隣接スキルの候補者を逆提案してます。\n例：購買→営業、設計→管理職、など。\n企業の採用要件を広げる方向の提案ができると、紹介数が一気に増えます」`,
+    question: '「次回、要件と隣接する職種を1つ提案してみてもらえますか？」',
+    actions: ['要件職種の隣接スキル領域を3つ列挙', '育成前提採用の可能性を確認', '採用基準柔軟化を逆提案'],
+    skillmap: 'スキルマップL2「候補者ターゲットの微調整」◎ 目標'
+  },
+  '求人票踏込': {
+    pain: '求人票への踏込み発言率が HP平均 95% より低い',
+    hpExample: '「これ同じ求人3つ作ってもいいですか？」（飯野HP）',
+    selfQuote: '「ご要望のとおり求人票作成しておきます」（求人票への意見出しなし）',
+    script: m => `「${m.name}さん、求人票は企業の言うままに作っているシーンが多いです。\nHPは求人票の見せ方・タイトル・条件まで踏み込んで提案してます。\n例：『同じ求人を職種違いで3つ作って良いか』『タイトルの〇〇が応募阻害してる』──ここまで言える関係性を作ることで、求人票の魅力が変わります」`,
+    question: '「次回、求人票で1つだけ修正提案してみてもらえますか？」',
+    actions: ['求人票のタイトル・PR文をレビュー', '応募阻害要素を1つ指摘', '同一求人の複数バージョンを提案'],
+    skillmap: 'スキルマップL3「要件緩和・評価軸再設計」◎ 目標'
+  },
+  'お見送り転換': {
+    pain: 'お見送り理由の次の紹介材料への転換率が HP平均 75% より低い',
+    hpExample: '「これって特設だったら結構可能性あったみたいなところとかもありますか？」（飯野HP）',
+    selfQuote: '「ご検討ありがとうございました。次の方をご紹介しますね」（理由分析なし）',
+    script: m => `「${m.name}さん、お見送り理由は聞いていますが、次の紹介材料への転換が弱めです。\nHPはお見送り理由を分類して、それぞれの払拭策を企業と一緒に考えてます。\n例：『転勤不安』『シフト不安』──こうやって分類すると、次の候補者選定の精度が上がります」`,
+    question: '「次回、お見送り理由を3つ以上引き出して分類してもらえますか？」',
+    actions: ['お見送り理由を3つ以上引き出す', '理由を分類して整理', '払拭策を企業と一緒に考える'],
+    skillmap: 'スキルマップL2「候補者/面接FBを迅速に反映」◎ 目標'
+  },
+  '選考改善': {
+    pain: '選考プロセス改善提案率が HP平均 70% より低い',
+    hpExample: '「選考フローが長いと候補者を逃す。カジュアル面談を省いて一次と二次を一緒にしては」（石邑HP）',
+    selfQuote: '「選考は3段階ですね、承知しました」（選考フロー自体への意見なし）',
+    script: m => `「${m.name}さん、選考フローはそのまま受け入れているシーンが多めです。\nHPは選考プロセス自体に改善提案を入れてます。\n例：『SPIを面接前から面接後に』『一次と二次の同日化』──選考プロセスを変えるだけで、辞退率が大きく変わります」`,
+    question: '「次回、選考フローで1つだけ改善提案してみてもらえますか？」',
+    actions: ['選考速度の課題を1つ指摘', 'フロー再構築の提案', '辞退防止の打ち手を提案'],
+    skillmap: 'スキルマップL2「選考スピード改善提案」◎ 目標'
+  }
+};
+
+// 1on1履歴データ（メンバーごと）
+const coachingHistory = {
+  'ca-yamamoto': [
+    { date:'2026/04/24', topic:'整理フェーズの粒度向上', result:'improved' },
+    { date:'2026/04/10', topic:'共感3語のバリエーション', result:'improved' },
+    { date:'2026/03/27', topic:'深掘り回数の維持', result:'improved' }
+  ],
+  'ca-tanaka': [
+    { date:'2026/04/24', topic:'深掘り「なぜ」連鎖', result:'stagnant' },
+    { date:'2026/04/10', topic:'整理フェーズの実装', result:'improved' },
+    { date:'2026/03/27', topic:'共感の自然さ', result:'improved' }
+  ],
+  'ca-suzuki': [
+    { date:'2026/04/24', topic:'優先度整理', result:'stagnant' },
+    { date:'2026/04/10', topic:'深掘り後の沈黙', result:'declined' }
+  ],
+  'ca-sato': [
+    { date:'2026/04/24', topic:'整理フェーズ実施', result:'declined' },
+    { date:'2026/04/10', topic:'チェックリスト型の脱却', result:'stagnant' }
+  ],
+  'ca-takahashi': [
+    { date:'2026/04/24', topic:'深掘りの粘り', result:'stagnant' },
+    { date:'2026/04/10', topic:'整理フェーズ実装', result:'improved' }
+  ],
+  'ra-iino': [
+    { date:'2026/04/24', topic:'求人票踏込のさらなる徹底', result:'improved' },
+    { date:'2026/04/10', topic:'数値型市場感の即時提供', result:'improved' }
+  ],
+  'ra-nakamura': [
+    { date:'2026/04/24', topic:'数値型の裏付け強化', result:'stagnant' },
+    { date:'2026/04/10', topic:'スクリーニング深掘り', result:'stagnant' }
+  ],
+  'ra-watanabe': [
+    { date:'2026/04/24', topic:'市場感の数値化', result:'stagnant' },
+    { date:'2026/04/10', topic:'求人票への踏込み', result:'declined' }
+  ],
+  'ra-kimura': [
+    { date:'2026/04/24', topic:'サービス説明時間圧縮', result:'declined' },
+    { date:'2026/04/10', topic:'チェックリスト型脱却', result:'stagnant' }
+  ],
+  'ra-ito': [
+    { date:'2026/04/24', topic:'市場型の数値裏付け', result:'stagnant' },
+    { date:'2026/04/10', topic:'スクリーニング精緻化', result:'stagnant' }
+  ]
+};
+
+function generateCoachingCard(role, memberId, animate) {
+  const m = getMembers(role).find(x => x.id === memberId);
+  if(!m) return '';
+  const axes = getAxes(role);
+  const map = role === 'ca' ? caCoachingMap : raCoachingMap;
+  const dateStr = new Date().toLocaleDateString('ja-JP');
+
+  // ===== 改善余地TOP3 =====
+  const hpAvg = role === 'ca' ? [4.5, 4.5, 4.3, 4.5, 4.4, 4.5] : [4.7, 4.5, 4.4, 4.8, 4.3, 4.4]; // 山本/飯野HPを基準
+  const gaps = m.scores.map((v, i) => ({ idx:i, axis:axes[i], self:v, hp:hpAvg[i], gap:hpAvg[i]-v }));
+  const top3 = [...gaps].sort((a,b) => b.gap - a.gap).slice(0,3);
+  // 再生成のたびに TOP1→TOP2→TOP3 のローテーション
+  const focusIdx = regenCounter[role] % 3;
+  const focus = top3[focusIdx];
+  const focusAxis = focus.axis;
+  const focusScore = focus.self;
+  const c = map[focusAxis] || Object.values(map)[0];
+  const focusLabel = ['今週', '来週', '再来週'][focusIdx];
+
+  // ===== ステータス判定 =====
+  let priorityClass = 'badge-priority-low', priorityLabel = '優先度: 低';
+  if(focus.gap >= 1.5) { priorityClass = 'badge-priority-high'; priorityLabel = '⚠️ 優先度: 高'; }
+  else if(focus.gap >= 0.7) { priorityClass = 'badge-priority-mid'; priorityLabel = '◎ 優先度: 中'; }
+
+  // 仮の前週比（demo: スコアの-0.05〜+0.05ランダム範囲を採用）
+  const trendDelta = (Math.round((focusScore - hpAvg[focus.idx]) * 100) / 100); // ダミー: hpとの差が大きいと負
+  const realDelta = m.score < 3.0 ? -0.3 : (m.score >= 4.0 ? 0.2 : -0.05);
+  let trendClass = 'badge-trend-flat', trendLabel = '横ばい';
+  if(realDelta < -0.1) { trendClass = 'badge-trend-down'; trendLabel = `📉 ${realDelta.toFixed(2)}pt（先週比）`; }
+  else if(realDelta > 0.1) { trendClass = 'badge-trend-up'; trendLabel = `📈 +${realDelta.toFixed(2)}pt（先週比）`; }
+
+  // 履歴から「2週連続未達」等を判定
+  const hist = coachingHistory[m.id] || [];
+  const stagnantCount = hist.slice(0,2).filter(h => h.result === 'stagnant' || h.result === 'declined').length;
+  const streakBadge = stagnantCount >= 2 ? `<span class="coaching-status-badge badge-streak">⏱ ${stagnantCount}週連続未達</span>` : '';
+
+  // ===== 直近4週指標 =====
+  const metricsHtml = `
+    <div class="coaching-metrics-row">
+      <div class="coaching-metric-card">
+        <div class="coaching-metric-label">直近4週 商談数</div>
+        <div class="coaching-metric-value">8<span style="font-size:13px;color:#94a3b8;">件</span></div>
+        <div class="coaching-metric-sub">前期比 +1件</div>
+      </div>
+      <div class="coaching-metric-card">
+        <div class="coaching-metric-label">総合スコア</div>
+        <div class="coaching-metric-value">${m.score.toFixed(1)}<span class="${realDelta < 0 ? 'delta-down' : 'delta-up'}">${realDelta >= 0 ? '+' : ''}${realDelta.toFixed(2)}</span></div>
+        <div class="coaching-metric-sub">先週比</div>
+      </div>
+      <div class="coaching-metric-card">
+        <div class="coaching-metric-label">HP平均との差</div>
+        <div class="coaching-metric-value">${focus.gap >= 0 ? '-' : '+'}${Math.abs(focus.gap).toFixed(1)}</div>
+        <div class="coaching-metric-sub">${focusAxis}</div>
+      </div>
+      <div class="coaching-metric-card">
+        <div class="coaching-metric-label">スキルマップ</div>
+        <div class="coaching-metric-value" style="font-size:18px;">${m.stage}</div>
+        <div class="coaching-metric-sub">${m.rec}</div>
+      </div>
+    </div>
+  `;
+
+  // ===== TOP3改善余地 =====
+  const top3Html = `
+    <div class="coaching-top3">
+      ${top3.map((t, i) => `
+        <div class="coaching-top3-item">
+          <span class="coaching-top3-rank ${i===1?'r2':i===2?'r3':''}">${i+1}</span>
+          <div class="coaching-top3-name">${t.axis}</div>
+          <div class="coaching-top3-bar-wrap">
+            <div class="coaching-top3-bar-line">
+              <div class="coaching-top3-bar-label" style="color:#dc2626;">本人</div>
+              <div class="coaching-top3-bar"><div class="coaching-top3-bar-fill bar-self" style="width:${t.self/5*100}%;"></div></div>
+              <div class="coaching-top3-bar-val">${t.self.toFixed(1)}</div>
+            </div>
+            <div class="coaching-top3-bar-line">
+              <div class="coaching-top3-bar-label" style="color:#16a34a;">HP平均</div>
+              <div class="coaching-top3-bar"><div class="coaching-top3-bar-fill bar-hp" style="width:${t.hp/5*100}%;"></div></div>
+              <div class="coaching-top3-bar-val">${t.hp.toFixed(1)}</div>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  // ===== 履歴 =====
+  const historyHtml = hist.length === 0 ? '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px;">履歴なし（初回）</div>' : `
+    <div class="coaching-history">
+      ${hist.map(h => `
+        <div class="coaching-history-item">
+          <span class="coaching-history-date">${h.date}</span>
+          <span class="coaching-history-topic">${h.topic}</span>
+          <span class="coaching-history-result result-${h.result}">${h.result === 'improved' ? '✓ 改善' : h.result === 'stagnant' ? '〜 停滞' : '✗ 後退'}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  return `
+    <div class="coaching-card ${animate?'regen':''}">
+      <div class="ai-process-bar"></div>
+      <div class="coaching-card-header">
+        <div>
+          <div class="coaching-card-title">
+            <span class="ai-mark">AI生成</span>
+            ${m.name}さん 1on1指導カード
+          </div>
+          <div class="coaching-card-meta">作成日: ${dateStr} ／ 対象期間: 直近4週 ／ 商談数: 8件 ／ AI自動生成</div>
+        </div>
+      </div>
+
+      <div class="coaching-status-row">
+        <span class="coaching-status-badge ${priorityClass}">${priorityLabel}</span>
+        <span class="coaching-status-badge ${trendClass}">${trendLabel}</span>
+        <span class="coaching-status-badge badge-stage">💎 ${m.stage} 滞在</span>
+        ${streakBadge}
+      </div>
+
+      <div class="coaching-card-section">
+        <div class="coaching-card-label"><span class="icon">📊</span> 直近4週パフォーマンス</div>
+        ${metricsHtml}
+      </div>
+
+      <div class="coaching-card-section">
+        <div class="coaching-card-label"><span class="icon">🔝</span> 改善余地 TOP3（HP平均との差）</div>
+        ${top3Html}
+      </div>
+
+      <div class="coaching-card-section">
+        <div class="coaching-card-label"><span class="icon">🎯</span> ${focusLabel}の指導ポイント <span style="font-size:10px;color:#94a3b8;margin-left:8px;font-weight:500;">（TOP3を週単位でローテーション）</span></div>
+        <div class="coaching-point"><strong>${focusAxis}</strong>（スコア ${focusScore.toFixed(1)} / 5.0、HP平均 ${focus.hp.toFixed(1)}との差 ${focus.gap.toFixed(1)}pt）<br>${c.pain}</div>
+      </div>
+
+      <div class="coaching-card-section">
+        <div class="coaching-card-label"><span class="icon">🔍</span> 発言比較（直近商談から自動抽出）</div>
+        <div class="coaching-compare">
+          <div class="coaching-compare-col self">
+            <div class="coaching-compare-head">${m.name}さん（${m.stage}）の発言例</div>
+            <div class="coaching-compare-text">${c.selfQuote || '（発言データ蓄積中）'}</div>
+          </div>
+          <div class="coaching-compare-col hp">
+            <div class="coaching-compare-head">${role === 'ca' ? '山本HP（L4）' : '飯野HP（L4）'}の発言例</div>
+            <div class="coaching-compare-text">${c.hpExample}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="coaching-card-section">
+        <div class="coaching-card-label"><span class="icon">💬</span> マネージャー向け切り出しトーク例</div>
+        <div class="coaching-script">${c.script(m)}</div>
+      </div>
+
+      <div class="coaching-card-section">
+        <div class="coaching-card-label"><span class="icon">❓</span> 振り返り質問（部下への問いかけ）</div>
+        <div class="coaching-question">${c.question}</div>
+      </div>
+
+      <div class="coaching-card-section">
+        <div class="coaching-card-label"><span class="icon">✅</span> 次回までのアクションアイテム（部下用）</div>
+        <div class="coaching-actions">
+          ${c.actions.map((a, i) => `
+            <div class="coaching-action-item">
+              <div class="coaching-action-check"></div>
+              <div><strong>${i+1}.</strong> ${a}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="coaching-card-section">
+        <div class="coaching-card-label"><span class="icon">📊</span> スキルマップ評価への接続</div>
+        <div class="coaching-skillmap">植村様シート ${c.skillmap}<br><span style="font-size:11px;color:#94a3b8;">3ヶ月定点評価で◎獲得を目指し、週次1on1で継続支援します</span></div>
+      </div>
+
+      <div class="coaching-card-section">
+        <div class="coaching-card-label"><span class="icon">📝</span> 1on1メモ（マネージャー記入欄）</div>
+        <textarea class="coaching-memo-textarea" placeholder="1on1で話した内容・部下のリアクション・次回への申し送りなどをここに記入してください..."></textarea>
+        <div class="coaching-memo-actions">
+          <button class="btn-outline" style="font-size:12px;">💾 メモを保存</button>
+          <button class="btn-outline" style="font-size:12px;">📋 次回1on1に引き継ぐ</button>
+        </div>
+      </div>
+
+      <div class="coaching-card-section">
+        <div class="coaching-card-label"><span class="icon">📜</span> 過去の1on1履歴</div>
+        ${historyHtml}
+      </div>
+    </div>
+  `;
+}
+
+// 再生成カウンタ（バリエーション選択用）
+const regenCounter = { ca: 0, ra: 0 };
+
+function renderCoaching(role, animate){
+  const sel = document.getElementById('coachingSelect' + (role.charAt(0).toUpperCase()+role.slice(1)));
+  const memberId = sel.value;
+  const container = document.getElementById('coachingContent' + (role.charAt(0).toUpperCase()+role.slice(1)));
+
+  if(animate) {
+    regenCounter[role]++;
+    // カウンタを画面に反映
+    const cntEl = document.getElementById('regenCount' + (role.charAt(0).toUpperCase()+role.slice(1)));
+    if(cntEl) cntEl.textContent = regenCounter[role];
+    // ローディング表示（3ステップ）
+    container.innerHTML = `
+      <div class="ai-loading-card">
+        <div class="ai-loading-spinner"></div>
+        <div class="ai-loading-title">AIが評価生成中</div>
+        <div class="ai-loading-sub">直近4週の対話データを処理して1on1指導カードを生成しています</div>
+        <div class="ai-loading-steps">
+          <div class="ai-loading-step active" id="ls-1">ailead から対話データを取得中</div>
+          <div class="ai-loading-step" id="ls-2">HP10パターンと比較分析中</div>
+          <div class="ai-loading-step" id="ls-3">スキルマップと突合・1on1スクリプト生成中</div>
+        </div>
+      </div>
+    `;
+    setTimeout(() => {
+      const s1 = document.getElementById('ls-1');
+      const s2 = document.getElementById('ls-2');
+      if(s1 && s2){ s1.classList.remove('active'); s1.classList.add('done'); s2.classList.add('active'); }
+    }, 500);
+    setTimeout(() => {
+      const s2 = document.getElementById('ls-2');
+      const s3 = document.getElementById('ls-3');
+      if(s2 && s3){ s2.classList.remove('active'); s2.classList.add('done'); s3.classList.add('active'); }
+    }, 1100);
+    setTimeout(() => {
+      container.innerHTML = generateCoachingCard(role, memberId, true);
+    }, 1700);
+  } else {
+    container.innerHTML = generateCoachingCard(role, memberId, false);
+  }
+}
+
+function openCoachingFromDetail(){
+  if(!window._currentDetail) return;
+  closeDetail();
+  showPage('coaching');
+  setTimeout(() => {
+    const role = window._currentDetail.role;
+    switchRole('coaching', role);
+    document.getElementById('coachingSelect' + (role.charAt(0).toUpperCase()+role.slice(1))).value = window._currentDetail.id;
+    renderCoaching(role, true);
+  }, 50);
+}
+
+// ===== SKILLMAP 3-WAY =====
+function renderSmSelects(){
+  ['ca','ra'].forEach(role => {
+    const sel = document.getElementById('smSelect' + (role.charAt(0).toUpperCase()+role.slice(1)));
+    sel.innerHTML = getMembers(role).map(m => `<option value="${m.id}">${m.name} (${m.stage}) ${m.group==='control'?'[対照]':''}</option>`).join('');
+  });
+}
+
+function renderSkillmap3way(role){
+  const sel = document.getElementById('smSelect' + (role.charAt(0).toUpperCase()+role.slice(1)));
+  const m = getMembers(role).find(x => x.id === sel.value);
+  if(!m) return;
+  // For 3-way, generate self/supervisor/ailead. Use ailead = m.skillmap, derive self/sup with small variations.
+  const cells = (mark) => {
+    const cls = { '◎':'sm-double', '○':'sm-circle', '△':'sm-tri', '×':'sm-cross' }[mark] || 'sm-cross';
+    return `<span class="sm-mark ${cls}">${mark}</span>`;
+  };
+  const generateSelfSup = (aileadMarks) => {
+    // self tends to overestimate, supervisor closer to ailead
+    const order = ['◎','○','△','×'];
+    const upOne = mark => { const i = order.indexOf(mark); return order[Math.max(0, i-1)]; };
+    const sometimesUp = (mark, prob) => Math.random() < prob ? upOne(mark) : mark;
+    return aileadMarks.map(mark => ({
+      self: sometimesUp(mark, 0.4),
+      sup: sometimesUp(mark, 0.15),
+      ai: mark
+    }));
+  };
+
+  const rows = Object.entries(m.skillmap).map(([cat, marks]) => {
+    const [大, 中] = cat.split('-');
+    const data = generateSelfSup(marks);
+    return data.map((d, lvIdx) => {
+      const level = ['L1','L2','L3'][lvIdx];
+      const isGap = !(d.self === d.sup && d.sup === d.ai);
+      return `<tr class="${isGap ? 'gap' : ''}">
+        ${lvIdx === 0 ? `<td class="cat" rowspan="3">${大}</td><td class="subcat" rowspan="3">${中}</td>` : ''}
+        <td class="center" style="font-weight:600;color:#475569;">${level}</td>
+        <td class="center">${cells(d.self)}</td>
+        <td class="center">${cells(d.sup)}</td>
+        <td class="center">${cells(d.ai)}</td>
+        <td class="center">${isGap ? '<span class="gap-flag">要議論</span>' : '<span style="color:#16a34a;font-size:12px;">一致</span>'}</td>
+      </tr>`;
+    }).join('');
+  }).join('');
+
+  const totalCells = Object.keys(m.skillmap).length * 3;
+  let gapCount = 0;
+  Object.values(m.skillmap).forEach(marks => {
+    const data = generateSelfSup(marks);
+    data.forEach(d => { if(!(d.self === d.sup && d.sup === d.ai)) gapCount++; });
+  });
+  const consistency = ((totalCells - gapCount) / totalCells * 100).toFixed(0);
+
+  document.getElementById('skillmap' + (role.charAt(0).toUpperCase()+role.slice(1))).innerHTML = `
+    <div style="margin-bottom:16px;padding:14px 18px;background:${consistency >= 80 ? '#f0fdf4' : '#fef3c7'};border-radius:8px;font-size:13px;color:#1e293b;">
+      <strong>3点照合の整合性: ${consistency}%</strong>${consistency >= 80 ? ' ✓ 検証ライン80%以上を満たしています' : ' ⚠️ 検証ライン80%を下回っています。ズレ項目を3ヶ月定点評価で議論することを推奨'}
+    </div>
+    <table class="skillmap-3way">
+      <thead>
+        <tr>
+          <th class="col-cat">大分類</th>
+          <th class="col-cat">中分類</th>
+          <th>レベル</th>
+          <th>自己評価</th>
+          <th>上司評価</th>
+          <th>ailead 自動採点</th>
+          <th>整合性</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+// ===== PROMPT =====
+const caPromptAxes = [
+  {name:'整理フェーズ実施', goal:'ヒアリング・深掘り後に候補者の希望・優先順位を整理し、相手に確認している',
+    criteria:['深掘りで聞いた内容を要約して相手に返している','希望条件のMUST/WANT/NGを整理して合意形成している','整理を踏まえて提案フェーズに移行している']},
+  {name:'深掘り発言（なぜ連鎖）', goal:'転職理由・価値観の核を「なぜ」を重ねて引き出している',
+    criteria:['初回の回答で止まらず2回以上深掘りしている','矛盾点に気づき追加質問で整合性を取れている','価値観の核に到達できている']},
+  {name:'共感3語パターン', goal:'HP集中度0.85基準の共感ワード（そうですね/なるほど/ですよね）を場面適合で使用',
+    criteria:['機械的でなく文脈に応じた使い分けができている','相手の発話量を増やす効果が出ている','感情面への配慮が言葉に出ている']},
+  {name:'提案・マッチング', goal:'希望と現実のギャップを踏まえ複数提案ができている',
+    criteria:['メイン職種で応募獲得トークが確立している','視野を広げる代替案も提示している','提案理由・期待メリットを言語化している']},
+  {name:'優先度整理（MUST/WANT/NG）', goal:'希望条件の優先順位を整理して記録できている',
+    criteria:['MUSTとWANTを区別して聞いている','NG条件を確認している','優先度を相手と合意している']},
+  {name:'次回具体性（厳しいStep 7）', goal:'具体的な日程・面接設定・求人票修正等まで握る',
+    criteria:['「また連絡」止まりではなく具体日程まで握る','求職者に宿題を出している','次回までのアクションを互いに合意している']}
+];
+const raPromptAxes = [
+  {name:'喚起トーク3型（数値・市場・競合）', goal:'HP実発言3型を活用してクライアントの危機意識を喚起する',
+    criteria:['具体的な数値で現状を可視化している','市場環境を共有している','競合圧力を提示している']},
+  {name:'スクリーニング基準精緻化', goal:'「ギリギリのゾーン」を攻めて要件を具体化する',
+    criteria:['「2年が本当にダメか、1年10ヶ月でも良いか」型の質問ができる','要件の例外条件を引き出している','実用的な採用要件に落とし込めている']},
+  {name:'ターゲット拡大逆提案', goal:'採用基準の再定義につながる候補者拡大提案ができる',
+    criteria:['隣接スキル・職種からの拡大提案','育成前提の採用可否確認','採用基準の柔軟化提案']},
+  {name:'求人票踏込', goal:'求人票の見せ方・設計まで踏み込む提案ができる',
+    criteria:['求人票のタイトル・PR文への意見出し','同一求人の複数バージョン提案','条件面の表現の最適化']},
+  {name:'お見送り理由転換', goal:'お見送り理由を次の紹介材料に転換する',
+    criteria:['お見送り理由を分類できる','払拭策を企業と一緒に考えている','次回紹介の精度向上に活かしている']},
+  {name:'選考プロセス改善', goal:'選考フロー自体に改善提案を入れる',
+    criteria:['選考速度改善の提案','フロー再構築の提案','辞退防止の打ち手提案']}
+];
+function renderPromptDetail(){
+  const render = (axes, tag) => axes.map((a,i)=>`
+    <div style="background:#f8fafc;border-radius:10px;padding:16px 18px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span class="prompt-card-tag ${tag}">評価軸${i+1}</span>
+        <strong style="font-size:14px;color:#1e293b;">${a.name}</strong>
+      </div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:10px;"><strong>評価目標：</strong>${a.goal}</div>
+      <ul style="list-style:none;padding:0;">
+        ${a.criteria.map((c,j)=>`<li style="font-size:12px;color:#334155;padding:6px 0 6px 18px;border-top:${j?'1px solid #e2e8f0':'none'};position:relative;"><span style="position:absolute;left:0;color:#94a3b8;">基準${j+1}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${c}</li>`).join('')}
+      </ul>
+    </div>`).join('');
+  document.getElementById('caPromptDetail').innerHTML = render(caPromptAxes, 'tag-ca');
+  document.getElementById('raPromptDetail').innerHTML = render(raPromptAxes, 'tag-ra');
+}
+
+// ===== DETAIL =====
+function openDetail(role, id){
+  const m = getMembers(role).find(x => x.id===id);
+  if(!m) return;
+  window._currentDetail = { role, id };
+  const axes = getAxes(role);
+
+  document.getElementById('detailName').textContent = m.name;
+  document.getElementById('detailDeal').textContent = `${m.deal} ・ ${m.date}`;
+  document.getElementById('detailScore').textContent = m.score.toFixed(1);
+  document.getElementById('detailGrade').innerHTML = `<span class="grade ${m.stageClass} d-grade">${m.stage}</span>`;
+  document.getElementById('detailRec').innerHTML = `<span class="rec-badge ${m.recClass} d-rec">${m.rec}</span>`;
+  document.getElementById('detailRatio').textContent = m.agreement;
+
+  const renderCriteria = (list) => list.length === 0 ? '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px;">対照群のため詳細評価は非表示</div>' : list.map(c => `
+    <div class="criteria-card">
+      <div class="criteria-header"><span class="criteria-name">${c.name}</span>
+        <div class="criteria-right"><span class="criteria-score">${c.score.toFixed(1)}</span></div></div>
+      <div class="criteria-block"><div class="criteria-label">引用</div><div class="criteria-quote">${c.quote}</div></div>
+      <div class="criteria-block"><div class="criteria-label">文脈分析</div><div class="criteria-text">${c.context}</div></div>
+      <div class="criteria-block"><div class="criteria-label">改善メモ</div><div class="criteria-text">${c.memo}</div></div>
+    </div>`).join('');
+  document.getElementById('detailCriteria').innerHTML = renderCriteria(m.criteria);
+
+  document.getElementById('detailComment').innerHTML =
+    `<div class="comment-block"><div class="comment-label">総合所見</div><div class="comment-text">${m.comment.summary}</div></div>${m.comment.positive ? `
+     <div class="comment-block"><div class="comment-label">ポジティブ要素</div><div class="comment-text comment-positive">${m.comment.positive}</div></div>` : ''}${m.comment.negative ? `
+     <div class="comment-block"><div class="comment-label">ネガティブ要素</div><div class="comment-text comment-negative">${m.comment.negative}</div></div>` : ''}`;
+
+  if(window._radarChart) window._radarChart.destroy();
+  window._radarChart = new Chart(document.getElementById('radarChart').getContext('2d'), {
+    type:'radar',
+    data:{ labels: axes, datasets:[{ label: m.name, data: m.scores,
+      backgroundColor:'rgba(37,99,235,0.15)', borderColor:'rgba(37,99,235,0.8)', borderWidth:2,
+      pointBackgroundColor:'rgba(37,99,235,1)', pointBorderColor:'#fff', pointBorderWidth:2, pointRadius:5 }] },
+    options:{ responsive:true, maintainAspectRatio:true,
+      scales:{ r:{ min:0, max:5, ticks:{ stepSize:1, font:{size:11}, backdropColor:'transparent', color:'#94a3b8' },
+        grid:{ color:'#e2e8f0' }, angleLines:{ color:'#e2e8f0' },
+        pointLabels:{ font:{size:12, weight:'600'}, color:'#334155' } } },
+      plugins:{ legend:{ display:false } } }
+  });
+  document.getElementById('overlay').classList.add('active');
+  document.getElementById('detailPanel').classList.add('active');
+}
+function closeDetail(){
+  document.getElementById('overlay').classList.remove('active');
+  document.getElementById('detailPanel').classList.remove('active');
+}
+
+// ===== PAGE / ROLE =====
+function showPage(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.sidebar-nav li').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.getElementById('nav-'+p).classList.add('active');
+  if(p==='report') initReportCharts(getCurrentRole('report'));
+  if(p==='prompt') renderPromptDetail();
+  if(p==='coaching') renderCoaching(getCurrentRole('coaching'));
+  if(p==='skillmap') renderSkillmap3way(getCurrentRole('skillmap'));
+}
+function getCurrentRole(page){
+  const tabs = document.querySelectorAll(`#page-${page} .role-tab`);
+  for(const t of tabs){ if(t.classList.contains('active')) return t.dataset.role; }
+  return 'ca';
+}
+function switchRole(page, role){
+  document.querySelectorAll(`#page-${page} .role-tab`).forEach(t => t.classList.toggle('active', t.dataset.role === role));
+  document.querySelectorAll(`#page-${page} .role-page`).forEach(p => p.classList.remove('active'));
+  document.getElementById(`${page}-${role}`).classList.add('active');
+  if(page === 'coaching') renderCoaching(role);
+  if(page === 'report') initReportCharts(role);
+  if(page === 'skillmap') renderSkillmap3way(role);
+}
+
+// ===== REPORT CHARTS =====
+const reportInit = { ca: false, ra: false };
+function initReportCharts(role){
+  if(reportInit[role]) return;
+  reportInit[role] = true;
+  const members = getMembers(role).filter(m => m.group === 'treatment');
+  const axes = getAxes(role);
+  const td = trendData[role];
+
+  // Grade Distribution
+  const counts = axes.map((_, i) => {
+    const c = {S:0,A:0,B:0,Cn:0};
+    members.forEach(m => {
+      const v = m.scores[i];
+      if(v>=4.5) c.S++; else if(v>=3.5) c.A++; else if(v>=2.5) c.B++; else c.Cn++;
+    });
+    return c;
+  });
+  new Chart(document.getElementById(role + 'GradeDist'), {
+    type:'bar',
+    data:{ labels: axes,
+      datasets:[
+        {label:'S (4.5+)', data: counts.map(c=>c.S), backgroundColor:'#16a34a'},
+        {label:'A (3.5+)', data: counts.map(c=>c.A), backgroundColor:'#2563eb'},
+        {label:'B (2.5+)', data: counts.map(c=>c.B), backgroundColor:'#d97706'},
+        {label:'C (<2.5)', data: counts.map(c=>c.Cn), backgroundColor:'#dc2626'} ] },
+    options:{ responsive:true, indexAxis:'y',
+      scales:{ x:{ stacked:true, max:5, ticks:{stepSize:1} }, y:{ stacked:true } },
+      plugins:{ legend:{ position:'top', labels:{boxWidth:12, font:{size:11}} } } }
+  });
+
+  // Stage Pie
+  const stages = {L4:0,L3:0,L2:0,L1:0};
+  members.forEach(m => stages[m.stage]++);
+  new Chart(document.getElementById(role + 'StagePie'), {
+    type:'doughnut',
+    data:{ labels:['L4 ハイパフォーマー','L3 安定','L2 要観察','L1 要改善'],
+      datasets:[{ data:[stages.L4,stages.L3,stages.L2,stages.L1], backgroundColor:['#16a34a','#2563eb','#d97706','#dc2626'], borderWidth:0 }] },
+    options:{ responsive:true, plugins:{ legend:{ position:'bottom', labels:{boxWidth:10,font:{size:11}} } }, cutout:'60%' }
+  });
+
+  // Trend
+  new Chart(document.getElementById(role + 'Trend'), {
+    type:'line',
+    data:{ labels: td.weeks,
+      datasets:[
+        {label:'介入群', data: td.treatment, borderColor:'#2563eb', backgroundColor:'rgba(37,99,235,0.1)', tension:0.3, fill:true, borderWidth:2.5},
+        {label:'対照群', data: td.control, borderColor:'#94a3b8', borderDash:[5,5], tension:0.3, fill:false, borderWidth:2}
+      ] },
+    options:{ responsive:true,
+      scales:{ y:{ min:2.5, max:4.5, ticks:{stepSize:0.5}, title:{display:true,text:'総合スコア'} } },
+      plugins:{ legend:{position:'top',labels:{boxWidth:14,font:{size:11}}} } }
+  });
+
+  // Scatter
+  const xKey = role === 'ca' ? 0 : 0; // Both index 0
+  const xLabel = role === 'ca' ? '整理フェーズ実施スコア' : '喚起トーク3型スコア';
+  const scatterData = members.map(m => ({ x: m.scores[xKey], y: m.score, label: m.name }));
+  new Chart(document.getElementById(role + 'Scatter'), {
+    type:'scatter',
+    data:{ datasets:[{
+      data: scatterData.map(d=>({x:d.x, y:d.y})),
+      backgroundColor: scatterData.map(d => d.y>=4.0?'#16a34a':d.y>=3.0?'#2563eb':'#dc2626'),
+      pointRadius:9, pointHoverRadius:11 }] },
+    options:{ responsive:true,
+      scales:{
+        x:{ title:{display:true, text:xLabel}, min:2, max:5 },
+        y:{ title:{display:true, text:'総合スコア'}, min:2, max:5 } },
+      plugins:{ legend:{display:false},
+        tooltip:{ callbacks:{ label:ctx => `${scatterData[ctx.dataIndex].label} (${ctx.parsed.x.toFixed(1)}, ${ctx.parsed.y.toFixed(1)})` } } } }
+  });
+}
+
+// ===== INIT =====
+renderTable('ca');
+renderTable('ra');
+renderHeatmap('ca');
+renderHeatmap('ra');
+renderCoachingSelects();
+renderCoaching('ca');
+renderCoaching('ra');
+renderSmSelects();
+renderSkillmap3way('ca');
+renderSkillmap3way('ra');
+renderPromptDetail();
+</script>
+
+</body>
+</html>
