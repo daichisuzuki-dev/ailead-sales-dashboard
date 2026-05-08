@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<title>ailead Sales Dashboard - CyberAgent 広告事業本部</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif; background: #f5f6fa; color: #333; display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar { width: 220px; background: #fff; border-right: 1px solid #e8e8e8; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 0; position: fixed; height: 100vh; z-index: 10; }
+  .sidebar-logo { padding: 0 20px; margin-bottom: 28px; display: flex; align-items: center; gap: 10px; }
+  .sidebar-logo .logo-text { font-size: 18px; font-weight: 700; color: #2563eb; }
+  .sidebar-logo .logo-sub { font-size: 11px; color: #94a3b8; display: block; margin-top: 2px; }
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav li { padding: 10px 20px; font-size: 14px; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+  .sidebar-nav li.active { color: #2563eb; background: #eff6ff; border-right: 3px solid #2563eb; font-weight: 600; }
+  .sidebar-nav li:hover { background: #f8fafc; }
+  .sidebar-nav li svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .sidebar-bottom { padding: 0 20px; }
+  .sidebar-client { display: flex; align-items: center; gap: 8px; padding: 12px 0; border-top: 1px solid #e8e8e8; }
+  .sidebar-client-icon { width: 32px; height: 32px; background: #0ac274; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+  .sidebar-client-name { font-size: 12px; color: #334155; font-weight: 600; line-height: 1.3; }
+  .sidebar-client-sub { font-size: 10px; color: #94a3b8; }
+  .sidebar-account { display: flex; align-items: center; gap: 8px; padding-top: 12px; font-size: 13px; color: #64748b; cursor: pointer; }
+  .back-to-top { display: inline-flex; align-items: center; gap: 6px; margin: 4px 20px 12px; font-size: 11px; color: #94a3b8; text-decoration: none; border: 1px solid #e2e8f0; padding: 5px 10px; border-radius: 6px; background: #f8fafc; }
+
+  /* Main */
+  .main { margin-left: 220px; flex: 1; padding: 32px 40px; }
+  .page-title { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+  .page-title .pill { background: #fee2e2; color: #dc2626; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 10px; }
+  .page-title .pill-good { background: #dcfce7; color: #16a34a; }
+  .page-desc { font-size: 12px; color: #94a3b8; margin-bottom: 16px; }
+
+  /* Data source banner */
+  .data-banner { background: #f1f5f9; border-radius: 8px; padding: 10px 14px; font-size: 11px; color: #64748b; margin-bottom: 24px; display: flex; gap: 16px; flex-wrap: wrap; }
+  .data-banner strong { color: #334155; }
+
+  /* Summary Cards */
+  .summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .card { background: #fff; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .card.alert-card { border-left: 3px solid #dc2626; }
+  .card.warn-card { border-left: 3px solid #d97706; }
+  .card.good-card { border-left: 3px solid #16a34a; }
+  .card-label { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+  .card-value { font-size: 32px; font-weight: 700; color: #1e293b; }
+  .card-value .unit { font-size: 14px; font-weight: 400; color: #94a3b8; margin-left: 2px; }
+  .card-value .sub { font-size: 14px; font-weight: 400; color: #94a3b8; }
+  .card-trend { font-size: 11px; color: #64748b; margin-top: 4px; }
+  .card-trend.alert { color: #dc2626; }
+  .card-trend.good { color: #16a34a; }
+
+  /* Toolbar */
+  .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-box { flex: 1; max-width: 260px; padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; outline: none; background: #fff; }
+  .filter-chip { padding: 4px 12px; border-radius: 14px; font-size: 11px; border: 1px solid #e2e8f0; color: #64748b; background: #fff; cursor: pointer; }
+  .filter-chip.active { background: #fee2e2; border-color: #dc2626; color: #dc2626; font-weight: 600; }
+
+  /* Table */
+  .table-wrap { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { text-align: left; padding: 12px 14px; color: #94a3b8; font-weight: 500; font-size: 11px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
+  tbody td { padding: 12px 14px; border-bottom: 1px solid #f8fafc; white-space: nowrap; font-size: 12px; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: #fafbfd; }
+
+  /* Severity */
+  .grade { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 24px; border-radius: 6px; font-size: 12px; font-weight: 700; padding: 0 8px; }
+  .grade-c  { background: #fee2e2; color: #dc2626; }
+  .grade-b-minus { background: #fed7aa; color: #ea580c; }
+  .grade-b  { background: #fef3c7; color: #d97706; }
+
+  .rec-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .rec-hold { background: #fef3c7; color: #d97706; }
+  .rec-no { background: #fee2e2; color: #dc2626; }
+
+  .alert-pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; margin-right: 4px; white-space: nowrap; }
+  .alert-red { background: #fee2e2; color: #dc2626; }
+  .alert-yellow { background: #fef3c7; color: #d97706; }
+
+  .bureau-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+  .bureau-isobe { background: #eff6ff; color: #2563eb; }
+  .bureau-hattori { background: #f0fdf4; color: #16a34a; }
+  .bureau-smb { background: #fef3c7; color: #d97706; }
+
+  .deal-name { color: #475569; font-size: 12px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
+  .deal-date { color: #94a3b8; font-size: 11px; }
+  .member-name { color: #2563eb; font-weight: 500; }
+
+  /* Section pages */
+  .page { display: none; }
+  .page.active { display: block; }
+  .report-section { background: #fff; border-radius: 12px; padding: 24px 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 20px; }
+  .report-section-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .report-summary-text { font-size: 13px; color: #475569; line-height: 1.8; }
+  .report-summary-text li { margin-bottom: 6px; list-style: none; padding-left: 18px; position: relative; }
+  .report-summary-text li:before { content: '●'; color: #dc2626; position: absolute; left: 0; font-size: 8px; top: 7px; }
+  .ai-insight { background: #fef2f2; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px; border-left: 3px solid #dc2626; }
+  .ai-insight-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #dc2626; color: #fff; border-radius: 50%; font-size: 11px; font-weight: 700; margin-right: 8px; }
+  .ai-insight-text { font-size: 13px; color: #334155; line-height: 1.7; display: inline; }
+  .ai-badge { display: inline-block; background: #fee2e2; color: #dc2626; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-bottom: 12px; }
+  .ai-timestamp { font-size: 11px; color: #94a3b8; margin-bottom: 16px; }
+  .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .chart-container { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .chart-title { font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 16px; }
+
+  /* Word grid */
+  .word-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .word-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 18px; }
+  .word-card.red { border-left: 3px solid #dc2626; }
+  .word-card.yellow { border-left: 3px solid #d97706; }
+  .word-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .word-card-title { font-size: 13px; font-weight: 600; color: #1e293b; }
+  .word-card-cat { font-size: 10px; color: #94a3b8; margin-bottom: 4px; }
+  .word-card-desc { font-size: 12px; color: #64748b; line-height: 1.5; }
+  .word-card-count { font-size: 11px; color: #94a3b8; margin-top: 6px; }
+
+  /* Weekly Report (sample-style) */
+  .weekly-report { background: #fff; border-radius: 12px; padding: 28px 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 20px; }
+  .wr-header { border-bottom: 2px solid #1e293b; padding-bottom: 12px; margin-bottom: 20px; }
+  .wr-title { font-size: 20px; font-weight: 700; color: #1e293b; }
+  .wr-subtitle { font-size: 12px; color: #64748b; margin-top: 6px; line-height: 1.6; }
+  .wr-summary-bar { background: #1e293b; color: #fff; padding: 10px 16px; font-size: 13px; font-weight: 600; border-radius: 6px; margin-bottom: 18px; }
+  .wr-alert-block { border: 1px solid #fecaca; border-radius: 10px; padding: 0; margin-bottom: 18px; overflow: hidden; }
+  .wr-alert-head { background: #fef2f2; padding: 12px 18px; border-bottom: 1px solid #fecaca; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .wr-alert-icon { font-size: 14px; }
+  .wr-alert-title { font-size: 14px; font-weight: 700; color: #dc2626; }
+  .wr-alert-body { padding: 16px 20px; }
+  .wr-alert-deal { font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+  .wr-alert-meta { font-size: 11px; color: #64748b; line-height: 1.7; margin-bottom: 12px; }
+  .wr-section { margin-top: 14px; }
+  .wr-section-title { font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #f1f5f9; }
+  .wr-quote { background: #fefce8; padding: 10px 14px; border-left: 3px solid #fcd34d; font-size: 12px; color: #475569; line-height: 1.6; margin-bottom: 8px; font-style: italic; }
+  .wr-quote-meta { color: #94a3b8; font-style: normal; font-size: 11px; margin-top: 4px; }
+  .wr-action { background: #f8fafc; border-radius: 8px; padding: 10px 14px; margin-bottom: 6px; font-size: 12px; color: #334155; line-height: 1.7; display: flex; gap: 10px; align-items: flex-start; }
+  .wr-action-tag { background: #dc2626; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; flex-shrink: 0; margin-top: 1px; }
+
+  /* 散り積もり section */
+  .chiri-card { background: #fff; border-radius: 10px; border: 1px solid #fde68a; padding: 16px 20px; margin-bottom: 14px; }
+  .chiri-head { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+  .chiri-title { font-size: 14px; font-weight: 700; color: #1e293b; }
+  .chiri-meta { font-size: 11px; color: #64748b; margin-bottom: 10px; }
+  .chiri-timeline { display: flex; gap: 8px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+  .chiri-event { background: #fef3c7; border: 1px solid #fde68a; border-radius: 6px; padding: 6px 10px; font-size: 11px; color: #92400e; }
+  .chiri-event.red { background: #fee2e2; border-color: #fecaca; color: #991b1b; }
+  .chiri-detail { margin-top: 12px; font-size: 12px; color: #475569; line-height: 1.7; }
+
+  /* Detail Panel */
+  .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 100; }
+  .overlay.active { display: block; }
+  .detail-panel { display: none; position: fixed; top: 0; right: 0; width: 640px; height: 100vh; background: #fff; z-index: 200; box-shadow: -4px 0 24px rgba(0,0,0,0.1); overflow-y: auto; }
+  .detail-panel.active { display: block; }
+  .detail-header { padding: 24px 28px 16px; border-bottom: 1px solid #f1f5f9; }
+  .detail-header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .detail-member-name { font-size: 20px; font-weight: 700; color: #1e293b; }
+  .detail-deal-name { font-size: 12px; color: #64748b; margin-top: 4px; line-height: 1.5; }
+  .detail-header-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .detail-btn { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid #e2e8f0; background: #fff; color: #2563eb; }
+  .detail-btn-close { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid #e2e8f0; background: #fff; color: #64748b; }
+  .detail-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 18px 28px; border-bottom: 1px solid #f1f5f9; background: #fafbfd; }
+  .detail-card { text-align: center; }
+  .detail-card-label { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
+  .detail-card-value { font-size: 18px; font-weight: 700; color: #1e293b; }
+  .detail-section { padding: 20px 28px; border-bottom: 1px solid #f1f5f9; }
+  .detail-section-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 14px; }
+  .alert-item { background: #f8fafc; border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; border-left: 3px solid #94a3b8; }
+  .alert-item.red { border-left-color: #dc2626; background: #fef2f2; }
+  .alert-item.yellow { border-left-color: #d97706; background: #fffbeb; }
+  .alert-item-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .alert-item-cat { font-size: 11px; color: #94a3b8; font-weight: 500; }
+  .alert-item-label { font-size: 13px; font-weight: 600; color: #1e293b; }
+  .alert-item-quote { font-size: 12px; color: #475569; line-height: 1.7; background: #fff; padding: 10px 14px; border-radius: 6px; font-style: italic; margin-top: 6px; }
+  .alert-item-matched { background: #fee2e2; color: #dc2626; padding: 1px 5px; border-radius: 3px; font-weight: 700; font-style: normal; }
+  .action-item { background: #fef2f2; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; display: flex; gap: 10px; align-items: flex-start; }
+  .action-tag { background: #dc2626; color: #fff; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; flex-shrink: 0; }
+  .action-text { font-size: 12px; color: #334155; line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div>
+    <div class="sidebar-logo">
+      <div>
+        <span class="logo-text">ailead</span>
+        <span class="logo-sub">Sales Dashboard</span>
+      </div>
+    </div>
+    <a href="index.html" class="back-to-top">← 他クライアント</a>
+    <ul class="sidebar-nav">
+      <li class="active" id="nav-list" onclick="showPage('list')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"/></svg>
+        アラート商談一覧
+      </li>
+      <li id="nav-weekly" onclick="showPage('weekly')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9zM4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z"/></svg>
+        週次アラートレポート
+      </li>
+      <li id="nav-chiri" onclick="showPage('chiri')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 012 0v3a1 1 0 11-2 0V7zm1 4a1 1 0 100 2 1 1 0 000-2z"/></svg>
+        散り積もり検知
+      </li>
+      <li id="nav-report" onclick="showPage('report')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm8-3a1 1 0 00-1 1v3a1 1 0 00.293.707l2 2a1 1 0 001.414-1.414L11 10.586V8a1 1 0 00-1-1z"/></svg>
+        サマリーレポート
+      </li>
+      <li id="nav-words" onclick="showPage('words')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm3 5a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm0 4a1 1 0 011-1h7a1 1 0 110 2H8a1 1 0 01-1-1z"/></svg>
+        アラートワード一覧
+      </li>
+    </ul>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="sidebar-client">
+      <div class="sidebar-client-icon">CA</div>
+      <div>
+        <div class="sidebar-client-name">株式会社サイバーエージェント</div>
+        <div class="sidebar-client-sub">広告事業本部</div>
+      </div>
+    </div>
+    <div class="sidebar-account">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+      アカウント
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- LIST -->
+<div class="page active" id="page-list">
+  <div class="page-title">アラート商談一覧 <span class="pill">ピンチ検知</span></div>
+  <div class="page-desc">磯部様提供 不満ワード18種を ailead 上の商談録画から自動検知した要対応案件</div>
+
+  <div class="data-banner">
+    <span><strong>データソース：</strong> ailead 商談文字起こし（実データ）</span>
+    <span><strong>対象期間：</strong> 2025/10〜2026/03（6ヶ月）</span>
+    <span><strong>対象組織：</strong> 磯部局／服部局／西SMB局</span>
+    <span><strong>検知ロジック：</strong> 18ワード × 文脈フィルタ（厳格版）</span>
+    <span><strong>更新：</strong> 2026/05/08 09:00</span>
+  </div>
+
+  <div class="summary-cards">
+    <div class="card">
+      <div class="card-label">対象商談数（6ヶ月）</div>
+      <div class="card-value">1,268<span class="unit">件</span></div>
+      <div class="card-trend">3局合計</div>
+    </div>
+    <div class="card alert-card">
+      <div class="card-label">要対応（赤アラート）</div>
+      <div class="card-value">96<span class="unit">件</span></div>
+      <div class="card-trend alert">7.6% — 不満・期待値ギャップ等</div>
+    </div>
+    <div class="card warn-card">
+      <div class="card-label">要観察（黄アラート）</div>
+      <div class="card-value">163<span class="unit">件</span></div>
+      <div class="card-trend">12.9% — 検討段階の不安サイン</div>
+    </div>
+    <div class="card good-card">
+      <div class="card-label">直近月 改善傾向</div>
+      <div class="card-value">−40<span class="unit">%</span></div>
+      <div class="card-trend good">2月→3月 赤アラート減少</div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" class="search-box" placeholder="顧客名／担当名で検索" oninput="filterTable(this.value)">
+    <span class="filter-chip active" onclick="filterBureau('all', event)">全て</span>
+    <span class="filter-chip" onclick="filterBureau('磯部局', event)">磯部局</span>
+    <span class="filter-chip" onclick="filterBureau('服部局', event)">服部局</span>
+    <span class="filter-chip" onclick="filterBureau('西SMB局', event)">西SMB局</span>
+    <span style="margin-left:auto;font-size:11px;color:#94a3b8;">行クリックで詳細パネル表示 →</span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>重要度</th>
+          <th>顧客</th>
+          <th>商談</th>
+          <th>日時</th>
+          <th>担当</th>
+          <th>所属</th>
+          <th>赤</th>
+          <th>黄</th>
+          <th>検出カテゴリ</th>
+          <th>ステータス</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- WEEKLY -->
+<div class="page" id="page-weekly">
+  <div class="page-title">週次アラートレポート <span class="pill">磯部様向け配信フォーマット</span></div>
+  <div class="page-desc">毎週金曜午前にメッセンジャーDMで配信予定（パイロット2週は精度合わせ期間）</div>
+
+  <div class="weekly-report">
+    <div class="wr-header">
+      <div class="wr-title">📋 週次 商談アラートレポート</div>
+      <div class="wr-subtitle">
+        <strong>対象期間：</strong> 2026/03/02〜03/27（直近4週分・Mock）<br>
+        <strong>対象：</strong> 磯部局・服部局・西SMB局／<strong>配信先：</strong>磯部 智史 様
+      </div>
+    </div>
+
+    <div class="wr-summary-bar">
+      🔴 今週のアラート：3件（赤2件・黄1件） / 直近30日 累計 12件 / 散り積もり要注意 2件
+    </div>
+
+    <div id="weeklyContent"></div>
+
+    <div style="margin-top: 24px; padding: 16px; background: #f8fafc; border-radius: 10px; font-size: 11px; color: #64748b; line-height: 1.7;">
+      ※本レポートは ailead 上の商談録画データを18ワードベースでAI分析し、マネージャーが確認すべき商談を自動検出・要約したものです。<br>
+      ※毎週金曜午前にメッセンジャーDMにて配信予定。精度はFBに基づき改善していきます。
+    </div>
+  </div>
+</div>
+
+<!-- CHIRI -->
+<div class="page" id="page-chiri">
+  <div class="page-title">散り積もり検知 <span class="pill">同一案件・複数商談での累積アラート</span></div>
+  <div class="page-desc">単発では拾われにくい「ちょっとずつ積み重なる不満」を、同一案件×14日以内×2件以上のルールで検知</div>
+
+  <div class="data-banner">
+    <span><strong>検知ルール：</strong> 同じ顧客で14日以内に2件以上のアラート発生</span>
+    <span><strong>背景：</strong> 4/16 磯部様より「散り積もり型を拾いたい」と要望</span>
+    <span><strong>運用：</strong> 検知時は黄→赤に自動昇格</span>
+  </div>
+
+  <div id="chiriContent"></div>
+</div>
+
+<!-- REPORT -->
+<div class="page" id="page-report">
+  <div class="page-title">サマリーレポート <span class="pill">広告事業本部</span></div>
+  <div class="page-desc">直近6ヶ月・3局・1,268商談 × 18ワード検出結果の集計インサイト</div>
+
+  <div class="report-section">
+    <div class="report-section-title">📌 サマリー</div>
+    <ul class="report-summary-text">
+      <li>過去6ヶ月で<strong>96商談（7.6%）</strong>に赤アラート、<strong>163商談（12.9%）</strong>に黄アラートを検知</li>
+      <li>カテゴリ別：<strong>商品・運用への不満（108件）</strong>が最多、次いで検討の不安（84件）／予算（52件）</li>
+      <li>ワード別最多は<strong>「わかりにくい・イメージ湧かない」（76件）</strong>— 価値訴求の改善余地</li>
+      <li>赤検出率：<strong>西SMB局 11.4% &gt; 磯部局 7.1% &gt; 服部局 6.0%</strong></li>
+      <li>月別トレンドは12月〜2月にピーク、<strong>3月は12件と直前2月20件から−40%</strong>（季節性／改善どちらか）</li>
+      <li>同一案件で複数アラートが累積する「散り積もり型」が <strong>2件</strong> 検知</li>
+    </ul>
+  </div>
+
+  <div class="report-section">
+    <div class="report-section-title">🤖 AI分析インサイト</div>
+    <div class="ai-badge">AI生成</div>
+    <div class="ai-timestamp">2026/05/08 09:00 生成</div>
+    <div class="ai-insight">
+      <span class="ai-insight-num">1</span>
+      <span class="ai-insight-text"><strong>「わかりにくい・イメージ湧かない」が76件で全ワード中最多</strong>。価値訴求の翻訳が顧客側の言語に届いていない傾向。事例ライブラリ整備＋初回提案時の「カスタマージャーニーシート」活用で、顧客が"自分の業務での景色"を想像しやすくする工夫を提案する。</span>
+    </div>
+    <div class="ai-insight">
+      <span class="ai-insight-num">2</span>
+      <span class="ai-insight-text"><strong>「面倒・手間」が59件</strong>と運用負荷シグナルが顕在化。導入後オペレーションの<strong>解約予兆</strong>として要注視。aileadのプロンプト機能やSlack連携の活用で、顧客側の運用工数を下げる提案が有効。</span>
+    </div>
+    <div class="ai-insight">
+      <span class="ai-insight-num">3</span>
+      <span class="ai-insight-text"><strong>西SMB局の赤検出率11.4%</strong>と他局より3-5pt高い。澤田様のSMB商談で「予算厳しい」「効果が悪い」が複合検出される頻度が高く、<strong>初回提案時の課題深掘りパターンの強化</strong>が示唆される。</span>
+    </div>
+    <div class="ai-insight">
+      <span class="ai-insight-num">4</span>
+      <span class="ai-insight-text"><strong>「話が違う・聞いていない」が24件</strong>検知され、社内連携／引き継ぎロスのシグナル。太陽生命・FPCで散り積もり型として複数回検知されており、<strong>定例MTG時の論点アジェンダ事前配布</strong>などコミュニケーションロス対策が有効と推察。</span>
+    </div>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-container">
+      <div class="chart-title">アラートカテゴリ別検出件数（6ヶ月累計）</div>
+      <canvas id="catChart" height="240"></canvas>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">局別 赤アラート検出率</div>
+      <canvas id="bureauChart" height="240"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-container">
+      <div class="chart-title">月別トレンド</div>
+      <canvas id="trendChart" height="240"></canvas>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">担当者別 赤アラート検出 上位10名</div>
+      <canvas id="memberChart" height="240"></canvas>
+    </div>
+  </div>
+
+  <div class="report-section">
+    <div class="report-section-title">ワードラベル別 検出件数（Top 10）</div>
+    <div id="labelTable"></div>
+  </div>
+</div>
+
+<!-- WORDS -->
+<div class="page" id="page-words">
+  <div class="page-title">アラートワード一覧 <span class="pill">磯部様提供 18種</span></div>
+  <div class="page-desc">2026年5月 磯部様より提供いただいた「顧客不満検知のためのアラートワード候補」18種を、当社にて5カテゴリ・2重要度に整理したもの</div>
+
+  <div class="report-section">
+    <div class="report-section-title">受領済み 18ワード</div>
+    <div id="wordsGrid" class="word-grid"></div>
+  </div>
+
+  <div class="report-section" style="font-size:12px;color:#475569;line-height:1.8;">
+    <div class="report-section-title" style="margin-bottom:8px;">運用ルール（提案）</div>
+    <div>● <strong>赤（重要）</strong>：商品・運用への直接不満／期待値ギャップ／予算難 → 検出時は週次レポートに即掲載</div>
+    <div>● <strong>黄（注意）</strong>：検討段階の不安／意思決定停滞シグナル → 累積で赤に昇格</div>
+    <div>● <strong>散り積もり型</strong>：同一案件×14日以内×2件以上のアラート発生 → 黄→赤フラグ昇格</div>
+    <div>● 誤検知/過検知は最初の2週間で精度合わせのチューニング期間とする</div>
+    <div>● 配信先は磯部様限定パイロット → 価値検証後に服部様・中齋様へ展開判断</div>
+  </div>
+</div>
+
+</div>
+<!-- /main -->
+
+<div class="overlay" id="overlay" onclick="closeDetail()"></div>
+
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <div class="detail-header-top">
+      <div>
+        <div class="detail-member-name" id="detailCompany"></div>
+        <div class="detail-deal-name" id="detailDeal"></div>
+      </div>
+      <div class="detail-header-actions">
+        <button class="detail-btn" id="detailUrlBtn">aileadで開く</button>
+        <button class="detail-btn-close" onclick="closeDetail()">閉じる</button>
+      </div>
+    </div>
+  </div>
+  <div class="detail-summary">
+    <div class="detail-card"><div class="detail-card-label">担当</div><div class="detail-card-value" id="detailHost"></div></div>
+    <div class="detail-card"><div class="detail-card-label">所属</div><div class="detail-card-value" id="detailBureau"></div></div>
+    <div class="detail-card"><div class="detail-card-label">赤アラート</div><div class="detail-card-value" id="detailRed" style="color:#dc2626;font-size:24px;"></div></div>
+    <div class="detail-card"><div class="detail-card-label">黄アラート</div><div class="detail-card-value" id="detailYel" style="color:#d97706;font-size:24px;"></div></div>
+  </div>
+  <div class="detail-section">
+    <div class="detail-section-title">🔍 検出されたアラート（実発話の引用）</div>
+    <div id="detailAlerts"></div>
+  </div>
+  <div class="detail-section">
+    <div class="detail-section-title">⚡ 推奨アクション（マネージャー向け）</div>
+    <div id="detailActions"></div>
+  </div>
+</div>
+
+<script>
+
+const PICKS = [{"date": "2026年03月04日 18:0", "date_short": "2026-03-04", "title": "【sompoダイレクト】ミドル領域提案｜白石様アポ", "company": "SOMPOダイレクト", "host": "小澄 そよ花", "bureau": "磯部局", "url": "https://dashboard.ailead.app/call/5f98c7a3-589a-4152-83be-d6ccc100be3e", "red_count": 1, "yel_count": 1, "total_alerts": 2, "status": "要観察", "status_class": "rec-hold", "severity": "中", "severity_class": "grade-b-minus", "alerts": [{"id": 1, "category": "商品・運用への不満", "label": "効果が悪い", "matched": "効果がない", "severity": "red", "context": "時に 検証とはいえど その効果が出るであろうスキーチっていうものを ちょっと見定めないと 何もどこも効果がないみたいなことって 大いにある検証だなってちょっと聞いてて思いましたと で その時に実際やるってなった時に 決めればいいのかなと思ってるんですけど  24:34"}, {"id": 14, "category": "意思決定の停滞", "label": "持ち帰り検討", "matched": "持ち帰りたい", "severity": "yellow", "context": "要なのかなっていうのは 聞いてて思ったので この検証にどれだけのお金を避けるかっていうのは ちょっと持ち帰りたい  29:36 久武僚 そうですね、そこ次第でまさに良かったの悪かったのの通信法をちゃんと判断できる ボリューム感と、あとまさに我々も話したんですけど、もしご予"}], "actions": [{"label": "解約予兆", "detail": "運用負荷の不満が顕在化。CSと連携し運用改善案を1営業日以内に提示。サクセス支援強化を検討"}, {"label": "決裁者特定", "detail": "キーパーソン特定と稟議サポート資料を用意。ROIとリスク低減の両面で資料化"}]}, {"date": "2026年03月06日 15:5", "date_short": "2026-03-06", "title": "2026/03/06 【ダスキン】ライフケア領域アポ", "company": "ダスキン", "host": "坂口 桃子", "bureau": "磯部局", "url": "https://dashboard.ailead.app/call/b1a1cb30-a6f3-40fa-b404-11611b3f3780", "red_count": 1, "yel_count": 0, "total_alerts": 1, "status": "要観察", "status_class": "rec-hold", "severity": "中", "severity_class": "grade-b-minus", "alerts": [{"id": 1, "category": "商品・運用への不満", "label": "効果が悪い", "matched": "効果が出ない", "severity": "red", "context": "ーワードの設定に丸40万かかります?  5:40 川畑生美 記事選定もそうですし、記事を置くだけだと効果が出ないので、 サイトのこのページから記事ページにリンクを貼ってくださいだとか、 Googleに公開URLを認識してもらうために、 このファイルをこういうふうに作ってく"}], "actions": [{"label": "解約予兆", "detail": "運用負荷の不満が顕在化。CSと連携し運用改善案を1営業日以内に提示。サクセス支援強化を検討"}]}, {"date": "2026年03月04日 13:5", "date_short": "2026-03-04", "title": "2026/03/04 13:57 ペタグー施策アポ", "company": "ペタグー", "host": "永井 彰悟", "bureau": "磯部局", "url": "https://dashboard.ailead.app/call/9bb99dfc-bc1a-43ce-b785-b9713bbf4b20", "red_count": 1, "yel_count": 0, "total_alerts": 1, "status": "要観察", "status_class": "rec-hold", "severity": "中", "severity_class": "grade-b-minus", "alerts": [{"id": 15, "category": "予算・優先順位", "label": "予算厳しい・コスパ", "matched": "高すぎ", "severity": "red", "context": "55:29 西谷崇 560足す 160520 一箇所140万あがった金額 ローサッドより高い 大阪高すぎ  55:42 内藤理紗 はい。  55:44 吉田大介 ありがとうございました。  55:51 永井彰悟 ありがとうございます  55:53 西谷崇 時間あが"}], "actions": [{"label": "予算ハードル", "detail": "段階導入プラン or 投資対効果シミュレーションを次回商談に持参。決裁者向け資料の用意を"}]}, {"date": "2026年02月25日 10:1", "date_short": "2026-02-25", "title": "【バンタン】CRMTG週次定例", "company": "バンタン", "host": "佐藤 真史", "bureau": "磯部局", "url": "https://dashboard.ailead.app/call/cd37b478-c039-4a96-ac33-ef205ef38c53", "red_count": 1, "yel_count": 0, "total_alerts": 1, "status": "要観察", "status_class": "rec-hold", "severity": "中", "severity_class": "grade-b-minus", "alerts": [{"id": 15, "category": "予算・優先順位", "label": "予算厳しい・コスパ", "matched": "お金がない", "severity": "red", "context": "あとは  14:30 バンタン紺野智裕 そうですね これ 方向性として 例えば 基本的に週3訴求で お金がないくても通えるっていうパターンが多いかなと思うんですけど それはそれで 基礎通向とかユーザーの便器的にはメリットなんですけど これから高校生取っていこうと思う時に"}], "actions": [{"label": "予算ハードル", "detail": "段階導入プラン or 投資対効果シミュレーションを次回商談に持参。決裁者向け資料の用意を"}]}, {"date": "2026年02月19日 14:0", "date_short": "2026-02-19", "title": "【FPC】Meta入稿方法", "company": "FPC", "host": "高橋 秀太", "bureau": "磯部局", "url": "https://dashboard.ailead.app/call/69e0e8a4-90b6-44f1-9c87-e0ba54e4045c", "red_count": 1, "yel_count": 0, "total_alerts": 1, "status": "要観察", "status_class": "rec-hold", "severity": "中", "severity_class": "grade-b-minus", "alerts": [{"id": 1, "category": "商品・運用への不満", "label": "効果が悪い", "matched": "効果が悪い", "severity": "red", "context": "ですかね、あっちから例えば新しくキャンペーン作ってほしいみたいなこともあれば、 大体こっちから、今の効果が悪いんで、 このアドグループを止めて、全く別の設計のキャンペーンを作りたいです みたいな っていうのがあったときに 今のキャンペーンとアドグループを作る 内容が必要"}], "actions": [{"label": "解約予兆", "detail": "運用負荷の不満が顕在化。CSと連携し運用改善案を1営業日以内に提示。サクセス支援強化を検討"}]}, {"date": "2026年02月19日 10:0", "date_short": "2026-02-19", "title": "【積水ハウス】26春住まいの参観日_定例MTG_260219", "company": "積水ハウス", "host": "藤井 大介", "bureau": "磯部局", "url": "https://dashboard.ailead.app/call/e66ecc69-8cf9-4ae7-a9d9-648c75ea0b40", "red_count": 1, "yel_count": 0, "total_alerts": 1, "status": "要観察", "status_class": "rec-hold", "severity": "中", "severity_class": "grade-b-minus", "alerts": [{"id": 8, "category": "期待値ギャップ", "label": "話が違う・聞いていない", "matched": "聞いてないです", "severity": "red", "context": "て 言ってなかったかしら 何も聞いてない感じですか そうですね その連絡  6:30 藤井大介 これ聞いてないですよ。 年号で言ったらOKだね。 ORID。  6:37 藤井大介 で、終わりです  6:41 藤井大介 結構時間かかりそうな感じです  6:48 【CA】庭瀬"}], "actions": [{"label": "関係性リスク", "detail": "藤井 大介様と現状認識合わせのMTGを今週中に実施。前担当との認識差／伝達漏れを丁寧に解消"}]}, {"date": "2026年02月24日 16:3", "date_short": "2026-02-24", "title": "2026/02/24 16:33 |【神座様】定例アポ　 ★16:30-17:30実施、後ろバッファ30分　　※小田→アポ被りのため不在※　", "company": "神座", "host": "若野 有紗", "bureau": "服部局", "url": "https://dashboard.ailead.app/call/1a87aab7-de67-4cb3-b704-6de16ebceebd", "red_count": 0, "yel_count": 1, "total_alerts": 1, "status": "注意", "status_class": "rec-hold", "severity": "低", "severity_class": "grade-b", "alerts": [{"id": 6, "category": "商品・運用への不満", "label": "物足りない", "matched": "物足りない", "severity": "yellow", "context": "istrator OKです。これあれですよね、イメージ像というと、去年の愛明さん的なものだとちょっと物足りないって感じですよね。  24:38 Saito Kenta そんなことないですよ。あれでいけるならあれでもいいです。  24:43 administrator お"}], "actions": [{"label": "解約予兆", "detail": "運用負荷の不満が顕在化。CSと連携し運用改善案を1営業日以内に提示。サクセス支援強化を検討"}]}, {"date": "2026年02月09日 14:1", "date_short": "2026-02-09", "title": "2026/02/09 14:09 太陽生命_ランスルー", "company": "太陽生命", "host": "多田 隆亮", "bureau": "服部局", "url": "https://dashboard.ailead.app/call/2af53eb6-8ab9-4d9e-b913-6463a2453ab6", "red_count": 0, "yel_count": 1, "total_alerts": 1, "status": "注意", "status_class": "rec-hold", "severity": "低", "severity_class": "grade-b", "alerts": [{"id": 9, "category": "検討の不安", "label": "本当に効果出るのか・実績", "matched": "本当に効果が出", "severity": "yellow", "context": "っております  2:13 石井貴之 過去にこれはご懸念が何点かあったかなというふうに思っていて まず本当に効果が出るのかという点においては どの詳細かだけではなくて キーワード単位でも分析ができるようになりますので できるのと あと我々弊社 豊富な実績がございますので そこ"}], "actions": [{"label": "価値訴求弱", "detail": "類似業界の事例＋数値根拠を補強。次回提案で「導入後の景色」を顧客の言葉で語らせる構成に"}]}, {"date": "2026年03月16日 10:0", "date_short": "2026-03-16", "title": "【AGBS】GTG3社ミーティング", "company": "AGBS", "host": "澤田 雄太", "bureau": "西SMB局", "url": "https://dashboard.ailead.app/call/977ded53-7c34-4439-9c5e-7eb6e363aa25", "red_count": 1, "yel_count": 1, "total_alerts": 2, "status": "要観察", "status_class": "rec-hold", "severity": "中", "severity_class": "grade-b-minus", "alerts": [{"id": 1, "category": "商品・運用への不満", "label": "効果が悪い", "matched": "効果がない", "severity": "red", "context": "ewayのおかげで増えてたけど 全体のトレンドが下がってるから  28:35 Dai Matsuo 効果がないように見えてしまったのか ということが分かりづらくなってしまうので そこはちょっとどういうトレンドかっていう部分の感覚は 弊社も持ち合わせてないので あまりその"}, {"id": 10, "category": "検討の不安", "label": "わかりにくい・イメージ湧かない", "matched": "わかりにくい", "severity": "yellow", "context": "16:34 Terry K これも赤前さんのページだいたい英語かなと思いますので ちょっと日本語わかりにくいところ 英語わかりにくいところあるかなと思いますが もう本当にこのまま作っていけばOKというところになるかなと あとはメトリックスというところと 最後にお話しす"}], "actions": [{"label": "解約予兆", "detail": "運用負荷の不満が顕在化。CSと連携し運用改善案を1営業日以内に提示。サクセス支援強化を検討"}, {"label": "価値訴求弱", "detail": "類似業界の事例＋数値根拠を補強。次回提案で「導入後の景色」を顧客の言葉で語らせる構成に"}]}, {"date": "2026年03月27日 17:3", "date_short": "2026-03-27", "title": "ティーバイティーホールディング　デイリーMTG", "company": "ティーバイティーホールディング", "host": "山本 拓", "bureau": "西SMB局", "url": "https://dashboard.ailead.app/call/470e27a8-70a1-45ce-85b5-b51a4d06e7b0", "red_count": 1, "yel_count": 0, "total_alerts": 1, "status": "要観察", "status_class": "rec-hold", "severity": "中", "severity_class": "grade-b-minus", "alerts": [{"id": 8, "category": "期待値ギャップ", "label": "話が違う・聞いていない", "matched": "聞いてないです", "severity": "red", "context": "なった、QS上がったかっていうのは、  25:26 金岡利昌 ほぉー  25:27 吉田竜汰 あんま聞いてないですね、それによっては。  25:30 髙橋遥歩 私のあの話あったんです。 一旦忘れてください。  25:34 金岡利昌 www  25:36 髙橋遥歩 でもなんか"}], "actions": [{"label": "関係性リスク", "detail": "山本 拓様と現状認識合わせのMTGを今週中に実施。前担当との認識差／伝達漏れを丁寧に解消"}]}, {"date": "2026年02月12日 16:0", "date_short": "2026-02-12", "title": "マスメディアンＬＹ統合", "company": "マスメディアン", "host": "澤田 雄太", "bureau": "西SMB局", "url": "https://dashboard.ailead.app/call/68996d3e-ece1-446b-9368-6602c11d479a", "red_count": 1, "yel_count": 0, "total_alerts": 1, "status": "要観察", "status_class": "rec-hold", "severity": "中", "severity_class": "grade-b-minus", "alerts": [{"id": 1, "category": "商品・運用への不満", "label": "効果が悪い", "matched": "効果が出ない", "severity": "red", "context": "ってくるのがクリエイティブですね 構造を分けて あとは全部同じクリエイティブ入れちゃえでは なかなか効果が出ないので ちゃんとクリエイティブ出し分けるんですけど AdGroupごとに最も効果が高い Adが異なっているアカウントっていうのが  12:48 石井雅晴 86.8"}], "actions": [{"label": "解約予兆", "detail": "運用負荷の不満が顕在化。CSと連携し運用改善案を1営業日以内に提示。サクセス支援強化を検討"}]}, {"date": "2026年02月10日 13:3", "date_short": "2026-02-10", "title": "オルコネ事業部定例前すり合わせ", "company": "オルコネ", "host": "澤田 雄太", "bureau": "西SMB局", "url": "https://dashboard.ailead.app/call/caaeb0c3-3be4-4dc8-bc07-c1be43d533c9", "red_count": 1, "yel_count": 0, "total_alerts": 1, "status": "要観察", "status_class": "rec-hold", "severity": "中", "severity_class": "grade-b-minus", "alerts": [{"id": 15, "category": "予算・優先順位", "label": "予算厳しい・コスパ", "matched": "高すぎ", "severity": "red", "context": "指標としては少し収まって くるのかなと思ってますが この 単純な期間比較で見ると ちょっと 増分が高すぎるような形になってます なので ここの新しいConverge Action 追加してからの動きで言うと まだ そんなにポジティブ  9:18 竜汰 吉田 な動き"}], "actions": [{"label": "予算ハードル", "detail": "段階導入プラン or 投資対効果シミュレーションを次回商談に持参。決裁者向け資料の用意を"}]}, {"date": "2026年03月26日 14:5", "date_short": "2026-03-26", "title": "【FPC 山口さん・中原さんアポ】", "company": "FPC", "host": "澤田 雄太", "bureau": "西SMB局", "url": "https://dashboard.ailead.app/call/08d2a6ac-383a-4e87-9fe2-ddbcb32c0b25", "red_count": 0, "yel_count": 1, "total_alerts": 1, "status": "注意", "status_class": "rec-hold", "severity": "低", "severity_class": "grade-b", "alerts": [{"id": 3, "category": "商品・運用への不満", "label": "面倒・手間", "matched": "面倒くさい", "severity": "yellow", "context": "りながらでもいいし あとは そうですね 例えば検索の知名型とかは miko入れて その他は ちょっと面倒くさいんですけど その他は今のやつとか もしくはもう効果検証した上で いや 全く効果ないなってなったら シンプルにもうお金が飛んじゃうんですけど 意味がないものを乗せ"}], "actions": [{"label": "解約予兆", "detail": "運用負荷の不満が顕在化。CSと連携し運用改善案を1営業日以内に提示。サクセス支援強化を検討"}]}];
+const CHIRI = [{"company": "太陽生命", "bureau": "磯部局", "host": "藤井 大介", "period": "2026-01-07 〜 2026-01-20", "meetings": 2, "total_alerts": 3, "red_alerts": 2, "sample_alerts": [{"date": "2026-01-07", "title": "【太陽生命】営業引継ぎMTG×原田さん・西尾さん", "category": "期待値ギャップ", "label": "話が違う・聞いていない", "matched": "聞いてないです", "context": "全体的に効果が落ちてきてるということを 課題認識として持っているという話は聞いてます ただ 詳しくは聞いてないですね  19:22 原田真之 要はクリエイティブ いろいろ頑張って作ってるという話を聞いてます  19:27 Daisuke Fujii おっけいです  19:3", "severity": "red"}, {"date": "2026-01-20", "title": "【太陽生命】コンペ_骨子確定会議＋採点表ブラッシュアップMTG", "category": "期待値ギャップ", "label": "話が違う・聞いていない", "matched": "聞いてないです", "context": "三島準也 50%ぐらいだったら半分ぐらいはそれ以下ってことですよね 30代50代とか 今の話題で全然聞いてないですけどね ありがとうございます ちょっとキャプチャー送りますね 今の話  27:03 石井貴之 らしい  27:19 水野健太朗 話していこう。テレビのところの話", "severity": "red"}]}, {"company": "FPC", "bureau": "磯部局", "host": "高橋 秀太", "period": "2026-02-19 〜 2026-02-26", "meetings": 2, "total_alerts": 2, "red_alerts": 2, "sample_alerts": [{"date": "2026-02-19", "title": "【FPC】Meta入稿方法", "category": "商品・運用への不満", "label": "効果が悪い", "matched": "効果が悪い", "context": "ですかね、あっちから例えば新しくキャンペーン作ってほしいみたいなこともあれば、 大体こっちから、今の効果が悪いんで、 このアドグループを止めて、全く別の設計のキャンペーンを作りたいです みたいな っていうのがあったときに 今のキャンペーンとアドグループを作る 内容が必要", "severity": "red"}, {"date": "2026-02-26", "title": "【FPC】山口さん・中原さんアポ", "category": "期待値ギャップ", "label": "話が違う・聞いていない", "matched": "聞いてないん", "context": "25 池永樹 お願いします 中西さんまた入れたら入るくらいになりますかね  0:31 山口和也 特に聞いてないんですけど 忘れてるだけなのか 多分AGSが毎回手前にあるっぽいんで  0:41 池永樹 あーなるほどですね  0:42 山口和也 始めちゃっても大丈夫です  0", "severity": "red"}]}];
+const STATS = {"total": 1268, "with_alerts": 259, "red_meetings": 96, "red_recent": 32, "recent_total": 488, "by_bureau": {"服部局": {"total": 151, "red": 9, "alerts": 27}, "磯部局": {"total": 942, "red": 67, "alerts": 202}, "西SMB局": {"total": 175, "red": 20, "alerts": 55}}, "by_month": {"202510": {"total": 126, "red": 11, "alerts": 29}, "202511": {"total": 185, "red": 9, "alerts": 36}, "202512": {"total": 228, "red": 21, "alerts": 51}, "202601": {"total": 241, "red": 23, "alerts": 56}, "202602": {"total": 276, "red": 20, "alerts": 61}, "202603": {"total": 212, "red": 12, "alerts": 51}}, "by_category": {"商品・運用への不満": 108, "期待値ギャップ": 28, "予算・優先順位": 52, "検討の不安": 84, "意思決定の停滞": 12}, "by_label": {"使いにくい": 18, "話が違う・聞いていない": 24, "予算厳しい・コスパ": 45, "面倒・手間": 59, "わかりにくい・イメージ湧かない": 76, "効果が悪い": 24, "タイミング・優先度低": 7, "二重管理・手作業": 1, "思っていたのと違う": 4, "物足りない": 4, "上長確認・判断仰ぎ": 3, "本当に効果出るのか・実績": 6, "持ち帰り検討": 9, "対応が遅い": 2, "失敗したくない": 2}, "top_members": [{"主催者": "澤田 雄太", "局": "西SMB局", "deals": 120, "alerts": 41, "red": 15}, {"主催者": "庭瀬 圭汰", "局": "磯部局", "deals": 299, "alerts": 58, "red": 14}, {"主催者": "坂口 桃子", "局": "磯部局", "deals": 178, "alerts": 29, "red": 11}, {"主催者": "高橋 秀太", "局": "磯部局", "deals": 60, "alerts": 21, "red": 10}, {"主催者": "藤井 大介", "局": "磯部局", "deals": 85, "alerts": 24, "red": 9}, {"主催者": "尾﨑 美桜", "局": "磯部局", "deals": 110, "alerts": 24, "red": 9}, {"主催者": "小澄 そよ花", "局": "磯部局", "deals": 38, "alerts": 11, "red": 3}, {"主催者": "池永 樹", "局": "磯部局", "deals": 16, "alerts": 7, "red": 3}, {"主催者": "永井 彰悟", "局": "磯部局", "deals": 51, "alerts": 9, "red": 3}, {"主催者": "山本 拓", "局": "西SMB局", "deals": 23, "alerts": 5, "red": 3}, {"主催者": "佐藤 真史", "局": "磯部局", "deals": 63, "alerts": 14, "red": 3}, {"主催者": "藤井 悠介", "局": "服部局", "deals": 19, "alerts": 3, "red": 2}, {"主催者": "仙石 若葉", "局": "服部局", "deals": 15, "alerts": 3, "red": 2}, {"主催者": "安芸 良", "局": "西SMB局", "deals": 32, "alerts": 9, "red": 2}, {"主催者": "副島 幹太", "局": "磯部局", "deals": 38, "alerts": 5, "red": 2}]};
+const WORDS = [{"id": 1, "cat": "商品・運用への不満", "label": "効果が悪い", "sev": "red", "desc": "プロダクト/サービス自体の効果に対する直接的不満"}, {"id": 2, "cat": "商品・運用への不満", "label": "対応が遅い", "sev": "yellow", "desc": "対応スピード・レスポンスへの不満"}, {"id": 3, "cat": "商品・運用への不満", "label": "面倒・手間がかかる", "sev": "yellow", "desc": "運用負荷・オペレーション負担への不満"}, {"id": 4, "cat": "商品・運用への不満", "label": "二重管理・結局手作業", "sev": "red", "desc": "導入したのに業務効率化されていない"}, {"id": 5, "cat": "商品・運用への不満", "label": "使いにくい", "sev": "yellow", "desc": "UI/UX・操作性への不満"}, {"id": 6, "cat": "商品・運用への不満", "label": "物足りない", "sev": "yellow", "desc": "機能・成果が期待を下回る"}, {"id": 7, "cat": "期待値ギャップ", "label": "思っていたのと違う・前担当の時は", "sev": "red", "desc": "導入時の期待値と現実の乖離"}, {"id": 8, "cat": "期待値ギャップ", "label": "話が違う・聞いていない", "sev": "red", "desc": "コミュニケーション断絶のシグナル"}, {"id": 9, "cat": "検討の不安", "label": "本当に効果出るのか・実績は", "sev": "yellow", "desc": "初回検討段階での疑念"}, {"id": 10, "cat": "検討の不安", "label": "ピンとこない・わかりにくい", "sev": "yellow", "desc": "価値訴求が刺さっていない"}, {"id": 11, "cat": "検討の不安", "label": "失敗したくない", "sev": "yellow", "desc": "リスク回避志向の強さ"}, {"id": 12, "cat": "検討の不安", "label": "セキュリティが不安・現場が混乱", "sev": "red", "desc": "導入阻害要因の顕在化"}, {"id": 13, "cat": "意思決定の停滞", "label": "詳しい人に確認・判断を仰ぎたい", "sev": "yellow", "desc": "決裁者不在を示すシグナル"}, {"id": 14, "cat": "意思決定の停滞", "label": "持ち帰って検討します", "sev": "yellow", "desc": "クロージング失敗の典型ワード"}, {"id": 15, "cat": "予算・優先順位", "label": "予算厳しい・高い・コスパ", "sev": "red", "desc": "金額・予算面の障害"}, {"id": 16, "cat": "予算・優先順位", "label": "ROIを説明しにくい", "sev": "yellow", "desc": "内部稟議の障害"}, {"id": 17, "cat": "予算・優先順位", "label": "上を説得できない・役員が", "sev": "yellow", "desc": "稟議承認難しさ"}, {"id": 18, "cat": "予算・優先順位", "label": "今はタイミングではない・優先度低", "sev": "yellow", "desc": "長期保留シグナル"}];
+const BUREAU_CLASS = {'磯部局':'bureau-isobe','服部局':'bureau-hattori','西SMB局':'bureau-smb'};
+
+let currentBureau = 'all';
+let currentSearch = '';
+
+function bureauTag(b) {
+  return `<span class="bureau-tag ${BUREAU_CLASS[b]||''}">${b}</span>`;
+}
+function severityBadge(p) {
+  if (p.red_count >= 2) return '<span class="grade grade-c">高</span>';
+  if (p.red_count >= 1) return '<span class="grade grade-b-minus">中</span>';
+  return '<span class="grade grade-b">低</span>';
+}
+
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  // sort: red desc, then date desc
+  const sorted = [...PICKS].sort((a,b) => b.red_count - a.red_count || b.date_short.localeCompare(a.date_short));
+  const rows = sorted.filter(p => {
+    if (currentBureau !== 'all' && p.bureau !== currentBureau) return false;
+    if (currentSearch && !p.company.includes(currentSearch) && !p.host.includes(currentSearch)) return false;
+    return true;
+  });
+  tbody.innerHTML = rows.map(p => {
+    const cats = [...new Set(p.alerts.map(a=>a.category))];
+    return `
+      <tr onclick="openDetail('${p.title.replace(/'/g, "\\'")}')">
+        <td>${severityBadge(p)}</td>
+        <td style="font-weight:600;color:#1e293b;">${p.company}</td>
+        <td class="deal-name" title="${p.title}">${p.title.length > 25 ? p.title.slice(0,25)+'…' : p.title}</td>
+        <td class="deal-date">${p.date_short}</td>
+        <td class="member-name">${p.host}</td>
+        <td>${bureauTag(p.bureau)}</td>
+        <td>${p.red_count > 0 ? `<span class="alert-pill alert-red">🔴 ${p.red_count}</span>` : '-'}</td>
+        <td>${p.yel_count > 0 ? `<span class="alert-pill alert-yellow">🟡 ${p.yel_count}</span>` : '-'}</td>
+        <td><span style="font-size:10px;color:#64748b;">${cats.join(' / ')}</span></td>
+        <td><span class="rec-badge ${p.status_class}">${p.status}</span></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterBureau(b, evt) {
+  currentBureau = b;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  evt.target.classList.add('active');
+  renderTable();
+}
+function filterTable(v) { currentSearch = v; renderTable(); }
+
+function openDetail(title) {
+  const p = PICKS.find(x => x.title === title);
+  if (!p) return;
+  document.getElementById('detailCompany').textContent = p.company;
+  document.getElementById('detailDeal').textContent = `${p.title} ／ ${p.date}`;
+  document.getElementById('detailHost').textContent = p.host;
+  document.getElementById('detailBureau').textContent = p.bureau;
+  document.getElementById('detailRed').textContent = p.red_count;
+  document.getElementById('detailYel').textContent = p.yel_count;
+  document.getElementById('detailUrlBtn').onclick = () => window.open(p.url, '_blank');
+
+  document.getElementById('detailAlerts').innerHTML = p.alerts.map(a => {
+    const sev = a.severity === 'red' ? 'red' : 'yellow';
+    const icon = a.severity === 'red' ? '🔴' : '🟡';
+    const ctx = a.context.replace(a.matched, `<span class="alert-item-matched">${a.matched}</span>`);
+    return `
+      <div class="alert-item ${sev}">
+        <div class="alert-item-head">
+          <div>
+            <div class="alert-item-cat">${a.category} ／ ${a.label}</div>
+            <div class="alert-item-label">${icon} 「${a.matched}」</div>
+          </div>
+          <span class="alert-pill alert-${sev}">${a.severity === 'red' ? '要対応' : '注意'}</span>
+        </div>
+        <div class="alert-item-quote">…${ctx}…</div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('detailActions').innerHTML = (p.actions||[]).map(a => `
+    <div class="action-item">
+      <span class="action-tag">${a.label}</span>
+      <span class="action-text">${a.detail}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('overlay').classList.add('active');
+  document.getElementById('detailPanel').classList.add('active');
+}
+function closeDetail() {
+  document.getElementById('overlay').classList.remove('active');
+  document.getElementById('detailPanel').classList.remove('active');
+}
+
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.sidebar-nav li').forEach(x => x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.getElementById('nav-'+p).classList.add('active');
+  if (p === 'weekly') renderWeekly();
+  if (p === 'chiri') renderChiri();
+  if (p === 'report') initCharts();
+  if (p === 'words') renderWords();
+}
+
+function renderWeekly() {
+  // Pick 3 highest-priority recent for this week; from PICKS already
+  const targets = [...PICKS].sort((a,b) => b.red_count - a.red_count || b.date_short.localeCompare(a.date_short)).slice(0, 3);
+  const html = targets.map(p => {
+    const ar = [...p.alerts.filter(a => a.severity === 'red'), ...p.alerts.filter(a => a.severity === 'yellow')].slice(0, 2);
+    const cats = [...new Set(p.alerts.map(a => a.category))].join(' ／ ');
+    return `
+      <div class="wr-alert-block">
+        <div class="wr-alert-head">
+          <span class="wr-alert-icon">🔴</span>
+          <span class="wr-alert-title">${cats}</span>
+          ${bureauTag(p.bureau)}
+          <span class="alert-pill alert-red">赤 ${p.red_count}</span>
+          ${p.yel_count > 0 ? `<span class="alert-pill alert-yellow">黄 ${p.yel_count}</span>` : ''}
+        </div>
+        <div class="wr-alert-body">
+          <div class="wr-alert-deal">${p.company}</div>
+          <div class="wr-alert-meta">
+            <strong>商談：</strong>${p.title}<br>
+            <strong>日時：</strong>${p.date} ／ <strong>担当：</strong>${p.host}様（${p.bureau}）
+          </div>
+
+          <div class="wr-section">
+            <div class="wr-section-title">【検出された発話】（実商談データより）</div>
+            ${ar.map(a => `
+              <div class="wr-quote">
+                「…${a.context.replace(a.matched, `<strong style='color:#dc2626;font-style:normal;'>${a.matched}</strong>`)}…」
+                <div class="wr-quote-meta">→ ${a.label}（${a.category}）</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="wr-section">
+            <div class="wr-section-title">【磯部様への示唆と推奨アクション】</div>
+            ${(p.actions||[]).map(a => `
+              <div class="wr-action">
+                <span class="wr-action-tag">${a.label}</span>
+                <span>${a.detail}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('weeklyContent').innerHTML = html;
+}
+
+function renderChiri() {
+  const html = CHIRI.map(c => {
+    const events = c.sample_alerts.map(s => `
+      <div class="chiri-event ${s.severity === 'red' ? 'red' : ''}">
+        ${s.severity === 'red' ? '🔴' : '🟡'} ${s.date} — ${s.label}
+      </div>
+    `).join('<div style="color:#94a3b8;font-size:11px;">→</div>');
+    
+    const samples = c.sample_alerts.slice(0,2).map(s => `
+      <div class="wr-quote">
+        「…${s.context.replace(s.matched, `<strong style='color:#dc2626;font-style:normal;'>${s.matched}</strong>`)}…」
+        <div class="wr-quote-meta">${s.date} ／ ${s.title}</div>
+      </div>
+    `).join('');
+
+    return `
+      <div class="chiri-card">
+        <div class="chiri-head">
+          <span class="alert-pill alert-red">⚠️ 散り積もり昇格</span>
+          ${bureauTag(c.bureau)}
+          <span class="chiri-title">${c.company}</span>
+        </div>
+        <div class="chiri-meta">
+          <strong>担当：</strong>${c.host}様 ／
+          <strong>期間：</strong>${c.period}（${c.meetings}回の商談） ／
+          <strong>累積アラート：</strong>${c.total_alerts}件（赤${c.red_alerts}件）
+        </div>
+        <div class="chiri-timeline">${events}</div>
+        <div style="margin-top:12px;">
+          <div class="wr-section-title">検出された発話</div>
+          ${samples}
+        </div>
+        <div class="chiri-detail">
+          <strong>📌 示唆：</strong>同一案件で短期間に複数の不満シグナルが累積。単発では拾われづらいが、組み合わせ表現として「関係性の毀損リスク」「コミュニケーション断絶」を示唆。<strong>${c.host}様と現状認識合わせの場を週内に設定</strong>することを推奨。
+        </div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('chiriContent').innerHTML = html;
+}
+
+function renderWords() {
+  const grid = document.getElementById('wordsGrid');
+  const cats = [...new Set(WORDS.map(w => w.cat))];
+  let html = '';
+  cats.forEach(cat => {
+    html += `<div style="grid-column: 1/-1; font-size:13px;font-weight:700;color:#475569;margin-top:12px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">${cat}</div>`;
+    WORDS.filter(w => w.cat === cat).forEach(w => {
+      const cnt = STATS.by_label && STATS.by_label[w.label] ? STATS.by_label[w.label] : 0;
+      html += `
+        <div class="word-card ${w.sev === 'red' ? 'red' : 'yellow'}">
+          <div class="word-card-head">
+            <div>
+              <div class="word-card-cat">${w.cat} ／ #${w.id}</div>
+              <div class="word-card-title">${w.label}</div>
+            </div>
+            <span class="alert-pill alert-${w.sev}">${w.sev === 'red' ? '赤(重要)' : '黄(注意)'}</span>
+          </div>
+          <div class="word-card-desc">${w.desc}</div>
+          <div class="word-card-count">過去6ヶ月 検出回数：<strong>${cnt}件</strong></div>
+        </div>
+      `;
+    });
+  });
+  grid.innerHTML = html;
+}
+
+let chartsInit = false;
+function initCharts() {
+  if (chartsInit) return;
+  chartsInit = true;
+
+  const catLabels = Object.keys(STATS.by_category);
+  const catData = Object.values(STATS.by_category);
+  new Chart(document.getElementById('catChart'), {
+    type: 'bar',
+    data: { labels: catLabels, datasets: [{ data: catData, backgroundColor: ['#dc2626','#ea580c','#d97706','#0284c7','#7c3aed'] }] },
+    options: { indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true}} }
+  });
+
+  const bureaus = Object.keys(STATS.by_bureau);
+  const rates = bureaus.map(b => (STATS.by_bureau[b].red / STATS.by_bureau[b].total * 100).toFixed(1));
+  new Chart(document.getElementById('bureauChart'), {
+    type: 'bar',
+    data: { labels: bureaus, datasets: [{ label:'赤検出率(%)', data: rates, backgroundColor:['#2563eb','#16a34a','#d97706'] }] },
+    options: { plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,title:{display:true,text:'検出率 (%)'}}} }
+  });
+
+  const months = Object.keys(STATS.by_month).sort();
+  const monthLabels = months.map(m => m.slice(0,4)+'/'+m.slice(4,6));
+  const reds = months.map(m => STATS.by_month[m].red);
+  const totals = months.map(m => STATS.by_month[m].total);
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: { labels: monthLabels, datasets: [
+      {label:'赤アラート商談数', data: reds, borderColor:'#dc2626', backgroundColor:'rgba(220,38,38,0.1)', tension:0.3, fill:true},
+      {label:'総商談数', data: totals, borderColor:'#94a3b8', borderDash:[5,5], tension:0.3, fill:false, yAxisID:'y2'}
+    ] },
+    options: { scales:{y:{beginAtZero:true,title:{display:true,text:'赤アラート'}},y2:{position:'right',beginAtZero:true,title:{display:true,text:'総商談'},grid:{drawOnChartArea:false}}} }
+  });
+
+  const tm = STATS.top_members.slice(0,10);
+  new Chart(document.getElementById('memberChart'), {
+    type: 'bar',
+    data: { labels: tm.map(m => m['主催者']), datasets: [{ label:'赤検出商談数', data: tm.map(m => m.red), backgroundColor:'#dc2626' }] },
+    options: { indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true}} }
+  });
+
+  const labels = Object.entries(STATS.by_label).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  document.getElementById('labelTable').innerHTML = `
+    <table style="width:100%;font-size:12px;">
+      <thead><tr><th style="text-align:left;padding:8px;color:#94a3b8;">ワードラベル</th><th style="padding:8px;color:#94a3b8;text-align:center;">検出件数</th></tr></thead>
+      <tbody>
+        ${labels.map(([l,c])=>`<tr><td style="padding:8px;border-top:1px solid #f1f5f9;">${l}</td><td style="padding:8px;border-top:1px solid #f1f5f9;text-align:center;font-weight:600;">${c}件</td></tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+renderTable();
+</script>
+</body>
+</html>
