@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ailead Sales Dashboard ｜ グループ会社攻略 ｜ ファイナンシャルサービス第一事業部</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif; background: #f5f6fa; color: #333; display: flex; min-height: 100vh; }
+
+  /* Sidebar (shared) */
+  .sidebar { width: 200px; background: #fff; border-right: 1px solid #e8e8e8; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 0; position: fixed; height: 100vh; z-index: 10; }
+  .sidebar-logo { padding: 0 20px; margin-bottom: 32px; display: flex; align-items: center; gap: 8px; }
+  .sidebar-logo svg { width: 28px; height: 28px; }
+  .sidebar-logo .logo-text { font-size: 18px; font-weight: 700; color: #2563eb; }
+  .sidebar-logo .logo-sub { font-size: 11px; color: #94a3b8; display: block; margin-top: 2px; }
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav li { padding: 10px 20px; font-size: 14px; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+  .sidebar-nav li.active { color: #2563eb; background: #eff6ff; border-right: 3px solid #2563eb; font-weight: 600; }
+  .sidebar-nav li:hover { background: #f8fafc; }
+  .sidebar-nav li svg { width: 18px; height: 18px; }
+  .sidebar-bottom { padding: 0 20px; }
+  .sidebar-client { display: flex; align-items: center; gap: 8px; padding: 12px 0; }
+  .sidebar-client-icon { width: 32px; height: 32px; background: #1e40af; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+  .sidebar-client-name { font-size: 13px; color: #334155; font-weight: 500; }
+  .sidebar-account { display: flex; align-items: center; gap: 8px; padding-top: 12px; font-size: 13px; color: #64748b; cursor: pointer; border-top: 1px solid #e8e8e8; margin-top: 8px; }
+  .sidebar-account svg { width: 18px; height: 18px; }
+
+  /* Main */
+  .main { margin-left: 200px; flex: 1; padding: 32px 40px; }
+  .page-title { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 24px; }
+  .page-title .sub { font-size: 13px; font-weight: 400; color: #94a3b8; margin-left: 12px; }
+  .page-title .badge { font-size: 11px; font-weight: 600; background: #dbeafe; color: #2563eb; padding: 3px 10px; border-radius: 12px; margin-left: 8px; }
+
+  /* Disclaimer */
+  .disclaimer { background: #fef9c3; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 12px; color: #854d0e; }
+
+  /* Summary Cards */
+  .summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .card { background: #fff; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .card-label { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+  .card-value { font-size: 32px; font-weight: 700; color: #1e293b; }
+  .card-value .unit { font-size: 14px; font-weight: 400; color: #94a3b8; margin-left: 2px; }
+
+  .content-grid { display: grid; grid-template-columns: 1fr 360px; gap: 20px; }
+
+  /* Toolbar */
+  .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-box { flex: 1; max-width: 280px; padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; outline: none; background: #fff; }
+  .btn-outline { padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #fff; color: #64748b; cursor: pointer; }
+  .btn-primary { padding: 8px 14px; border: none; border-radius: 8px; font-size: 13px; background: #2563eb; color: #fff; cursor: pointer; font-weight: 500; }
+
+  /* Group card */
+  .group-card { background: #fff; border-radius: 12px; padding: 22px 26px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 16px; }
+  .group-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+  .group-name { font-size: 17px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+  .group-meta { font-size: 12px; color: #64748b; }
+  .group-progress { font-size: 12px; color: #64748b; }
+  .group-progress .pct { color: #2563eb; font-weight: 700; font-size: 14px; }
+
+  /* Subsidiary grid */
+  .section-label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .sub-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 18px; }
+  .sub-cell { padding: 12px 10px; border-radius: 8px; text-align: center; }
+  .sub-cell .sub-icon { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-bottom: 6px; }
+  .sub-cell .sub-name { font-size: 12px; color: #334155; font-weight: 600; line-height: 1.3; }
+  .sub-cell .sub-status { font-size: 10px; color: #64748b; margin-top: 4px; }
+  .sub-active { background: #ecfdf5; }
+  .sub-active .sub-icon { background: #16a34a; color: #fff; }
+  .sub-warm { background: #fef3c7; }
+  .sub-warm .sub-icon { background: #d97706; color: #fff; }
+  .sub-cold { background: #f1f5f9; }
+  .sub-cold .sub-icon { background: #94a3b8; color: #fff; }
+
+  /* Path timeline */
+  .path-timeline { background: #f8fafc; border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
+  .path-step { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #334155; flex-wrap: wrap; line-height: 1.6; }
+  .path-node { background: #fff; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 16px; font-size: 12px; color: #334155; font-weight: 500; }
+  .path-node.connected { border-color: #16a34a; background: #ecfdf5; color: #15803d; }
+  .path-node.pending { border-color: #d97706; background: #fffbeb; color: #b45309; border-style: dashed; }
+  .path-arrow { color: #94a3b8; font-size: 14px; }
+  .path-note { font-size: 11px; color: #64748b; margin-top: 8px; padding-left: 4px; }
+
+  /* Approach text */
+  .approach-text { font-size: 13px; color: #475569; line-height: 1.7; padding-left: 12px; border-left: 3px solid #2563eb; }
+
+  /* Right Insight */
+  .insight-panel { background: #fff; border-radius: 12px; padding: 20px 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); position: sticky; top: 24px; align-self: start; }
+  .insight-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+  .insight-title .ai-badge { background: #dbeafe; color: #2563eb; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+  .insight-ts { font-size: 11px; color: #94a3b8; margin-bottom: 16px; }
+  .bp-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+  .bp-card .bp-title { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+  .bp-card .bp-text { font-size: 12px; color: #475569; line-height: 1.7; }
+  .bp-card .bp-tag { display: inline-block; background: #ecfdf5; color: #15803d; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-bottom: 8px; }
+
+  .legend-row { display: flex; gap: 14px; margin-bottom: 16px; font-size: 11px; color: #64748b; }
+  .legend-row .lg-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-top">
+    <div class="sidebar-logo">
+      <div>
+        <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#2563eb"/><path d="M10 22V12l6-4 6 4v10" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 22v-5h4v5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <span class="logo-text">ailead</span>
+        <span class="logo-sub">Sales Dashboard</span>
+      </div>
+    </div>
+    <ul class="sidebar-nav">
+      <li>
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"/></svg>
+        一覧
+      </li>
+      <li>
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-9a1 1 0 112 0v3.586l2.293 2.293a1 1 0 01-1.414 1.414l-2.586-2.586A1 1 0 019 11V7z"/></svg>
+        新規開拓・予見
+      </li>
+      <li class="active">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.99 3.99 0 0114 15c-1.5 0-2.79-.83-3.443-2.053a1 1 0 01-.107-.601l1.302-5.207-3.752-1.5V17h2a1 1 0 110 2H6a1 1 0 110-2h2V5.638l-3.752 1.5 1.302 5.207a1 1 0 01-.107.601C4.79 14.17 3.5 15 2 15a3.99 3.99 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.616a1 1 0 01.894-1.79l1.599.8L8 4.323V3a1 1 0 011-1z"/></svg>
+        グループ攻略
+      </li>
+      <li>
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm8-3a1 1 0 00-1 1v3a1 1 0 00.293.707l2 2a1 1 0 001.414-1.414L11 10.586V8a1 1 0 00-1-1z"/></svg>
+        レポート
+      </li>
+    </ul>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="sidebar-client">
+      <div class="sidebar-client-icon">B</div>
+      <div style="line-height:1.3;">
+        <span class="sidebar-client-name">BIPROGY 株式会社</span>
+        <div style="font-size:10px;color:#94a3b8;margin-top:2px;">ファイナンシャルサービス第一事業部</div>
+      </div>
+    </div>
+    <div class="sidebar-account">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+      アカウント
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="page-title">
+    グループ会社攻略
+    <span class="sub">ファイナンシャルサービス第一事業部</span>
+    <span class="badge">人付け展開エージェント</span>
+  </div>
+
+  <div class="disclaimer">
+    <strong>※ サンプルデータ：</strong> 本ダッシュボードはファイナンシャルサービス第一事業部様向けのイメージ共有用Mockです。実データに基づくものではありません。
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="card">
+      <div class="card-label">対象親会社</div>
+      <div class="card-value">8<span class="unit">社</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">未開拓グループ会社</div>
+      <div class="card-value">21<span class="unit">社</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">人付け候補</div>
+      <div class="card-value">14<span class="unit">名</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">過去成功パターン</div>
+      <div class="card-value">6<span class="unit">件</span></div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <input type="text" class="search-box" placeholder="グループ名・子会社で検索">
+    <button class="btn-outline">業態フィルター</button>
+    <button class="btn-outline">展開ステータス</button>
+    <button class="btn-primary">攻略パスを再生成</button>
+  </div>
+
+  <div class="legend-row">
+    <span><span class="lg-dot" style="background:#16a34a;"></span>取引◎ 主要案件あり</span>
+    <span><span class="lg-dot" style="background:#d97706;"></span>取引△ 接点・小規模</span>
+    <span><span class="lg-dot" style="background:#94a3b8;"></span>未開拓</span>
+  </div>
+
+  <!-- Content Grid -->
+  <div class="content-grid">
+    <!-- Group Cards -->
+    <div>
+      <!-- Group 1: メガバンクA -->
+      <div class="group-card">
+        <div class="group-head">
+          <div>
+            <div class="group-name">メガバンクA グループ</div>
+            <div class="group-meta">主要会社 5社 / うち取引あり 2社 / 未開拓 3社</div>
+          </div>
+          <div class="group-progress">グループ網羅率 <span class="pct">40%</span></div>
+        </div>
+
+        <div class="section-label">グループ会社マップ</div>
+        <div class="sub-grid">
+          <div class="sub-cell sub-active">
+            <span class="sub-icon">取引◎</span>
+            <div class="sub-name">A銀行</div>
+            <div class="sub-status">既存 / 桐山担当</div>
+          </div>
+          <div class="sub-cell sub-active">
+            <span class="sub-icon">取引◎</span>
+            <div class="sub-name">A証券</div>
+            <div class="sub-status">既存 / 国分担当</div>
+          </div>
+          <div class="sub-cell sub-warm">
+            <span class="sub-icon">取引△</span>
+            <div class="sub-name">Aカード</div>
+            <div class="sub-status">過去接点1名</div>
+          </div>
+          <div class="sub-cell sub-cold">
+            <span class="sub-icon">未開拓</span>
+            <div class="sub-name">A信託</div>
+            <div class="sub-status">同業X経由で1段</div>
+          </div>
+          <div class="sub-cell sub-cold">
+            <span class="sub-icon">未開拓</span>
+            <div class="sub-name">Aリース</div>
+            <div class="sub-status">人付けなし</div>
+          </div>
+        </div>
+
+        <div class="section-label">人付け展開パス</div>
+        <div class="path-timeline">
+          <div class="path-step">
+            <span class="path-node connected">A銀行・田中課長</span>
+            <span class="path-arrow">→</span>
+            <span class="path-node connected">A銀行・中村部長（IT統括）</span>
+            <span class="path-arrow">→</span>
+            <span class="path-node pending">Aカード・佐藤部長（接点未）</span>
+            <span class="path-arrow">→</span>
+            <span class="path-node pending">A信託・鈴木副部長</span>
+          </div>
+          <div class="path-note">過去類似パターン：メガバンクX → カード子会社で規制対応起点で接点獲得 → 3ヶ月でRFI到達。同条件成立。</div>
+        </div>
+
+        <div class="section-label">推奨アプローチ</div>
+        <div class="approach-text">
+          A銀行の中村部長は2026年3月の商談で「グループ横断のデータ統合に課題感」と発言。本人経由でAカード佐藤部長への紹介依頼が実現性高（過去類似商談 4本中3本で同様の引き継ぎが成立）。Basel III × 不正検知を共通テーマに、グループ会議へ同席提案を打診する流れが推奨。
+        </div>
+      </div>
+
+      <!-- Group 2: 大手地銀B -->
+      <div class="group-card">
+        <div class="group-head">
+          <div>
+            <div class="group-name">大手地銀B 持株グループ</div>
+            <div class="group-meta">主要会社 4社 / うち取引あり 1社 / 未開拓 2社</div>
+          </div>
+          <div class="group-progress">グループ網羅率 <span class="pct">25%</span></div>
+        </div>
+
+        <div class="section-label">グループ会社マップ</div>
+        <div class="sub-grid">
+          <div class="sub-cell sub-active">
+            <span class="sub-icon">取引◎</span>
+            <div class="sub-name">B銀行</div>
+            <div class="sub-status">既存 / 国分担当</div>
+          </div>
+          <div class="sub-cell sub-warm">
+            <span class="sub-icon">取引△</span>
+            <div class="sub-name">B証券</div>
+            <div class="sub-status">小規模案件あり</div>
+          </div>
+          <div class="sub-cell sub-cold">
+            <span class="sub-icon">未開拓</span>
+            <div class="sub-name">Bカード</div>
+            <div class="sub-status">人付けなし</div>
+          </div>
+          <div class="sub-cell sub-cold">
+            <span class="sub-icon">未開拓</span>
+            <div class="sub-name">B保証</div>
+            <div class="sub-status">同業Y経由で1段</div>
+          </div>
+          <div class="sub-cell" style="background:transparent;"></div>
+        </div>
+
+        <div class="section-label">人付け展開パス</div>
+        <div class="path-timeline">
+          <div class="path-step">
+            <span class="path-node connected">B銀行・山下次長</span>
+            <span class="path-arrow">→</span>
+            <span class="path-node connected">B持株会社・小川企画役員</span>
+            <span class="path-arrow">→</span>
+            <span class="path-node pending">B証券・井上部長（接点弱）</span>
+            <span class="path-arrow">→</span>
+            <span class="path-node pending">Bカード・大西部長</span>
+          </div>
+          <div class="path-note">山下次長との直近商談（5/5）で「持株3社統合のデータ基盤検討」と発言。小川役員主催のグループDX会議への参加打診が直近の最短経路。</div>
+        </div>
+
+        <div class="section-label">推奨アプローチ</div>
+        <div class="approach-text">
+          持株会社化後の3社統合データ基盤を切り口に、B銀行 山下次長から小川役員への進言を依頼。グループDX会議で当社主導の構想を提示する流れが、Bカード／B保証への横展開最短ルート（過去類似 2件で平均4.5ヶ月で全社接点獲得）。
+        </div>
+      </div>
+
+      <!-- Group 3: 信託C / 保険E 簡易版 -->
+      <div class="group-card">
+        <div class="group-head">
+          <div>
+            <div class="group-name">保険E ホールディングス</div>
+            <div class="group-meta">主要会社 6社 / うち取引あり 1社 / 未開拓 4社</div>
+          </div>
+          <div class="group-progress">グループ網羅率 <span class="pct">17%</span></div>
+        </div>
+
+        <div class="section-label">グループ会社マップ</div>
+        <div class="sub-grid">
+          <div class="sub-cell sub-active">
+            <span class="sub-icon">取引◎</span>
+            <div class="sub-name">E生命</div>
+            <div class="sub-status">既存 / 早瀬担当</div>
+          </div>
+          <div class="sub-cell sub-warm">
+            <span class="sub-icon">取引△</span>
+            <div class="sub-name">E損保</div>
+            <div class="sub-status">過去接点2名</div>
+          </div>
+          <div class="sub-cell sub-cold">
+            <span class="sub-icon">未開拓</span>
+            <div class="sub-name">Eアセット</div>
+            <div class="sub-status">人付けなし</div>
+          </div>
+          <div class="sub-cell sub-cold">
+            <span class="sub-icon">未開拓</span>
+            <div class="sub-name">E少額短期</div>
+            <div class="sub-status">人付けなし</div>
+          </div>
+          <div class="sub-cell sub-cold">
+            <span class="sub-icon">未開拓</span>
+            <div class="sub-name">E海外</div>
+            <div class="sub-status">人付けなし</div>
+          </div>
+        </div>
+
+        <div class="section-label">人付け展開パス</div>
+        <div class="path-timeline">
+          <div class="path-step">
+            <span class="path-node connected">E生命・林部長</span>
+            <span class="path-arrow">→</span>
+            <span class="path-node pending">E損保・松井課長（弱接点）</span>
+            <span class="path-arrow">→</span>
+            <span class="path-node pending">Eアセット・木下部長</span>
+          </div>
+          <div class="path-note">E生命 林部長は「損保・アセットとの基盤共通化を本部で議論中」と発言。AIモデルガバナンスを共通テーマとして提案する流れが推奨。</div>
+        </div>
+
+        <div class="section-label">推奨アプローチ</div>
+        <div class="approach-text">
+          AIモデルガバナンス（IFRS17・経済価値ベースSII対応）を共通テーマに、E生命起点でホールディングス本部のIT統括役員への紹介を打診。生損保横断のPoCを最初の一歩として位置づける。
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Best Practices -->
+    <div>
+      <div class="insight-panel">
+        <div class="insight-title">グループ展開ベストプラクティス <span class="ai-badge">AI生成</span></div>
+        <div class="insight-ts">2026/05/10 09:00 / 過去6件の成功パターンを抽出</div>
+
+        <div class="bp-card">
+          <span class="bp-tag">成功事例 / 銀行→カード</span>
+          <div class="bp-title">メガバンクX → カード子会社</div>
+          <div class="bp-text">規制対応（PCI-DSS／3Dセキュア）を起点にカード子会社CTOへの紹介を獲得。3ヶ月でRFI、6ヶ月で受注。鍵は「グループ規制対応の本部横串会議」への同席提案。</div>
+        </div>
+
+        <div class="bp-card">
+          <span class="bp-tag">成功事例 / 持株→子会社2社</span>
+          <div class="bp-title">地銀Y持株 → 証券・カード横展開</div>
+          <div class="bp-text">持株IT統括役員へのデータ基盤共通化提案が起点。3社統合PoCで4.5ヶ月で全子会社接点獲得。営業同行は所長＋本部役員の二段構え。</div>
+        </div>
+
+        <div class="bp-card">
+          <span class="bp-tag">成功事例 / 生保→損保</span>
+          <div class="bp-title">保険Z生命 → 損保・アセット</div>
+          <div class="bp-text">経済価値ベースSII対応を共通テーマとして提示。生保部長から本部役員への進言→グループ会議への招待→損保・アセット部長への紹介、というルートで7ヶ月で全社接点。</div>
+        </div>
+
+        <div class="bp-card">
+          <span class="bp-tag">失敗パターン</span>
+          <div class="bp-title">単発の機能提案で頭打ち</div>
+          <div class="bp-text">既存子会社のみへの単発機能提案では、本部・他子会社へ波及しない傾向。<strong>グループ全体の規制／統合テーマへ抽象化して提示</strong>することが成功と失敗を分ける最大要因。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

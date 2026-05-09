@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ailead Sales Dashboard ｜ 新規開拓・予見 ｜ ファイナンシャルサービス第一事業部</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif; background: #f5f6fa; color: #333; display: flex; min-height: 100vh; }
+
+  /* Sidebar (shared) */
+  .sidebar { width: 200px; background: #fff; border-right: 1px solid #e8e8e8; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 0; position: fixed; height: 100vh; z-index: 10; }
+  .sidebar-logo { padding: 0 20px; margin-bottom: 32px; display: flex; align-items: center; gap: 8px; }
+  .sidebar-logo svg { width: 28px; height: 28px; }
+  .sidebar-logo .logo-text { font-size: 18px; font-weight: 700; color: #2563eb; }
+  .sidebar-logo .logo-sub { font-size: 11px; color: #94a3b8; display: block; margin-top: 2px; }
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav li { padding: 10px 20px; font-size: 14px; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+  .sidebar-nav li.active { color: #2563eb; background: #eff6ff; border-right: 3px solid #2563eb; font-weight: 600; }
+  .sidebar-nav li:hover { background: #f8fafc; }
+  .sidebar-nav li svg { width: 18px; height: 18px; }
+  .sidebar-bottom { padding: 0 20px; }
+  .sidebar-client { display: flex; align-items: center; gap: 8px; padding: 12px 0; }
+  .sidebar-client-icon { width: 32px; height: 32px; background: #1e40af; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+  .sidebar-client-name { font-size: 13px; color: #334155; font-weight: 500; }
+  .sidebar-account { display: flex; align-items: center; gap: 8px; padding-top: 12px; font-size: 13px; color: #64748b; cursor: pointer; border-top: 1px solid #e8e8e8; margin-top: 8px; }
+  .sidebar-account svg { width: 18px; height: 18px; }
+
+  /* Main */
+  .main { margin-left: 200px; flex: 1; padding: 32px 40px; }
+  .page-title { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 24px; }
+  .page-title .sub { font-size: 13px; font-weight: 400; color: #94a3b8; margin-left: 12px; }
+  .page-title .badge { font-size: 11px; font-weight: 600; background: #dbeafe; color: #2563eb; padding: 3px 10px; border-radius: 12px; margin-left: 8px; }
+
+  /* Disclaimer */
+  .disclaimer { background: #fef9c3; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 12px; color: #854d0e; }
+
+  /* Summary Cards */
+  .summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .card { background: #fff; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .card-label { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+  .card-value { font-size: 32px; font-weight: 700; color: #1e293b; }
+  .card-value .unit { font-size: 14px; font-weight: 400; color: #94a3b8; margin-left: 2px; }
+  .card-value .sub { font-size: 14px; font-weight: 400; color: #94a3b8; }
+
+  /* Layout */
+  .content-grid { display: grid; grid-template-columns: 1fr 360px; gap: 20px; }
+
+  /* Toolbar */
+  .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-box { flex: 1; max-width: 280px; padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; outline: none; background: #fff; }
+  .search-box:focus { border-color: #2563eb; }
+  .btn-outline { padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #fff; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .btn-outline:hover { background: #f8fafc; }
+  .btn-primary { padding: 8px 14px; border: none; border-radius: 8px; font-size: 13px; background: #2563eb; color: #fff; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+  .btn-primary:hover { background: #1d4ed8; }
+
+  /* Prospect cards */
+  .prospect-card { background: #fff; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 14px; }
+  .prospect-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+  .prospect-name { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+  .prospect-meta { font-size: 12px; color: #64748b; display: flex; gap: 12px; flex-wrap: wrap; }
+  .prospect-meta span { display: inline-flex; align-items: center; gap: 4px; }
+  .prospect-meta .meta-tag { background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+  .priority-badge { padding: 4px 10px; border-radius: 14px; font-size: 11px; font-weight: 600; }
+  .priority-high { background: #fee2e2; color: #dc2626; }
+  .priority-mid { background: #fef3c7; color: #d97706; }
+  .priority-low { background: #e0f2fe; color: #0284c7; }
+
+  /* Match bar */
+  .match-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .match-label { font-size: 11px; color: #94a3b8; min-width: 88px; }
+  .match-bar-wrap { flex: 1; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+  .match-bar { height: 100%; background: linear-gradient(90deg, #60a5fa, #2563eb); border-radius: 4px; }
+  .match-value { font-size: 13px; font-weight: 700; color: #2563eb; min-width: 42px; text-align: right; }
+
+  /* Hypothesis */
+  .section-label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .hypo-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .hypo-item { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 6px; padding: 10px 14px; font-size: 13px; color: #334155; line-height: 1.6; }
+  .hypo-item .hypo-num { display: inline-block; background: #2563eb; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 8px; margin-right: 6px; }
+
+  /* Tag rows */
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .tag-product { background: #eff6ff; color: #2563eb; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+  .tag-person { background: #ecfdf5; color: #16a34a; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+
+  /* Footer of card */
+  .card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #f1f5f9; }
+  .card-footer .sources { font-size: 11px; color: #94a3b8; }
+
+  /* AI insight panel */
+  .insight-panel { background: #fff; border-radius: 12px; padding: 20px 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); position: sticky; top: 24px; align-self: start; }
+  .insight-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+  .insight-title .ai-badge { background: #dbeafe; color: #2563eb; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+  .insight-ts { font-size: 11px; color: #94a3b8; margin-bottom: 16px; }
+  .insight-block { background: #eff6ff; border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; font-size: 12px; color: #334155; line-height: 1.7; }
+  .insight-block strong { color: #1e293b; }
+  .insight-block .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; background: #2563eb; color: #fff; border-radius: 50%; font-size: 10px; font-weight: 700; margin-right: 6px; vertical-align: middle; }
+  .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 12px; }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-row .stat-label { color: #64748b; }
+  .stat-row .stat-value { color: #1e293b; font-weight: 600; }
+
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-top">
+    <div class="sidebar-logo">
+      <div>
+        <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#2563eb"/><path d="M10 22V12l6-4 6 4v10" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 22v-5h4v5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <span class="logo-text">ailead</span>
+        <span class="logo-sub">Sales Dashboard</span>
+      </div>
+    </div>
+    <ul class="sidebar-nav">
+      <li>
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"/></svg>
+        一覧
+      </li>
+      <li class="active">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-9a1 1 0 112 0v3.586l2.293 2.293a1 1 0 01-1.414 1.414l-2.586-2.586A1 1 0 019 11V7z"/></svg>
+        新規開拓・予見
+      </li>
+      <li>
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.99 3.99 0 0114 15c-1.5 0-2.79-.83-3.443-2.053a1 1 0 01-.107-.601l1.302-5.207-3.752-1.5V17h2a1 1 0 110 2H6a1 1 0 110-2h2V5.638l-3.752 1.5 1.302 5.207a1 1 0 01-.107.601C4.79 14.17 3.5 15 2 15a3.99 3.99 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.616a1 1 0 01.894-1.79l1.599.8L8 4.323V3a1 1 0 011-1z"/></svg>
+        グループ攻略
+      </li>
+      <li>
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm8-3a1 1 0 00-1 1v3a1 1 0 00.293.707l2 2a1 1 0 001.414-1.414L11 10.586V8a1 1 0 00-1-1z"/></svg>
+        レポート
+      </li>
+    </ul>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="sidebar-client">
+      <div class="sidebar-client-icon">B</div>
+      <div style="line-height:1.3;">
+        <span class="sidebar-client-name">BIPROGY 株式会社</span>
+        <div style="font-size:10px;color:#94a3b8;margin-top:2px;">ファイナンシャルサービス第一事業部</div>
+      </div>
+    </div>
+    <div class="sidebar-account">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+      アカウント
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="page-title">
+    新規開拓・予見
+    <span class="sub">ファイナンシャルサービス第一事業部</span>
+    <span class="badge">仮説提示エージェント</span>
+  </div>
+
+  <div class="disclaimer">
+    <strong>※ サンプルデータ：</strong> 本ダッシュボードはファイナンシャルサービス第一事業部様向けのイメージ共有用Mockです。実データに基づくものではありません。
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="card">
+      <div class="card-label">予測候補数</div>
+      <div class="card-value">24<span class="unit">社</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">カバー済み</div>
+      <div class="card-value">18<span class="unit">社</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">平均仮説マッチ度</div>
+      <div class="card-value">76<span class="unit">%</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">本日の優先</div>
+      <div class="card-value">5<span class="unit">社</span></div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <input type="text" class="search-box" placeholder="顧客名・業種で検索">
+    <button class="btn-outline">業態フィルター</button>
+    <button class="btn-outline">仮説テーマ</button>
+    <button class="btn-outline">担当者</button>
+    <button class="btn-primary">仮説を再生成</button>
+  </div>
+
+  <!-- Content Grid -->
+  <div class="content-grid">
+    <!-- Prospect Cards -->
+    <div>
+      <!-- Prospect 1 -->
+      <div class="prospect-card">
+        <div class="prospect-head">
+          <div>
+            <div class="prospect-name">メガバンクA / 銀行第二営業部</div>
+            <div class="prospect-meta">
+              <span class="meta-tag">業態：銀行</span>
+              <span class="meta-tag">想定役職：部長／システム企画</span>
+              <span class="meta-tag">推定予算：年8〜12億円規模</span>
+              <span>過去接点 3名 / 直近 12ヶ月</span>
+            </div>
+          </div>
+          <div class="priority-badge priority-high">優先度 高</div>
+        </div>
+
+        <div class="match-row">
+          <span class="match-label">仮説マッチ度</span>
+          <div class="match-bar-wrap"><div class="match-bar" style="width:86%;"></div></div>
+          <span class="match-value">86%</span>
+        </div>
+
+        <div class="section-label">推奨仮説（過去350本の商談データから生成）</div>
+        <div class="hypo-list">
+          <div class="hypo-item"><span class="hypo-num">01</span>Basel III最終化への移行に伴う規制対応AIで、年次報告作成負荷を約30%削減できる余地。RWA計算の高度化と合わせ、監督官庁レポーティングの自動生成までスコープに含めると一体提案として強い。</div>
+          <div class="hypo-item"><span class="hypo-num">02</span>データガバナンス基盤の更改ニーズが顕在化しているタイミング。全行データカタログ × ALMリスク管理基盤の刷新と組み合わせ、複数本部にまたがる横串提案が可能。</div>
+          <div class="hypo-item"><span class="hypo-num">03</span>金融庁「サイバーセキュリティガイドライン」改訂対応。重要情報インフラとしての監視・検知強化を、SOC運用受託モデルでの提示が刺さりやすい想定。</div>
+        </div>
+
+        <div class="section-label">推奨商材</div>
+        <div class="tag-row">
+          <span class="tag-product">AI規制対応スイート</span>
+          <span class="tag-product">データ統合プラットフォーム</span>
+          <span class="tag-product">不正検知AI</span>
+        </div>
+
+        <div class="section-label">推奨同行者</div>
+        <div class="tag-row">
+          <span class="tag-person">桐山 真一郎（過去類似74本）</span>
+          <span class="tag-person">国分 大輔（規制対応知見）</span>
+        </div>
+
+        <div class="card-footer">
+          <span class="sources">類似商談 23本 / 同業3社の発言パターンを参照</span>
+          <button class="btn-primary" style="padding:6px 14px;">商談ナビゲーターで開く</button>
+        </div>
+      </div>
+
+      <!-- Prospect 2 -->
+      <div class="prospect-card">
+        <div class="prospect-head">
+          <div>
+            <div class="prospect-name">大手地銀B / 法人事業統括部</div>
+            <div class="prospect-meta">
+              <span class="meta-tag">業態：地銀</span>
+              <span class="meta-tag">想定役職：本部企画ライン</span>
+              <span class="meta-tag">推定予算：年3〜5億円規模</span>
+              <span>過去接点 2名 / 直近 8ヶ月</span>
+            </div>
+          </div>
+          <div class="priority-badge priority-high">優先度 高</div>
+        </div>
+
+        <div class="match-row">
+          <span class="match-label">仮説マッチ度</span>
+          <div class="match-bar-wrap"><div class="match-bar" style="width:79%;"></div></div>
+          <span class="match-value">79%</span>
+        </div>
+
+        <div class="section-label">推奨仮説</div>
+        <div class="hypo-list">
+          <div class="hypo-item"><span class="hypo-num">01</span>持株会社化後の証券子会社・銀行・カード横断のデータ統合需要。3社統合データ基盤の構想を当社主導で提案する好機。</div>
+          <div class="hypo-item"><span class="hypo-num">02</span>地域経済データ × 与信モデルの再構築。中小企業向けスコアリングモデルの精緻化を、地銀協同DXコンソの先行事例として位置づけ可能。</div>
+          <div class="hypo-item"><span class="hypo-num">03</span>勘定系周辺の非機能要件強化（性能・可用性）と、生成AIによる窓口業務支援を抱き合わせた中期投資計画への食い込み。</div>
+        </div>
+
+        <div class="section-label">推奨商材</div>
+        <div class="tag-row">
+          <span class="tag-product">勘定系周辺SI</span>
+          <span class="tag-product">与信モデルAI</span>
+          <span class="tag-product">窓口生成AI</span>
+        </div>
+
+        <div class="section-label">推奨同行者</div>
+        <div class="tag-row">
+          <span class="tag-person">国分 大輔（地銀向け15本）</span>
+          <span class="tag-person">浅野 麻衣（勘定系周辺）</span>
+        </div>
+
+        <div class="card-footer">
+          <span class="sources">類似商談 19本 / 地銀 5社の比較分析</span>
+          <button class="btn-primary" style="padding:6px 14px;">商談ナビゲーターで開く</button>
+        </div>
+      </div>
+
+      <!-- Prospect 3 -->
+      <div class="prospect-card">
+        <div class="prospect-head">
+          <div>
+            <div class="prospect-name">信託C / 資産運用ソリューション部</div>
+            <div class="prospect-meta">
+              <span class="meta-tag">業態：信託銀行</span>
+              <span class="meta-tag">想定役職：部長／投信運営</span>
+              <span class="meta-tag">推定予算：年2〜3億円規模</span>
+              <span>過去接点 1名 / 直近 4ヶ月</span>
+            </div>
+          </div>
+          <div class="priority-badge priority-mid">優先度 中</div>
+        </div>
+
+        <div class="match-row">
+          <span class="match-label">仮説マッチ度</span>
+          <div class="match-bar-wrap"><div class="match-bar" style="width:72%;"></div></div>
+          <span class="match-value">72%</span>
+        </div>
+
+        <div class="section-label">推奨仮説</div>
+        <div class="hypo-list">
+          <div class="hypo-item"><span class="hypo-num">01</span>投信報告書の生成AI自動化。月次レポート作成負荷の高さは過去類似ヒアリング8本中6本で言及されており、ニーズ確度が高い。</div>
+          <div class="hypo-item"><span class="hypo-num">02</span>受託運用先（年金・GPIF系）のESG開示要件強化に伴う、データ収集・加工基盤の刷新提案。</div>
+          <div class="hypo-item"><span class="hypo-num">03</span>RPA化が頭打ちの後工程に対する、生成AI×ワークフロー自動化の上書き提案。</div>
+        </div>
+
+        <div class="section-label">推奨商材</div>
+        <div class="tag-row">
+          <span class="tag-product">投信レポートAI</span>
+          <span class="tag-product">ESGデータ基盤</span>
+          <span class="tag-product">RPA刷新コンサル</span>
+        </div>
+
+        <div class="section-label">推奨同行者</div>
+        <div class="tag-row">
+          <span class="tag-person">結城 千明（信託向け10本）</span>
+          <span class="tag-person">鈴鹿 隆二</span>
+        </div>
+
+        <div class="card-footer">
+          <span class="sources">類似商談 14本 / 信託 3社のVOC参照</span>
+          <button class="btn-primary" style="padding:6px 14px;">商談ナビゲーターで開く</button>
+        </div>
+      </div>
+
+      <!-- Prospect 4 -->
+      <div class="prospect-card">
+        <div class="prospect-head">
+          <div>
+            <div class="prospect-name">カード会社D / 不正対策推進部</div>
+            <div class="prospect-meta">
+              <span class="meta-tag">業態：カード</span>
+              <span class="meta-tag">想定役職：課長／不正検知</span>
+              <span class="meta-tag">推定予算：年1〜2億円規模</span>
+              <span>過去接点 1名 / 直近 6ヶ月</span>
+            </div>
+          </div>
+          <div class="priority-badge priority-mid">優先度 中</div>
+        </div>
+
+        <div class="match-row">
+          <span class="match-label">仮説マッチ度</span>
+          <div class="match-bar-wrap"><div class="match-bar" style="width:68%;"></div></div>
+          <span class="match-value">68%</span>
+        </div>
+
+        <div class="section-label">推奨仮説</div>
+        <div class="hypo-list">
+          <div class="hypo-item"><span class="hypo-num">01</span>3Dセキュア2.0義務化後の不正検知精度の頭打ち課題。グラフAIによる加盟店横断のリングモデル提案で他社差別化が可能。</div>
+          <div class="hypo-item"><span class="hypo-num">02</span>カードトークナイゼーション基盤の更改と合わせ、加盟店APIプラットフォームを新規収益源として位置づける構想提案。</div>
+        </div>
+
+        <div class="section-label">推奨商材</div>
+        <div class="tag-row">
+          <span class="tag-product">不正検知AI</span>
+          <span class="tag-product">トークン化基盤</span>
+        </div>
+
+        <div class="section-label">推奨同行者</div>
+        <div class="tag-row">
+          <span class="tag-person">鈴鹿 隆二（規制対応得意）</span>
+          <span class="tag-person">平岡 拓也</span>
+        </div>
+
+        <div class="card-footer">
+          <span class="sources">類似商談 11本 / カード業態 3社</span>
+          <button class="btn-primary" style="padding:6px 14px;">商談ナビゲーターで開く</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Insight Panel -->
+    <div>
+      <div class="insight-panel">
+        <div class="insight-title">AI生成インサイト <span class="ai-badge">AI生成</span></div>
+        <div class="insight-ts">2026/05/10 09:00 生成 / 過去350本を参照</div>
+
+        <div class="insight-block">
+          <span class="insight-num">1</span><strong>規制対応テーマ</strong>での初回ヒアリング深度は、他テーマ平均の<strong>1.4倍</strong>。Basel III／金融庁ガイドライン改訂期は、初期商談で課題構造化スコアが伸びやすく、受注確度を最も強く規定する。
+        </div>
+        <div class="insight-block">
+          <span class="insight-num">2</span>同業の発話傾向から、メガバンク／地銀いずれも<strong>「データガバナンス」「ESG開示」</strong>のキーワード出現頻度が前期比<strong>+38%</strong>。今期の本部企画予算が集中する見通し。
+        </div>
+        <div class="insight-block">
+          <span class="insight-num">3</span>桐山担当の長期アカウント（74本蓄積）に共通する勝ちパターンは「<strong>規制ドラフト→影響度の定量化→自社移行ロードマップとの接続</strong>」の流れ。新規開拓初回でも応用可。
+        </div>
+
+        <div class="section-label" style="margin-top:18px;">仮説生成の根拠サマリー</div>
+        <div class="stat-row"><span class="stat-label">参照商談数</span><span class="stat-value">350本</span></div>
+        <div class="stat-row"><span class="stat-label">業態カバレッジ</span><span class="stat-value">銀行 / 地銀 / 信託 / 保険 / カード</span></div>
+        <div class="stat-row"><span class="stat-label">過去12ヶ月VOC</span><span class="stat-value">2,418件</span></div>
+        <div class="stat-row"><span class="stat-label">推定予算規模合計</span><span class="stat-value">約 38 億円</span></div>
+        <div class="stat-row"><span class="stat-label">仮説生成モデル</span><span class="stat-value">ailead Foresight v2</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
