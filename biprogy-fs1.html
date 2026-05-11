@@ -301,6 +301,104 @@
   .legend-row { display: flex; gap: 14px; margin-bottom: 16px; font-size: 11px; color: #64748b; }
   .legend-row .lg-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
 
+  /* ===== Prospect Interactive Search ===== */
+  .ai-search-section { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); border-radius: 14px; padding: 28px 32px; margin-bottom: 22px; color: #fff; box-shadow: 0 4px 16px rgba(37,99,235,0.18); }
+  .ai-search-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 1px; opacity: 0.85; margin-bottom: 6px; text-transform: uppercase; }
+  .ai-search-headline { font-size: 19px; font-weight: 700; margin-bottom: 4px; }
+  .ai-search-sub { font-size: 12px; opacity: 0.85; margin-bottom: 18px; line-height: 1.6; }
+  .ai-search-row { display: flex; gap: 10px; align-items: stretch; }
+  .ai-search-input { flex: 1; min-height: 54px; padding: 12px 16px; border: none; border-radius: 10px; font-size: 14px; line-height: 1.6; resize: vertical; font-family: inherit; outline: none; color: #1e293b; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .ai-search-input:focus { box-shadow: 0 0 0 3px rgba(255,255,255,0.45); }
+  .ai-search-btn { padding: 0 22px; min-width: 130px; border: none; border-radius: 10px; background: #fff; color: #1d4ed8; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: transform 0.1s ease, box-shadow 0.2s ease; }
+  .ai-search-btn:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); transform: translateY(-1px); }
+  .ai-search-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  .sample-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .sample-pills .pill-label { font-size: 11px; opacity: 0.85; align-self: center; margin-right: 4px; }
+  .pill { background: rgba(255,255,255,0.16); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 6px 12px; border-radius: 16px; font-size: 12px; cursor: pointer; transition: background 0.15s ease; display: inline-flex; align-items: center; gap: 5px; }
+  .pill:hover { background: rgba(255,255,255,0.28); }
+  .pill .pill-emoji { font-size: 13px; }
+
+  /* Thinking area */
+  .thinking-area { background: #fff; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 16px; display: none; }
+  .thinking-area.active { display: block; animation: aiFadeIn 0.3s ease; }
+  .thinking-title { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .thinking-title .ai-spinner { width: 14px; height: 14px; border: 2px solid #dbeafe; border-top-color: #2563eb; border-radius: 50%; animation: aiSpin 0.8s linear infinite; }
+  .thinking-step { font-size: 12px; color: #475569; padding: 6px 0; display: flex; align-items: center; gap: 8px; line-height: 1.5; opacity: 0; transform: translateY(4px); transition: opacity 0.25s ease, transform 0.25s ease; }
+  .thinking-step.visible { opacity: 1; transform: translateY(0); }
+  .thinking-step .step-mark { width: 16px; display: inline-flex; justify-content: center; }
+  .thinking-step.pending .step-mark { color: #94a3b8; }
+  .thinking-step.done .step-mark { color: #16a34a; font-weight: 700; }
+  .thinking-step.done .step-text { color: #334155; }
+
+  @keyframes aiSpin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+  @keyframes aiFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes aiSlideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Result cards */
+  #prospectResults { display: none; }
+  #prospectResults.active { display: block; }
+  .result-card { background: #fff; border-radius: 12px; padding: 22px 26px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 16px; opacity: 0; transform: translateY(12px); }
+  .result-card.show { animation: aiSlideUp 0.45s ease forwards; }
+  .result-card .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; }
+  .result-card .card-header .rc-icon { font-size: 20px; }
+  .result-card .card-header .rc-title { font-size: 15px; font-weight: 700; color: #1e293b; }
+  .result-card .card-header .rc-sub { font-size: 11px; color: #94a3b8; margin-left: auto; }
+
+  /* Profile section */
+  .profile-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .profile-cell { background: #f8fafc; border-radius: 10px; padding: 12px 14px; }
+  .profile-cell .pc-label { font-size: 10px; color: #94a3b8; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px; }
+  .profile-cell .pc-value { font-size: 13px; color: #1e293b; font-weight: 600; line-height: 1.5; }
+  .profile-cell.full { grid-column: 1 / -1; }
+  .ir-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ir-tag { background: #dbeafe; color: #1d4ed8; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px; }
+
+  /* Similar deals */
+  .deal-row { display: grid; grid-template-columns: 28px 1fr 80px 100px 80px; gap: 12px; align-items: center; padding: 12px 14px; background: #f8fafc; border-radius: 10px; margin-bottom: 8px; }
+  .deal-rank { font-size: 14px; font-weight: 700; color: #2563eb; }
+  .deal-info .deal-name-r { font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 3px; }
+  .deal-info .deal-meta-r { font-size: 11px; color: #64748b; }
+  .deal-match { text-align: right; font-size: 14px; font-weight: 700; color: #2563eb; }
+  .deal-outcome { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 10px; text-align: center; }
+  .outcome-won { background: #dcfce7; color: #16a34a; }
+  .outcome-lost { background: #fee2e2; color: #dc2626; }
+  .deal-period { font-size: 11px; color: #64748b; text-align: right; }
+
+  /* Hypothesis cards */
+  .hypo-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; background: #fff; transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+  .hypo-card:hover { border-color: #2563eb; box-shadow: 0 2px 8px rgba(37,99,235,0.08); }
+  .hypo-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .hypo-card-num { width: 24px; height: 24px; background: #2563eb; color: #fff; border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .hypo-card-title { font-size: 14px; font-weight: 700; color: #1e293b; line-height: 1.4; }
+  .hypo-row { display: grid; grid-template-columns: 80px 1fr; gap: 10px; font-size: 12px; line-height: 1.7; margin-bottom: 6px; }
+  .hypo-row:last-child { margin-bottom: 0; }
+  .hypo-row .hr-label { color: #94a3b8; font-weight: 600; font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; }
+  .hypo-row .hr-text { color: #334155; }
+  .hypo-row .hr-text.talk { background: #f8fafc; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #2563eb; font-style: italic; color: #475569; }
+  .hypo-products { display: flex; flex-wrap: wrap; gap: 6px; }
+  .hypo-products .hp-tag { background: #eff6ff; color: #2563eb; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+
+  /* Members */
+  .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .member-card { background: #f8fafc; border-radius: 10px; padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+  .member-avatar { width: 40px; height: 40px; background: #2563eb; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+  .member-body .member-name-r { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+  .member-body .member-reason { font-size: 11px; color: #64748b; line-height: 1.6; }
+
+  /* Objections */
+  .objection-row { display: flex; gap: 14px; padding: 14px 16px; background: #f8fafc; border-radius: 10px; margin-bottom: 10px; }
+  .objection-row .obj-icon { font-size: 18px; line-height: 1.4; flex-shrink: 0; }
+  .objection-body { flex: 1; }
+  .objection-body .obj-q { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 6px; line-height: 1.5; }
+  .objection-body .obj-a { font-size: 12px; color: #475569; line-height: 1.7; }
+  .objection-body .obj-a-label { font-size: 10px; font-weight: 700; color: #16a34a; letter-spacing: 0.5px; margin-right: 6px; }
+
+  /* Reset bar */
+  .reset-bar { display: flex; justify-content: flex-end; margin-top: 8px; margin-bottom: 24px; }
+  .reset-btn { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 16px; font-size: 12px; color: #64748b; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .reset-btn:hover { background: #f8fafc; color: #2563eb; border-color: #cbd5e1; }
+
 </style>
 </head>
 <body>
@@ -745,251 +843,83 @@
     <strong>※ サンプルデータ：</strong> 本ダッシュボードはファイナンシャルサービス第一事業部様向けのイメージ共有用Mockです。実データに基づくものではありません。
   </div>
 
-  <!-- Summary Cards -->
-  <div class="summary-cards">
-    <div class="card">
-      <div class="card-label">予測候補数</div>
-      <div class="card-value">24<span class="unit">社</span></div>
+  <!-- AI Search Hero -->
+  <div class="ai-search-section">
+    <div class="ai-search-eyebrow">PROSPECT INTELLIGENCE</div>
+    <div class="ai-search-headline">攻めたい顧客を入力してください</div>
+    <div class="ai-search-sub">過去350本の商談データと公開IR情報から、顧客プロファイル・類似商談・仮説・推奨同行者・想定反論を一括生成します。</div>
+    <div class="ai-search-row">
+      <textarea id="prospectQuery" class="ai-search-input" rows="2" placeholder="例：メガバンクA様の第二営業部にアプローチしたい。Basel III対応で予算が動いていそう。"></textarea>
+      <button id="prospectAnalyzeBtn" class="ai-search-btn" onclick="analyzeCustomer()">分析開始 →</button>
     </div>
-    <div class="card">
-      <div class="card-label">カバー済み</div>
-      <div class="card-value">18<span class="unit">社</span></div>
+    <div class="sample-pills">
+      <span class="pill-label">サンプル：</span>
+      <span class="pill" onclick="runSample('megabank_a')"><span class="pill-emoji">🏦</span>メガバンクA様 第二営業部</span>
+      <span class="pill" onclick="runSample('regional_b')"><span class="pill-emoji">🏢</span>大手地銀B様 法人事業統括</span>
+      <span class="pill" onclick="runSample('trust_c')"><span class="pill-emoji">💼</span>信託C様 資産運用部</span>
+      <span class="pill" onclick="runSample('card_d')"><span class="pill-emoji">💳</span>カード会社D様 不正対策室</span>
+      <span class="pill" onclick="runSample('insurance_e')"><span class="pill-emoji">🛡️</span>保険E様 リスク管理部</span>
     </div>
-    <div class="card">
-      <div class="card-label">平均仮説マッチ度</div>
-      <div class="card-value">76<span class="unit">%</span></div>
+  </div>
+
+  <!-- Thinking area -->
+  <div class="thinking-area" id="thinkingArea">
+    <div class="thinking-title"><span class="ai-spinner"></span><span id="thinkingTitleText">ailead が顧客を分析しています...</span></div>
+    <div id="thinkingSteps"></div>
+  </div>
+
+  <!-- Results area -->
+  <div id="prospectResults">
+    <div class="result-card" id="rc-profile">
+      <div class="card-header">
+        <span class="rc-icon">🎯</span>
+        <span class="rc-title">顧客プロファイル分析</span>
+        <span class="rc-sub" id="profileSub">公開IR / 過去接点から自動抽出</span>
+      </div>
+      <div class="profile-grid" id="profileGrid"></div>
     </div>
-    <div class="card">
-      <div class="card-label">本日の優先</div>
-      <div class="card-value">5<span class="unit">社</span></div>
+
+    <div class="result-card" id="rc-deals">
+      <div class="card-header">
+        <span class="rc-icon">📊</span>
+        <span class="rc-title">過去類似商談 Top 3</span>
+        <span class="rc-sub" id="dealsSub">類似度・受注実績・期間で選定</span>
+      </div>
+      <div id="dealList"></div>
+    </div>
+
+    <div class="result-card" id="rc-hypo">
+      <div class="card-header">
+        <span class="rc-icon">💡</span>
+        <span class="rc-title">刺さる仮説 × 商材 × トーク 3案</span>
+        <span class="rc-sub">仮説 → 推奨商材 → 初回トーク</span>
+      </div>
+      <div id="hypoList"></div>
+    </div>
+
+    <div class="result-card" id="rc-members">
+      <div class="card-header">
+        <span class="rc-icon">👥</span>
+        <span class="rc-title">推奨同行者</span>
+        <span class="rc-sub">過去商談実績ベース</span>
+      </div>
+      <div class="member-grid" id="memberGrid"></div>
+    </div>
+
+    <div class="result-card" id="rc-obj">
+      <div class="card-header">
+        <span class="rc-icon">⚠️</span>
+        <span class="rc-title">想定される反論と対応</span>
+        <span class="rc-sub">過去商談Q&Aから抽出</span>
+      </div>
+      <div id="objectionList"></div>
+    </div>
+
+    <div class="reset-bar">
+      <button class="reset-btn" onclick="resetProspect()">↺ 別の顧客で分析しなおす</button>
     </div>
   </div>
 
-  <!-- Toolbar -->
-  <div class="toolbar">
-    <input type="text" class="search-box" placeholder="顧客名・業種で検索">
-    <button class="btn-outline">業態フィルター</button>
-    <button class="btn-outline">仮説テーマ</button>
-    <button class="btn-outline">担当者</button>
-    <button class="btn-primary">仮説を再生成</button>
-  </div>
-
-  <!-- Content Grid -->
-  <div class="content-grid">
-    <!-- Prospect Cards -->
-    <div>
-      <!-- Prospect 1 -->
-      <div class="prospect-card">
-        <div class="prospect-head">
-          <div>
-            <div class="prospect-name">メガバンクA / 銀行第二営業部</div>
-            <div class="prospect-meta">
-              <span class="meta-tag">業態：銀行</span>
-              <span class="meta-tag">想定役職：部長／システム企画</span>
-              <span class="meta-tag">推定予算：年8〜12億円規模</span>
-              <span>過去接点 3名 / 直近 12ヶ月</span>
-            </div>
-          </div>
-          <div class="priority-badge priority-high">優先度 高</div>
-        </div>
-
-        <div class="match-row">
-          <span class="match-label">仮説マッチ度</span>
-          <div class="match-bar-wrap"><div class="match-bar" style="width:86%;"></div></div>
-          <span class="match-value">86%</span>
-        </div>
-
-        <div class="section-label">推奨仮説（過去350本の商談データから生成）</div>
-        <div class="hypo-list">
-          <div class="hypo-item"><span class="hypo-num">01</span>Basel III最終化への移行に伴う規制対応AIで、年次報告作成負荷を約30%削減できる余地。RWA計算の高度化と合わせ、監督官庁レポーティングの自動生成までスコープに含めると一体提案として強い。</div>
-          <div class="hypo-item"><span class="hypo-num">02</span>データガバナンス基盤の更改ニーズが顕在化しているタイミング。全行データカタログ × ALMリスク管理基盤の刷新と組み合わせ、複数本部にまたがる横串提案が可能。</div>
-          <div class="hypo-item"><span class="hypo-num">03</span>金融庁「サイバーセキュリティガイドライン」改訂対応。重要情報インフラとしての監視・検知強化を、SOC運用受託モデルでの提示が刺さりやすい想定。</div>
-        </div>
-
-        <div class="section-label">推奨商材</div>
-        <div class="tag-row">
-          <span class="tag-product">AI規制対応スイート</span>
-          <span class="tag-product">データ統合プラットフォーム</span>
-          <span class="tag-product">不正検知AI</span>
-        </div>
-
-        <div class="section-label">推奨同行者</div>
-        <div class="tag-row">
-          <span class="tag-person">桐山 真一郎（過去類似74本）</span>
-          <span class="tag-person">国分 大輔（規制対応知見）</span>
-        </div>
-
-        <div class="card-footer">
-          <span class="sources">類似商談 23本 / 同業3社の発言パターンを参照</span>
-          <button class="btn-primary" style="padding:6px 14px;">商談ナビゲーターで開く</button>
-        </div>
-      </div>
-
-      <!-- Prospect 2 -->
-      <div class="prospect-card">
-        <div class="prospect-head">
-          <div>
-            <div class="prospect-name">大手地銀B / 法人事業統括部</div>
-            <div class="prospect-meta">
-              <span class="meta-tag">業態：地銀</span>
-              <span class="meta-tag">想定役職：本部企画ライン</span>
-              <span class="meta-tag">推定予算：年3〜5億円規模</span>
-              <span>過去接点 2名 / 直近 8ヶ月</span>
-            </div>
-          </div>
-          <div class="priority-badge priority-high">優先度 高</div>
-        </div>
-
-        <div class="match-row">
-          <span class="match-label">仮説マッチ度</span>
-          <div class="match-bar-wrap"><div class="match-bar" style="width:79%;"></div></div>
-          <span class="match-value">79%</span>
-        </div>
-
-        <div class="section-label">推奨仮説</div>
-        <div class="hypo-list">
-          <div class="hypo-item"><span class="hypo-num">01</span>持株会社化後の証券子会社・銀行・カード横断のデータ統合需要。3社統合データ基盤の構想を当社主導で提案する好機。</div>
-          <div class="hypo-item"><span class="hypo-num">02</span>地域経済データ × 与信モデルの再構築。中小企業向けスコアリングモデルの精緻化を、地銀協同DXコンソの先行事例として位置づけ可能。</div>
-          <div class="hypo-item"><span class="hypo-num">03</span>勘定系周辺の非機能要件強化（性能・可用性）と、生成AIによる窓口業務支援を抱き合わせた中期投資計画への食い込み。</div>
-        </div>
-
-        <div class="section-label">推奨商材</div>
-        <div class="tag-row">
-          <span class="tag-product">勘定系周辺SI</span>
-          <span class="tag-product">与信モデルAI</span>
-          <span class="tag-product">窓口生成AI</span>
-        </div>
-
-        <div class="section-label">推奨同行者</div>
-        <div class="tag-row">
-          <span class="tag-person">国分 大輔（地銀向け15本）</span>
-          <span class="tag-person">浅野 麻衣（勘定系周辺）</span>
-        </div>
-
-        <div class="card-footer">
-          <span class="sources">類似商談 19本 / 地銀 5社の比較分析</span>
-          <button class="btn-primary" style="padding:6px 14px;">商談ナビゲーターで開く</button>
-        </div>
-      </div>
-
-      <!-- Prospect 3 -->
-      <div class="prospect-card">
-        <div class="prospect-head">
-          <div>
-            <div class="prospect-name">信託C / 資産運用ソリューション部</div>
-            <div class="prospect-meta">
-              <span class="meta-tag">業態：信託銀行</span>
-              <span class="meta-tag">想定役職：部長／投信運営</span>
-              <span class="meta-tag">推定予算：年2〜3億円規模</span>
-              <span>過去接点 1名 / 直近 4ヶ月</span>
-            </div>
-          </div>
-          <div class="priority-badge priority-mid">優先度 中</div>
-        </div>
-
-        <div class="match-row">
-          <span class="match-label">仮説マッチ度</span>
-          <div class="match-bar-wrap"><div class="match-bar" style="width:72%;"></div></div>
-          <span class="match-value">72%</span>
-        </div>
-
-        <div class="section-label">推奨仮説</div>
-        <div class="hypo-list">
-          <div class="hypo-item"><span class="hypo-num">01</span>投信報告書の生成AI自動化。月次レポート作成負荷の高さは過去類似ヒアリング8本中6本で言及されており、ニーズ確度が高い。</div>
-          <div class="hypo-item"><span class="hypo-num">02</span>受託運用先（年金・GPIF系）のESG開示要件強化に伴う、データ収集・加工基盤の刷新提案。</div>
-          <div class="hypo-item"><span class="hypo-num">03</span>RPA化が頭打ちの後工程に対する、生成AI×ワークフロー自動化の上書き提案。</div>
-        </div>
-
-        <div class="section-label">推奨商材</div>
-        <div class="tag-row">
-          <span class="tag-product">投信レポートAI</span>
-          <span class="tag-product">ESGデータ基盤</span>
-          <span class="tag-product">RPA刷新コンサル</span>
-        </div>
-
-        <div class="section-label">推奨同行者</div>
-        <div class="tag-row">
-          <span class="tag-person">結城 千明（信託向け10本）</span>
-          <span class="tag-person">鈴鹿 隆二</span>
-        </div>
-
-        <div class="card-footer">
-          <span class="sources">類似商談 14本 / 信託 3社のVOC参照</span>
-          <button class="btn-primary" style="padding:6px 14px;">商談ナビゲーターで開く</button>
-        </div>
-      </div>
-
-      <!-- Prospect 4 -->
-      <div class="prospect-card">
-        <div class="prospect-head">
-          <div>
-            <div class="prospect-name">カード会社D / 不正対策推進部</div>
-            <div class="prospect-meta">
-              <span class="meta-tag">業態：カード</span>
-              <span class="meta-tag">想定役職：課長／不正検知</span>
-              <span class="meta-tag">推定予算：年1〜2億円規模</span>
-              <span>過去接点 1名 / 直近 6ヶ月</span>
-            </div>
-          </div>
-          <div class="priority-badge priority-mid">優先度 中</div>
-        </div>
-
-        <div class="match-row">
-          <span class="match-label">仮説マッチ度</span>
-          <div class="match-bar-wrap"><div class="match-bar" style="width:68%;"></div></div>
-          <span class="match-value">68%</span>
-        </div>
-
-        <div class="section-label">推奨仮説</div>
-        <div class="hypo-list">
-          <div class="hypo-item"><span class="hypo-num">01</span>3Dセキュア2.0義務化後の不正検知精度の頭打ち課題。グラフAIによる加盟店横断のリングモデル提案で他社差別化が可能。</div>
-          <div class="hypo-item"><span class="hypo-num">02</span>カードトークナイゼーション基盤の更改と合わせ、加盟店APIプラットフォームを新規収益源として位置づける構想提案。</div>
-        </div>
-
-        <div class="section-label">推奨商材</div>
-        <div class="tag-row">
-          <span class="tag-product">不正検知AI</span>
-          <span class="tag-product">トークン化基盤</span>
-        </div>
-
-        <div class="section-label">推奨同行者</div>
-        <div class="tag-row">
-          <span class="tag-person">鈴鹿 隆二（規制対応得意）</span>
-          <span class="tag-person">平岡 拓也</span>
-        </div>
-
-        <div class="card-footer">
-          <span class="sources">類似商談 11本 / カード業態 3社</span>
-          <button class="btn-primary" style="padding:6px 14px;">商談ナビゲーターで開く</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Insight Panel -->
-    <div>
-      <div class="insight-panel">
-        <div class="insight-title">AI生成インサイト <span class="ai-badge">AI生成</span></div>
-        <div class="insight-ts">2026/05/10 09:00 生成 / 過去350本を参照</div>
-
-        <div class="insight-block">
-          <span class="insight-num">1</span><strong>規制対応テーマ</strong>での初回ヒアリング深度は、他テーマ平均の<strong>1.4倍</strong>。Basel III／金融庁ガイドライン改訂期は、初期商談で課題構造化スコアが伸びやすく、受注確度を最も強く規定する。
-        </div>
-        <div class="insight-block">
-          <span class="insight-num">2</span>同業の発話傾向から、メガバンク／地銀いずれも<strong>「データガバナンス」「ESG開示」</strong>のキーワード出現頻度が前期比<strong>+38%</strong>。今期の本部企画予算が集中する見通し。
-        </div>
-        <div class="insight-block">
-          <span class="insight-num">3</span>桐山担当の長期アカウント（74本蓄積）に共通する勝ちパターンは「<strong>規制ドラフト→影響度の定量化→自社移行ロードマップとの接続</strong>」の流れ。新規開拓初回でも応用可。
-        </div>
-
-        <div class="section-label" style="margin-top:18px;">仮説生成の根拠サマリー</div>
-        <div class="stat-row"><span class="stat-label">参照商談数</span><span class="stat-value">350本</span></div>
-        <div class="stat-row"><span class="stat-label">業態カバレッジ</span><span class="stat-value">銀行 / 地銀 / 信託 / 保険 / カード</span></div>
-        <div class="stat-row"><span class="stat-label">過去12ヶ月VOC</span><span class="stat-value">2,418件</span></div>
-        <div class="stat-row"><span class="stat-label">推定予算規模合計</span><span class="stat-value">約 38 億円</span></div>
-        <div class="stat-row"><span class="stat-label">仮説生成モデル</span><span class="stat-value">ailead Foresight v2</span></div>
-      </div>
-    </div>
-  </div>
 </div>
 <!-- END VIEW: PROSPECT -->
 
@@ -1561,14 +1491,477 @@ function closeDetail() {
 }
 
 // Initialize from URL hash
-document.addEventListener('DOMContentLoaded', () => {
-  const hash = location.hash.slice(1);
-  if (hash === 'prospect' || hash === 'group') {
-    showView(hash);
-  } else {
-    // default: coaching view, render report charts only on tab click
+/* existing DOMContentLoaded removed; replaced by initProspectFromHash */
+
+
+/* ============================================================ */
+/* ===== Prospect Interactive Agent =========================== */
+/* ============================================================ */
+
+const scenarios = {
+  megabank_a: {
+    query_example: 'メガバンクA様の第二営業部にアプローチしたい。Basel III対応で予算が動いていそう。',
+    profile: {
+      customer: 'メガバンクA様 第二営業部',
+      industry: 'メガバンク／リテール・法人横断',
+      ir_keywords: ['DX推進中期計画', 'Basel III 移行', '規制対応強化', 'データガバナンス'],
+      budget: '数十億円規模（年次投資枠あり）',
+      role: '部長級（意思決定権あり）／システム企画ライン',
+      situation: '監督官庁レポーティングの高度化が直近2四半期のIRで継続言及。RWA計算と統合報告の自動化が議論の中心。'
+    },
+    deals: [
+      { rank: 1, name: 'メガバンクF様 リスク管理高度化', meta: '部長級／本部企画', match: '86%', outcome: '受注', period: '8ヶ月' },
+      { rank: 2, name: '大手銀行G様 自己資本管理刷新', meta: 'CIO直下／システム企画', match: '78%', outcome: '受注', period: '12ヶ月' },
+      { rank: 3, name: '信託H様 規制対応プロジェクト', meta: '本部企画／規制対応室', match: '72%', outcome: '失注', period: '6ヶ月' }
+    ],
+    hypotheses: [
+      {
+        title: 'Basel III最終化の移行負荷を「規制対応AI」で吸収',
+        basis: 'RWA計算と統合レポート作成負荷は移行期に約30%増。F様事例では年次レポート作成工数を42%削減。',
+        product: ['AI規制対応スイート', '統合リスク基盤'],
+        talk: '「Basel III最終化、御行の移行スケジュールはどのフェーズにありますか？F社様では監督レポート作成工数が4割減りました」'
+      },
+      {
+        title: '監督対応 × AI規制基盤の一体化',
+        basis: '金融庁ガイドライン改訂頻度が前期比+38%。一括管理基盤への需要は本部企画ラインで顕在化済み。',
+        product: ['AI規制対応スイート', 'コンプライアンス監視'],
+        talk: '「金融庁の改訂サイクル、御行はどう吸収していますか？ガイドライン→影響度の定量化までAIで一気通貫にできます」'
+      },
+      {
+        title: 'データガバナンス基盤更改の横串提案',
+        basis: '全行データカタログ × ALMリスク基盤の刷新は複数本部の共通課題。G様で12ヶ月案件として成立。',
+        product: ['データ統合プラットフォーム', '全行データカタログ'],
+        talk: '「データガバナンス、本部単位で個別最適になっていませんか？横串の基盤化で投資配分の最適化が見込めます」'
+      }
+    ],
+    members: [
+      { name: '桐山 真一郎', initial: '桐', reason: '規制対応案件8件／メガバンク向け74本の蓄積。Basel関連の言語化に強み。' },
+      { name: '結城 千明', initial: '結', reason: '信託・運用知見。データガバナンス文脈の翻訳役として最適。' },
+      { name: '国分 大輔', initial: '国', reason: '勘定系周辺SIの実装知見。技術的詰めの質問に即応可能。' }
+    ],
+    objections: [
+      { q: 'すでにRPA投資を進めている。AIに置き換える妥当性は？', a: '「RPAは定型処理、AIは判断系で役割分担が可能。F様では既存RPA資産を活かしつつ、判断レイヤーのみAI化して投資効率を最大化されました」' },
+      { q: '情シスとの調整工数が読めない', a: '「F様事例の情シス調整パターン（3階層×3回MTG）を雛形提供できます。初期2ヶ月のロードマップで全体感を握ります」' },
+      { q: 'Copilot契約済み。重複投資にならないか？', a: '「Copilotは個人の文書作成支援、aileadは組織横断の商談データ資産化。レイヤーが異なり補完関係になります」' }
+    ]
+  },
+  regional_b: {
+    query_example: '大手地銀B様 法人事業統括部。中計見直しと統合機運でDX投資が動いている。',
+    profile: {
+      customer: '大手地銀B様 法人事業統括部',
+      industry: '地方銀行／持株会社化検討中',
+      ir_keywords: ['中期経営計画見直し', '地銀統合機運', 'DX投資加速', '法人ビジネス再構築'],
+      budget: '数億〜十数億円規模',
+      role: '本部企画ライン（部長・次長クラス）',
+      situation: '近隣地銀との統合観測がIRで継続。3行統合データ基盤の構想が次期中計の柱になる見通し。'
+    },
+    deals: [
+      { rank: 1, name: '地銀X様 3行統合データ基盤', meta: '本部企画／持株', match: '89%', outcome: '受注', period: '14ヶ月' },
+      { rank: 2, name: '地銀Y様 勘定系周辺刷新', meta: 'システム企画部', match: '74%', outcome: '受注', period: '10ヶ月' },
+      { rank: 3, name: '地銀Z様 DX戦略立案支援', meta: '経営企画', match: '68%', outcome: '失注', period: '5ヶ月' }
+    ],
+    hypotheses: [
+      {
+        title: '3行統合データ基盤パッケージ',
+        basis: 'X様事例（14ヶ月／受注）と統合発表のタイミングが酷似。中計策定前の提案投入が勝ち筋。',
+        product: ['データ統合プラットフォーム', '統合データガバナンス'],
+        talk: '「統合議論が出始めたタイミングこそ、中計に組み込む最後のチャンスです。X社様もこの時期に意思決定されました」'
+      },
+      {
+        title: '勘定系周辺刷新 × 与信モデルAI',
+        basis: '地銀協同DXコンソの先行事例として位置づけ可能。中小企業向けスコアリング再構築は法人事業統括の所掌。',
+        product: ['勘定系周辺SI', '与信モデルAI'],
+        talk: '「法人ポートフォリオの与信モデル、最後にチューニングされたのはいつですか？地銀協同データで精度+15%が見込めます」'
+      },
+      {
+        title: '窓口生成AIと中計のDX投資枠',
+        basis: 'DX投資加速のIR言及。窓口業務支援は短期成果が出やすく中計の数値目標に乗せやすい。',
+        product: ['窓口生成AI', '応対品質モニタリング'],
+        talk: '「中計のDX目標、定性で書かれていませんか？窓口生成AIは応対時間XX%短縮など定量で書けます」'
+      }
+    ],
+    members: [
+      { name: '国分 大輔', initial: '国', reason: '地銀向け15本の実績。勘定系周辺の技術詰めに強い。' },
+      { name: '鈴鹿 隆二', initial: '鈴', reason: '中計策定支援の経験。経営企画ラインへの言語化に強み。' },
+      { name: '浅野 麻衣', initial: '浅', reason: '与信モデル領域の専門知見。リスク管理部との会話を補完。' }
+    ],
+    objections: [
+      { q: '統合議論はまだ公表段階ではない', a: '「議論前提でなく中計の選択肢の一つとして提示するだけでも十分です。X様も初期はこの形でスタートされました」' },
+      { q: '勘定系ベンダーとの関係が壁になる', a: '「周辺基盤として明確に切り分け、勘定系ベンダーへの依頼領域を定義したうえで提案します。Y様では役割分担表を当初2週間で完成させました」' },
+      { q: '地銀協同のスキーム適合性は？', a: '「協同コンソの先行事例として位置づけ可能。先行行に対するブランディング効果も含めて提案します」' }
+    ]
+  },
+  trust_c: {
+    query_example: '信託C様 資産運用部。ESG開示要件強化とデータガバナンスで動いている。',
+    profile: {
+      customer: '信託C様 資産運用ソリューション部',
+      industry: '信託銀行／アセットマネジメント',
+      ir_keywords: ['ESG投資強化', '規制対応', 'データガバナンス', '受託資産拡大'],
+      budget: '年2〜3億円規模',
+      role: '部長／投信運営ライン',
+      situation: '年金・GPIF系受託先のESG開示要件強化への対応がIRの主要トピック。データ収集・加工基盤の刷新が課題。'
+    },
+    deals: [
+      { rank: 1, name: '信託J様 ESG運用基盤構築', meta: '資産運用部／部長級', match: '82%', outcome: '受注', period: '9ヶ月' },
+      { rank: 2, name: '信託K様 運用システム刷新', meta: 'システム企画', match: '76%', outcome: '受注', period: '11ヶ月' },
+      { rank: 3, name: '銀行L様 アセマネ統合', meta: '本部企画', match: '70%', outcome: '受注', period: '13ヶ月' }
+    ],
+    hypotheses: [
+      {
+        title: 'ESG運用基盤の刷新',
+        basis: 'J様事例（9ヶ月／受注）と開示要件強化のタイミングが一致。GPIF系受託先の要件が直接ドライバー。',
+        product: ['ESGデータ基盤', '開示自動化AI'],
+        talk: '「GPIF系の開示要件、御部では現状どこまで自動化されていますか？J様は手作業1.5人月→2日まで圧縮されました」'
+      },
+      {
+        title: '規制対応AI × 投信レポート自動化',
+        basis: '月次レポート作成負荷は類似ヒアリング8本中6本で言及。RPA頭打ち層への上書き提案。',
+        product: ['投信レポートAI', '規制対応AI'],
+        talk: '「月次レポート、RPA化で頭打ちになっていませんか？文書生成AIの新世代で残工数を一気に巻き取れます」'
+      },
+      {
+        title: 'データガバナンス × 受託資産横断分析',
+        basis: '受託資産拡大のIRトーン。資産横断の分析基盤は他社差別化要因として効く。',
+        product: ['データ統合プラットフォーム', '受託資産分析'],
+        talk: '「受託拡大局面、商品横断のパフォーマンス比較は経営報告で求められませんか？基盤化で月次→週次が実現します」'
+      }
+    ],
+    members: [
+      { name: '結城 千明', initial: '結', reason: '信託向け10本／運用領域の用語に通じている。' },
+      { name: '早瀬 美咲', initial: '早', reason: 'ESG関連の言語化に強み。投資家視点での説明が得意。' },
+      { name: '鈴鹿 隆二', initial: '鈴', reason: '規制対応・コンプライアンス文脈の補完役。' }
+    ],
+    objections: [
+      { q: 'ESGはバズワード化していて投資判断しづらい', a: '「J様も同じ懸念から入られました。GPIF要件→具体的なデータ項目→工数削減額のステップで投資判断を構造化できます」' },
+      { q: '既存ベンダーとの分担が見えない', a: '「運用システム本体は既存ベンダー、開示・分析レイヤーを当社という切り分けです。K様で同じ役割分担を構築済みです」' },
+      { q: '内製化方針との衝突は？', a: '「ベース基盤は当社、運用・拡張は御部内製化という形にすれば内製化方針と矛盾しません」' }
+    ]
+  },
+  card_d: {
+    query_example: 'カード会社D様 不正対策推進部。AI不正検知の高度化が議論されている。',
+    profile: {
+      customer: 'カード会社D様 不正対策推進部',
+      industry: 'クレジットカード／決済',
+      ir_keywords: ['不正検知強化', 'AI投資加速', 'リアルタイム監視', '3Dセキュア対応'],
+      budget: '年1〜2億円規模／継続投資枠あり',
+      role: '課長級／不正検知ライン',
+      situation: '3Dセキュア2.0義務化後の検知精度頭打ちがIRで明示。グラフAI・リアルタイム監視への投資意欲が高い。'
+    },
+    deals: [
+      { rank: 1, name: 'カード会社M様 AI不正検知基盤', meta: '不正対策部', match: '91%', outcome: '受注', period: '7ヶ月' },
+      { rank: 2, name: '決済N様 リアルタイム監視', meta: 'システム企画', match: '83%', outcome: '受注', period: '9ヶ月' },
+      { rank: 3, name: 'カード会社O様 3Dセキュア対応', meta: '不正対策室', match: '75%', outcome: '失注', period: '5ヶ月' }
+    ],
+    hypotheses: [
+      {
+        title: 'グラフAIによる加盟店横断リング検知',
+        basis: 'M様事例（7ヶ月／受注）と精度頭打ち課題が酷似。グラフAIで誤検知率を42%改善した実績あり。',
+        product: ['不正検知AI', 'グラフ分析エンジン'],
+        talk: '「3Dセキュア2.0後、検知率は伸びていても誤検知が増えていませんか？M様は誤検知42%減を実現されました」'
+      },
+      {
+        title: 'リアルタイム監視基盤の刷新',
+        basis: 'N様事例で確立済み。決済データのリアルタイム性は競争優位の直接要因。',
+        product: ['リアルタイム監視', 'ストリーミング処理'],
+        talk: '「監視の遅延、現状は何分ですか？N社様では3分→秒単位まで縮めて損害を年7億円圧縮されました」'
+      },
+      {
+        title: '3Dセキュア × 加盟店APIプラットフォーム',
+        basis: 'トークナイゼーション更改と合わせ、加盟店APIを新規収益源として位置づける構想提案。',
+        product: ['トークン化基盤', '加盟店APIプラットフォーム'],
+        talk: '「3Dセキュア更改、コストセンターで終わらせるのもったいなくないですか？加盟店向けAPI収益化の入り口になります」'
+      }
+    ],
+    members: [
+      { name: '大津 浩司', initial: '大', reason: '不正検知AI領域の専門知見／M様案件のリード経験。' },
+      { name: '浅野 麻衣', initial: '浅', reason: 'リアルタイム処理・ストリーミング基盤の実装知見。' },
+      { name: '平岡 拓也', initial: '平', reason: 'カード業態3社のVOC蓄積／加盟店連携の論点に強い。' }
+    ],
+    objections: [
+      { q: '既存検知ロジックの捨て方が見えない', a: '「M様事例では既存ロジックと並走させ、3ヶ月のA/Bテストで段階移行されました。ロジック資産を捨てない設計です」' },
+      { q: 'ベンダーロックインの懸念', a: '「データ標準フォーマットでの出力を契約に組み込めば、検知ロジックの差し替えは可能です。N様で実装済みです」' },
+      { q: '加盟店API収益化はビジネス側の判断', a: '「ビジネスサイドへの提案資料を当社で起案できます。M様でも不正対策部から事業企画へエスカレーションされました」' }
+    ]
+  },
+  insurance_e: {
+    query_example: '保険E様 リスク管理部。ALM高度化とICS準備でシステム刷新が進む見通し。',
+    profile: {
+      customer: '保険E様 リスク管理部',
+      industry: '生命保険／リスク管理',
+      ir_keywords: ['ALM高度化', 'ストレステスト強化', 'ICS準備', '統合リスク管理'],
+      budget: '年3〜5億円規模',
+      role: '部長級／リスク管理ライン',
+      situation: 'ICS（保険資本基準）準備が直近のIRで明示。ALMモデル高度化とストレステスト自動化が短期の重点投資。'
+    },
+    deals: [
+      { rank: 1, name: '保険P様 ALM高度化', meta: 'リスク管理部', match: '88%', outcome: '受注', period: '10ヶ月' },
+      { rank: 2, name: '保険Q様 ストレステスト基盤', meta: '本部企画', match: '80%', outcome: '受注', period: '8ヶ月' },
+      { rank: 3, name: '損保R様 統合リスク管理', meta: 'リスク管理本部', match: '72%', outcome: '失注', period: '6ヶ月' }
+    ],
+    hypotheses: [
+      {
+        title: 'ALMモデル高度化×AIシナリオ生成',
+        basis: 'P様事例（10ヶ月／受注）と論点が一致。シナリオ生成自動化で計算時間を1/5に圧縮した実績。',
+        product: ['ALM高度化', 'AIシナリオ生成'],
+        talk: '「シナリオ計算、まだバッチ夜間ですよね？P様はAIシナリオ生成で15時間→3時間に圧縮されました」'
+      },
+      {
+        title: 'ストレステスト基盤の刷新',
+        basis: 'Q様事例で確立済み。ICS準備と合わせて投資判断が通りやすいタイミング。',
+        product: ['ストレステストAI', '統合リスク基盤'],
+        talk: '「ICS準備、ストレステスト側がボトルネックになっていませんか？Q様はテスト工数を6割削減されました」'
+      },
+      {
+        title: 'ICS準備 × 統合リスク管理',
+        basis: 'ICS本適用前の準備フェーズで本部企画予算が動く。複数部門横断の統合基盤として提案可。',
+        product: ['統合リスク基盤', 'ICS対応スイート'],
+        talk: '「ICS、リスク管理部だけで抱え込まれていませんか？経理・経営企画と横串の基盤化が本来の解です」'
+      }
+    ],
+    members: [
+      { name: '桜井 健太', initial: '桜', reason: 'ALM・保険数理の専門知見／P様案件のリード経験。' },
+      { name: '黒田 信行', initial: '黒', reason: '統合リスク管理領域の実装知見／ICS論点に通じる。' },
+      { name: '結城 千明', initial: '結', reason: '規制対応・データガバナンス文脈の補完役。' }
+    ],
+    objections: [
+      { q: '保険数理側のチームと衝突しないか', a: '「P様事例ではアクチュアリーチームと共同体制を初週で組成されました。役割分担表を雛形提供できます」' },
+      { q: 'ICSは仕様が固まりきっていない', a: '「仕様変動に追従できるアーキテクチャ設計が前提です。Q様で実装済みのモジュラー型を踏襲します」' },
+      { q: '既存ALMシステムの償却が残っている', a: '「既存システムを残しつつ、AIシナリオ生成のレイヤーだけ追加するハイブリッド構成で投資判断が通った例があります」' }
+    ]
   }
+};
+
+function matchScenario(query) {
+  if (!query) return 'megabank_a';
+  const q = query.toLowerCase();
+  const rules = [
+    { key: 'megabank_a', words: ['メガバンク', 'a様', '第二営業部', 'basel'] },
+    { key: 'regional_b', words: ['地銀', '地方銀行', 'b様', '中計', '統合', '法人事業統括'] },
+    { key: 'trust_c',    words: ['信託', 'c様', 'esg', '運用', '投信', '資産運用'] },
+    { key: 'card_d',     words: ['カード', 'd様', '不正', '3dセキュア', '加盟店', '決済'] },
+    { key: 'insurance_e', words: ['保険', 'e様', 'alm', 'ics', 'リスク管理', 'ストレステスト'] }
+  ];
+  for (const r of rules) {
+    for (const w of r.words) {
+      if (q.includes(w.toLowerCase())) return r.key;
+    }
+  }
+  return 'megabank_a';
+}
+
+const THINKING_STEPS = [
+  '入力クエリを解析中...',
+  '過去350本の商談データから類似事例を検索中...',
+  '公開IR・有報情報をクロスチェック中...',
+  '仮説 × 商材 × トーク案を生成中...',
+  '推奨同行者・想定反論を組み立て中...'
+];
+
+let prospectInProgress = false;
+
+function runSample(key) {
+  const data = scenarios[key];
+  if (!data) return;
+  const ta = document.getElementById('prospectQuery');
+  if (ta) ta.value = data.query_example;
+  analyzeCustomer();
+}
+
+function analyzeCustomer(opts) {
+  if (prospectInProgress) return;
+  const ta = document.getElementById('prospectQuery');
+  const query = ta ? ta.value.trim() : '';
+  const key = matchScenario(query);
+  const data = scenarios[key];
+  const instant = opts && opts.instant === true;
+  prospectInProgress = true;
+
+  const btn = document.getElementById('prospectAnalyzeBtn');
+  if (btn) btn.disabled = true;
+
+  const results = document.getElementById('prospectResults');
+  results.classList.remove('active');
+  document.querySelectorAll('#prospectResults .result-card').forEach(c => c.classList.remove('show'));
+
+  const thinking = document.getElementById('thinkingArea');
+  const stepsEl = document.getElementById('thinkingSteps');
+  stepsEl.innerHTML = '';
+
+  if (instant) {
+    thinking.classList.remove('active');
+    renderResultData(data);
+    results.classList.add('active');
+    document.querySelectorAll('#prospectResults .result-card').forEach(c => c.classList.add('show'));
+    prospectInProgress = false;
+    if (btn) btn.disabled = false;
+    return;
+  }
+
+  thinking.classList.add('active');
+  streamThinking(THINKING_STEPS, () => {
+    setTimeout(() => {
+      thinking.classList.remove('active');
+      renderResultData(data);
+      results.classList.add('active');
+      revealSections(() => {
+        prospectInProgress = false;
+        if (btn) btn.disabled = false;
+      });
+    }, 350);
+  });
+}
+
+function streamThinking(steps, done) {
+  const stepsEl = document.getElementById('thinkingSteps');
+  stepsEl.innerHTML = '';
+  steps.forEach((text, i) => {
+    const div = document.createElement('div');
+    div.className = 'thinking-step pending';
+    div.id = 'thStep-' + i;
+    div.innerHTML = '<span class="step-mark">⏳</span><span class="step-text">' + text + '</span>';
+    stepsEl.appendChild(div);
+  });
+
+  const STEP_DELAY = 750;
+  steps.forEach((_, i) => {
+    setTimeout(() => {
+      const el = document.getElementById('thStep-' + i);
+      if (el) el.classList.add('visible');
+    }, i * STEP_DELAY + 50);
+    setTimeout(() => {
+      const el = document.getElementById('thStep-' + i);
+      if (el) {
+        el.classList.remove('pending');
+        el.classList.add('done');
+        const mark = el.querySelector('.step-mark');
+        if (mark) mark.textContent = '✓';
+      }
+    }, i * STEP_DELAY + STEP_DELAY - 100);
+  });
+  setTimeout(() => { if (typeof done === 'function') done(); }, steps.length * STEP_DELAY + 200);
+}
+
+function renderResultData(data) {
+  const pg = document.getElementById('profileGrid');
+  pg.innerHTML = '';
+  const profileCells = [
+    { label: '対象顧客', value: data.profile.customer },
+    { label: '業種・領域', value: data.profile.industry },
+    { label: '想定キーパーソン', value: data.profile.role },
+    { label: '推定予算規模', value: data.profile.budget },
+    { label: 'IRキーワード', value: data.profile.ir_keywords.map(k => '<span class="ir-tag">' + k + '</span>').join(''), html: true, full: true },
+    { label: '直近の動き', value: data.profile.situation, full: true }
+  ];
+  profileCells.forEach(c => {
+    const cell = document.createElement('div');
+    cell.className = 'profile-cell' + (c.full ? ' full' : '');
+    cell.innerHTML = '<div class="pc-label">' + c.label + '</div>' +
+      '<div class="pc-value">' + (c.html ? '<div class="ir-tags">' + c.value + '</div>' : c.value) + '</div>';
+    pg.appendChild(cell);
+  });
+
+  const dl = document.getElementById('dealList');
+  dl.innerHTML = '';
+  data.deals.forEach(d => {
+    const row = document.createElement('div');
+    row.className = 'deal-row';
+    const outcomeClass = d.outcome === '受注' ? 'outcome-won' : 'outcome-lost';
+    row.innerHTML =
+      '<div class="deal-rank">#' + d.rank + '</div>' +
+      '<div class="deal-info"><div class="deal-name-r">' + d.name + '</div><div class="deal-meta-r">' + d.meta + '</div></div>' +
+      '<div class="deal-match">' + d.match + '</div>' +
+      '<div class="deal-outcome ' + outcomeClass + '">' + d.outcome + '</div>' +
+      '<div class="deal-period">' + d.period + '</div>';
+    dl.appendChild(row);
+  });
+
+  const hl = document.getElementById('hypoList');
+  hl.innerHTML = '';
+  data.hypotheses.forEach((h, i) => {
+    const card = document.createElement('div');
+    card.className = 'hypo-card';
+    const products = h.product.map(p => '<span class="hp-tag">' + p + '</span>').join('');
+    card.innerHTML =
+      '<div class="hypo-card-head"><div class="hypo-card-num">' + (i + 1) + '</div><div class="hypo-card-title">' + h.title + '</div></div>' +
+      '<div class="hypo-row"><div class="hr-label">仮説の根拠</div><div class="hr-text">' + h.basis + '</div></div>' +
+      '<div class="hypo-row"><div class="hr-label">推奨商材</div><div class="hr-text"><div class="hypo-products">' + products + '</div></div></div>' +
+      '<div class="hypo-row"><div class="hr-label">初回トーク</div><div class="hr-text talk">' + h.talk + '</div></div>';
+    hl.appendChild(card);
+  });
+
+  const mg = document.getElementById('memberGrid');
+  mg.innerHTML = '';
+  data.members.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'member-card';
+    card.innerHTML =
+      '<div class="member-avatar">' + m.initial + '</div>' +
+      '<div class="member-body"><div class="member-name-r">' + m.name + '</div><div class="member-reason">' + m.reason + '</div></div>';
+    mg.appendChild(card);
+  });
+
+  const ol = document.getElementById('objectionList');
+  ol.innerHTML = '';
+  data.objections.forEach(o => {
+    const row = document.createElement('div');
+    row.className = 'objection-row';
+    row.innerHTML =
+      '<div class="obj-icon">⚠️</div>' +
+      '<div class="objection-body"><div class="obj-q">Q. ' + o.q + '</div>' +
+      '<div class="obj-a"><span class="obj-a-label">A.</span>' + o.a + '</div></div>';
+    ol.appendChild(row);
+  });
+}
+
+function revealSections(done) {
+  const cards = document.querySelectorAll('#prospectResults .result-card');
+  const INTERVAL = 800;
+  cards.forEach((card, i) => {
+    setTimeout(() => card.classList.add('show'), i * INTERVAL);
+  });
+  setTimeout(() => { if (typeof done === 'function') done(); }, cards.length * INTERVAL + 100);
+}
+
+function resetProspect() {
+  const ta = document.getElementById('prospectQuery');
+  if (ta) ta.value = '';
+  document.getElementById('prospectResults').classList.remove('active');
+  document.querySelectorAll('#prospectResults .result-card').forEach(c => c.classList.remove('show'));
+  document.getElementById('thinkingArea').classList.remove('active');
+  document.getElementById('thinkingSteps').innerHTML = '';
+  prospectInProgress = false;
+  const btn = document.getElementById('prospectAnalyzeBtn');
+  if (btn) btn.disabled = false;
+  if (ta) ta.focus();
+}
+
+function initProspectFromHash() {
+  const raw = location.hash.slice(1);
+  if (!raw) return;
+  const segs = raw.split(/[&?]/);
+  const head = segs[0];
+  const params = {};
+  segs.slice(1).forEach(s => {
+    const [k, v] = s.split('=');
+    if (k) params[k] = v == null ? '' : v;
+  });
+  if (head === 'prospect') {
+    showView('prospect');
+    if (params.demo === '1') {
+      const data = scenarios.megabank_a;
+      const ta = document.getElementById('prospectQuery');
+      if (ta) ta.value = data.query_example;
+      analyzeCustomer({ instant: true });
+    }
+  } else if (head === 'group') {
+    showView('group');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initProspectFromHash();
 });
+
 </script>
 
 </body>
