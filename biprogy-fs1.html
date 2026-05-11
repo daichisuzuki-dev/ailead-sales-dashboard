@@ -465,6 +465,85 @@
   .success-card .sc-meta span { display: inline-flex; align-items: center; gap: 3px; }
   .success-card .sc-quote { background: #fff; border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #334155; line-height: 1.6; font-style: italic; border-left: 2px solid #cbd5e1; }
 
+  /* ===== Deal Diagnosis (商談診断) ===== */
+  .deal-select-row { display: flex; gap: 10px; align-items: stretch; margin-bottom: 10px; }
+  .deal-select { flex: 0 0 320px; min-height: 54px; padding: 12px 14px; border: none; border-radius: 10px; font-size: 13px; font-family: inherit; outline: none; color: #1e293b; background: #fff url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3e%3cpath d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'/%3e%3c/svg%3e") right 12px center/16px no-repeat; -webkit-appearance: none; appearance: none; padding-right: 36px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); cursor: pointer; }
+  .deal-select:focus { box-shadow: 0 0 0 3px rgba(255,255,255,0.45); }
+
+  /* Deal summary card */
+  .deal-summary-card { background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border-radius: 12px; padding: 22px 26px; border: 1px solid #e0e7ff; }
+  .deal-summary-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+  .deal-summary-name { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 6px; line-height: 1.4; }
+  .deal-summary-meta { font-size: 12px; color: #64748b; line-height: 1.7; }
+  .deal-summary-meta span { display: inline-block; margin-right: 14px; }
+  .deal-grade-block { text-align: right; flex-shrink: 0; }
+  .deal-grade-label { font-size: 10px; color: #94a3b8; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
+  .deal-grade-big { display: inline-flex; align-items: center; justify-content: center; min-width: 56px; height: 48px; border-radius: 10px; font-size: 26px; font-weight: 800; padding: 0 14px; }
+  .deal-grade-score { font-size: 13px; color: #475569; margin-top: 6px; font-weight: 600; }
+  .deal-grade-score .ds-val { font-size: 18px; color: #1e293b; font-weight: 800; }
+  .deal-oneliner { background: #fff; border-left: 3px solid #2563eb; border-radius: 6px; padding: 10px 14px; font-size: 13px; color: #334155; line-height: 1.7; }
+
+  /* Score bars (4 axes) */
+  .score-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 16px; }
+  .score-item { background: #f8fafc; border-radius: 10px; padding: 14px 16px; }
+  .score-item-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .score-item-name { font-size: 13px; font-weight: 700; color: #1e293b; }
+  .score-item-val { font-size: 15px; font-weight: 800; color: #1e293b; }
+  .score-item-val .sv-max { font-size: 11px; color: #94a3b8; font-weight: 500; }
+  .score-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+  .score-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .score-bar-fill.lv-hi { background: linear-gradient(90deg, #34d399, #16a34a); }
+  .score-bar-fill.lv-mid { background: linear-gradient(90deg, #fbbf24, #d97706); }
+  .score-bar-fill.lv-lo { background: linear-gradient(90deg, #f87171, #dc2626); }
+  .score-item-comment { font-size: 11px; color: #64748b; line-height: 1.6; }
+  .sub-metrics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding-top: 14px; border-top: 1px dashed #e2e8f0; }
+  .sub-metric { text-align: center; }
+  .sub-metric-label { font-size: 10px; color: #94a3b8; font-weight: 600; letter-spacing: 0.4px; margin-bottom: 4px; }
+  .sub-metric-val { font-size: 14px; font-weight: 700; color: #1e293b; }
+  .sub-metric-val .sm-note { font-size: 10px; color: #64748b; font-weight: 500; margin-left: 4px; }
+
+  /* Point cards (good / improve) */
+  .point-card { border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; background: #fff; border: 1px solid #e2e8f0; }
+  .point-card.positive { border-left: 4px solid #16a34a; background: #f0fdf4; }
+  .point-card.negative { border-left: 4px solid #f59e0b; background: #fffbeb; }
+  .point-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .point-num { width: 22px; height: 22px; background: #2563eb; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .point-card.positive .point-num { background: #16a34a; }
+  .point-card.negative .point-num { background: #f59e0b; }
+  .point-title { font-size: 14px; font-weight: 700; color: #1e293b; line-height: 1.4; flex: 1; }
+  .timestamp-badge { display: inline-flex; align-items: center; gap: 4px; background: #1e293b; color: #fff; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; font-family: 'SF Mono', Menlo, monospace; }
+  .timestamp-badge::before { content: '▶'; font-size: 8px; }
+  .point-row { display: grid; grid-template-columns: 88px 1fr; gap: 10px; font-size: 12px; line-height: 1.7; margin-bottom: 8px; }
+  .point-row:last-child { margin-bottom: 0; }
+  .point-row .pr-label { color: #94a3b8; font-weight: 600; font-size: 10px; letter-spacing: 0.4px; text-transform: uppercase; padding-top: 2px; }
+  .point-row .pr-text { color: #334155; }
+  .point-row .pr-text.quote { background: #fff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #cbd5e1; font-style: italic; color: #475569; }
+  .point-card.positive .point-row .pr-text.quote { border-left-color: #86efac; }
+  .point-card.negative .point-row .pr-text.quote { border-left-color: #fcd34d; }
+  .point-row .pr-text.best { background: #eff6ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #2563eb; color: #1e3a8a; font-weight: 500; }
+
+  /* Action cards (next actions) */
+  .action-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; }
+  .action-body .action-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 8px; line-height: 1.4; }
+  .action-body .action-desc { font-size: 12px; color: #475569; line-height: 1.7; margin-bottom: 10px; }
+  .action-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .action-meta .action-due { font-size: 11px; color: #64748b; background: #f1f5f9; padding: 3px 10px; border-radius: 10px; font-weight: 600; }
+  .action-meta .action-link { font-size: 11px; color: #2563eb; background: #eff6ff; padding: 3px 10px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid #dbeafe; }
+  .action-meta .action-link:hover { background: #dbeafe; }
+  .action-priority { padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; align-self: flex-start; white-space: nowrap; }
+  .action-priority-high { background: #fee2e2; color: #dc2626; }
+  .action-priority-mid { background: #fef3c7; color: #d97706; }
+  .action-priority-low { background: #e0f2fe; color: #0284c7; }
+
+  /* Grade badge variants for deal summary */
+  .deal-grade-big.gr-a { background: #dcfce7; color: #16a34a; }
+  .deal-grade-big.gr-bp { background: #dbeafe; color: #2563eb; }
+  .deal-grade-big.gr-b { background: #fef3c7; color: #d97706; }
+  .deal-grade-big.gr-bm { background: #fed7aa; color: #ea580c; }
+  .deal-grade-big.gr-c { background: #fee2e2; color: #dc2626; }
+
+  #dealResults { display: none; }
+  #dealResults.active { display: block; }
 </style>
 </head>
 <body>
@@ -482,17 +561,17 @@
       </div>
     </div>
     <ul class="sidebar-nav">
-      <li class="active" id="nav-coaching" onclick="showView('coaching', event)">
-        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"/></svg>
-        組織診断
-      </li>
-      <li id="nav-prospect" onclick="showView('prospect', event)">
+      <li class="active" id="nav-prospect" onclick="showView('prospect', event)">
         <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-9a1 1 0 112 0v3.586l2.293 2.293a1 1 0 01-1.414 1.414l-2.586-2.586A1 1 0 019 11V7z"/></svg>
         新規開拓・与件
       </li>
       <li id="nav-group" onclick="showView('group', event)">
         <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.99 3.99 0 0114 15c-1.5 0-2.79-.83-3.443-2.053a1 1 0 01-.107-.601l1.302-5.207-3.752-1.5V17h2a1 1 0 110 2H6a1 1 0 110-2h2V5.638l-3.752 1.5 1.302 5.207a1 1 0 01-.107.601C4.79 14.17 3.5 15 2 15a3.99 3.99 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.616a1 1 0 01.894-1.79l1.599.8L8 4.323V3a1 1 0 011-1z"/></svg>
         グループ会社攻略
+      </li>
+      <li class="" id="nav-deal" onclick="showView('deal', event)">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"/></svg>
+        商談診断
       </li>
     </ul>
   </div>
@@ -517,388 +596,114 @@
 <!-- ============================================================ -->
 <!-- ===== VIEW: COACHING (組織診断) ============================ -->
 <!-- ============================================================ -->
-<div class="view active" id="view-coaching">
-
-  <!-- Sub tabs: 一覧 / レポート -->
-  <div class="subtabs">
-    <div class="subtab active" id="nav-list" onclick="showPage('list')">一覧</div>
-    <div class="subtab" id="nav-report" onclick="showPage('report')">レポート</div>
+<div class="view" id="view-deal">
+  <div class="page-title">
+    商談診断
+    <span class="sub">ファイナンシャルサービス第一事業部</span>
+    <span class="badge">商談レビューエージェント</span>
   </div>
 
-  <!-- ===== LIST PAGE ===== -->
-  <div class="page active" id="page-list">
-    <div class="page-title">一覧 <span style="font-size:13px;font-weight:400;color:#94a3b8;margin-left:12px;">ファイナンシャルサービス第一事業部</span><span id="modeBadge" style="font-size:11px;font-weight:600;background:#dbeafe;color:#2563eb;padding:3px 10px;border-radius:12px;margin-left:8px;">マネジメント画面</span><button id="viewToggle" onclick="toggleView()" style="float:right;padding:6px 14px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:12px;cursor:pointer;color:#64748b;">メンバー画面に切替</button></div>
+  <div class="disclaimer">
+    <strong>※ サンプルデータ：</strong> 本ダッシュボードはファイナンシャルサービス第一事業部様向けのイメージ共有用Mockです。実データに基づくものではありません。
+  </div>
 
-    <!-- Disclaimer banner -->
-    <div style="background:#fef9c3;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#854d0e;">
-      <strong>※ サンプルデータ：</strong> 本ダッシュボードは FS第一事業部様向けのイメージ共有用Mockです。実データに基づくものではありません。
+  <!-- AI Search Hero -->
+  <div class="ai-search-section">
+    <div class="ai-search-eyebrow">DEAL DIAGNOSIS</div>
+    <div class="ai-search-headline">商談を選んで、診断を開始してください</div>
+    <div class="ai-search-sub">終わった商談を ailead が事後レビュー。話者比率・ヒアリング深度・4軸スコアから「何が良かったか／何を改善すべきか／次のアクション」を一括で診断します。</div>
+    <div class="ai-search-row">
+      <select id="dealSelect" class="deal-select" onchange="onDealSelectChange()">
+        <option value="">-- 最近の商談から選ぶ --</option>
+        <option value="deal_001">メガバンクA様 第二営業部 初回提案（2026/04/15）</option>
+        <option value="deal_002">大手地銀B様 法人事業統括部 2回目訪問（2026/04/22）</option>
+        <option value="deal_003">信託C様 資産運用部 提案フォロー（2026/04/28）</option>
+        <option value="deal_004">カード会社D様 不正対策室 デモ会（2026/05/01）</option>
+        <option value="deal_005">保険E様 リスク管理部 ヒアリング（2026/05/06）</option>
+        <option value="deal_006">メガバンクF様 リスク管理高度化 クロージング（2026/05/08）</option>
+      </select>
+      <textarea id="dealQuery" class="ai-search-input" rows="2" placeholder="または商談の概要を自由入力：例「メガバンクA様の第二営業部 Basel III 初回提案、話者比率が気になる」"></textarea>
+      <button id="dealAnalyzeBtn" class="ai-search-btn" onclick="analyzeDeal()">診断開始 →</button>
     </div>
-
-    <!-- Summary Cards -->
-    <div class="summary-cards">
-      <div class="card">
-        <div class="card-label">総商談数</div>
-        <div class="card-value">352<span class="unit">件</span></div>
-      </div>
-      <div class="card">
-        <div class="card-label">平均総合スコア</div>
-        <div class="card-value">3.7<span class="sub"> /5.0</span></div>
-      </div>
-      <div class="card">
-        <div class="card-label">受注率</div>
-        <div class="card-value">31<span class="unit">%</span></div>
-      </div>
-      <div class="card">
-        <div class="card-label">直近7日の評価数</div>
-        <div class="card-value">28<span class="unit">件</span></div>
-      </div>
-    </div>
-
-    <!-- Toolbar -->
-    <div class="toolbar">
-      <input type="text" class="search-box" placeholder="メンバー名で検索">
-      <button class="btn-outline">
-        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M3 3a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L13 9.414V15a1 1 0 01-.293.707l-2 2A1 1 0 019 17V9.414L5.293 5.707A1 1 0 015 5V3z"/></svg>
-        表示項目
-      </button>
-      <button class="btn-outline">
-        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-        CSV
-      </button>
-      <button class="btn-outline">
-        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L13 9.414V15a1 1 0 01-.293.707l-2 2A1 1 0 019 17V9.414L5.293 5.707A1 1 0 015 5V3z"/></svg>
-        フィルター
-      </button>
-    </div>
-
-    <!-- Table -->
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>メンバー名 <span class="sort-icon">↕</span></th>
-            <th>商談名</th>
-            <th>商談日時 <span class="sort-icon">↕</span></th>
-            <th>総合グレード <span class="sort-icon">↕</span></th>
-            <th>総合スコア <span class="sort-icon">↕</span></th>
-            <th>課題把握 <span class="sort-icon">↕</span></th>
-            <th>本気度 <span class="sort-icon">↕</span></th>
-            <th>予算把握 <span class="sort-icon">↕</span></th>
-            <th>期限把握 <span class="sort-icon">↕</span></th>
-            <th>推薦</th>
-            <th>話者比率</th>
-            <th>商談数</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="member-name"><a onclick="openDetail('nishigami')">桐山 真一郎</a> <span class="link-icon">↗</span></td>
-            <td class="deal-name">メガバンクA様_第二営業部 初回提案</td>
-            <td class="deal-date">2026/05/08 14:00</td>
-            <td><span class="grade grade-s">S</span></td>
-            <td class="score">4.5</td>
-            <td>4.5</td>
-            <td>4.5</td>
-            <td>4.5</td>
-            <td>4.5</td>
-            <td><span class="rec-badge rec-yes">優秀</span></td>
-            <td class="ratio">33.1%</td>
-            <td>74</td>
-          </tr>
-          <tr>
-            <td class="member-name"><a onclick="openDetail('endo_t')">国分 大輔</a> <span class="link-icon">↗</span></td>
-            <td class="deal-name">大手地銀B様_証券子会社_要件ヒアリング</td>
-            <td class="deal-date">2026/05/08 11:00</td>
-            <td><span class="grade grade-a">A</span></td>
-            <td class="score">4.1</td>
-            <td>4.5</td>
-            <td>4.0</td>
-            <td>4.0</td>
-            <td>4.0</td>
-            <td><span class="rec-badge rec-yes">優秀</span></td>
-            <td class="ratio">37.4%</td>
-            <td>52</td>
-          </tr>
-          <tr>
-            <td class="member-name"><a onclick="openDetail('fukui')">結城 千明</a> <span class="link-icon">↗</span></td>
-            <td class="deal-name">信託C様_デモ</td>
-            <td class="deal-date">2026/05/07 16:00</td>
-            <td><span class="grade grade-a">A</span></td>
-            <td class="score">4.0</td>
-            <td>4.0</td>
-            <td>4.0</td>
-            <td>4.5</td>
-            <td>3.5</td>
-            <td>4.0</td>
-            <td><span class="rec-badge rec-yes">優秀</span></td>
-            <td class="ratio">35.8%</td>
-            <td>48</td>
-          </tr>
-          <tr>
-            <td class="member-name"><a onclick="openDetail('ichikawa')">鈴鹿 隆二</a> <span class="link-icon">↗</span></td>
-            <td class="deal-name">カード会社D様_規制対応相談</td>
-            <td class="deal-date">2026/05/07 13:30</td>
-            <td><span class="grade grade-b-plus">B+</span></td>
-            <td class="score">3.8</td>
-            <td>4.0</td>
-            <td>4.0</td>
-            <td>3.5</td>
-            <td>3.5</td>
-            <td><span class="rec-badge rec-yes">優秀</span></td>
-            <td class="ratio">40.2%</td>
-            <td>41</td>
-          </tr>
-          <tr>
-            <td class="member-name"><a onclick="openDetail('miura')">早瀬 美咲</a> <span class="link-icon">↗</span></td>
-            <td class="deal-name">保険E様_クロージング</td>
-            <td class="deal-date">2026/05/06 15:00</td>
-            <td><span class="grade grade-b-plus">B+</span></td>
-            <td class="score">3.7</td>
-            <td>3.5</td>
-            <td>4.0</td>
-            <td>3.5</td>
-            <td>4.0</td>
-            <td><span class="rec-badge rec-yes">優秀</span></td>
-            <td class="ratio">39.6%</td>
-            <td>34</td>
-          </tr>
-          <tr>
-            <td class="member-name"><a onclick="openDetail('endo_h')">大津 浩司</a> <span class="link-icon">↗</span></td>
-            <td class="deal-name">メガバンクA様_市場部門 課題整理</td>
-            <td class="deal-date">2026/05/06 10:30</td>
-            <td><span class="grade grade-b">B</span></td>
-            <td class="score">3.4</td>
-            <td>3.5</td>
-            <td>3.5</td>
-            <td>3.0</td>
-            <td>3.5</td>
-            <td><span class="rec-badge rec-hold">要観察</span></td>
-            <td class="ratio">44.5%</td>
-            <td>29</td>
-          </tr>
-          <tr>
-            <td class="member-name"><a onclick="openDetail('watanabe')">浅野 麻衣</a> <span class="link-icon">↗</span></td>
-            <td class="deal-name">大手地銀B様_勘定系周辺_要件確認</td>
-            <td class="deal-date">2026/05/05 14:00</td>
-            <td><span class="grade grade-b-plus">B+</span></td>
-            <td class="score">3.6</td>
-            <td>4.0</td>
-            <td>3.5</td>
-            <td>3.5</td>
-            <td>3.5</td>
-            <td><span class="rec-badge rec-hold">要観察</span></td>
-            <td class="ratio">38.9%</td>
-            <td>26</td>
-          </tr>
-          <tr>
-            <td class="member-name"><a onclick="openDetail('arabane')">桜井 健太</a> <span class="link-icon">↗</span></td>
-            <td class="deal-name">証券F様_リスク管理_デモ</td>
-            <td class="deal-date">2026/05/05 11:00</td>
-            <td><span class="grade grade-b">B</span></td>
-            <td class="score">3.3</td>
-            <td>3.5</td>
-            <td>3.0</td>
-            <td>3.5</td>
-            <td>3.0</td>
-            <td><span class="rec-badge rec-hold">要観察</span></td>
-            <td class="ratio">46.3%</td>
-            <td>22</td>
-          </tr>
-          <tr>
-            <td class="member-name"><a onclick="openDetail('sugai')">黒田 信行</a> <span class="link-icon">↗</span></td>
-            <td class="deal-name">信託C様_資産運用部門_2回目提案</td>
-            <td class="deal-date">2026/05/04 16:30</td>
-            <td><span class="grade grade-b">B</span></td>
-            <td class="score">3.2</td>
-            <td>3.0</td>
-            <td>3.5</td>
-            <td>3.0</td>
-            <td>3.5</td>
-            <td><span class="rec-badge rec-hold">要観察</span></td>
-            <td class="ratio">47.8%</td>
-            <td>19</td>
-          </tr>
-          <tr>
-            <td class="member-name"><a onclick="openDetail('kobayashi')">平岡 拓也</a> <span class="link-icon">↗</span></td>
-            <td class="deal-name">カード会社D様_不正検知 ヒアリング</td>
-            <td class="deal-date">2026/05/04 13:30</td>
-            <td><span class="grade grade-b-plus">B+</span></td>
-            <td class="score">3.5</td>
-            <td>3.5</td>
-            <td>3.5</td>
-            <td>3.5</td>
-            <td>3.5</td>
-            <td><span class="rec-badge rec-hold">要観察</span></td>
-            <td class="ratio">42.1%</td>
-            <td>17</td>
-          </tr>
-          <tr>
-            <td class="member-name"><a onclick="openDetail('yoshida')">田島 結衣</a> <span class="link-icon">↗</span></td>
-            <td class="deal-name">保険E様_デジタル戦略部_初回</td>
-            <td class="deal-date">2026/05/01 15:00</td>
-            <td><span class="grade grade-b">B</span></td>
-            <td class="score">3.1</td>
-            <td>3.0</td>
-            <td>3.0</td>
-            <td>3.5</td>
-            <td>3.0</td>
-            <td><span class="rec-badge rec-hold">要観察</span></td>
-            <td class="ratio">49.2%</td>
-            <td>12</td>
-          </tr>
-          <tr>
-            <td class="member-name"><a onclick="openDetail('matsuda')">大野 健介</a> <span class="link-icon">↗</span></td>
-            <td class="deal-name">大手地銀B様_新規開拓_仮説提示</td>
-            <td class="deal-date">2026/05/01 10:30</td>
-            <td><span class="grade grade-b-minus">B-</span></td>
-            <td class="score">2.9</td>
-            <td>3.0</td>
-            <td>3.0</td>
-            <td>2.5</td>
-            <td>3.0</td>
-            <td><span class="rec-badge rec-no">要改善</span></td>
-            <td class="ratio">53.4%</td>
-            <td>9</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="sample-pills">
+      <span class="pill-label">サンプル：</span>
+      <span class="pill" onclick="runDealSample('deal_001')"><span class="pill-emoji">🏦</span>メガバンクA 初回提案</span>
+      <span class="pill" onclick="runDealSample('deal_002')"><span class="pill-emoji">🏢</span>地銀B 2回目訪問</span>
+      <span class="pill" onclick="runDealSample('deal_003')"><span class="pill-emoji">💼</span>信託C フォロー</span>
+      <span class="pill" onclick="runDealSample('deal_004')"><span class="pill-emoji">💳</span>カードD デモ会</span>
+      <span class="pill" onclick="runDealSample('deal_005')"><span class="pill-emoji">🛡️</span>保険E ヒアリング</span>
+      <span class="pill" onclick="runDealSample('deal_006')"><span class="pill-emoji">⭐</span>F様 模範クロージング</span>
     </div>
   </div>
-  <!-- END LIST PAGE -->
 
-  <!-- ===== REPORT PAGE ===== -->
-  <div class="page" id="page-report">
-    <div class="page-title">レポート</div>
-
-    <!-- Summary -->
-    <div class="report-section">
-      <div class="report-section-title">サマリー</div>
-      <ul class="report-summary-text">
-        <li>メンバーの<strong>42%が優秀評価</strong>（12名中5名）</li>
-        <li>総合スコア: 平均 <strong>3.6</strong> / 中央値 3.55（範囲: 2.9 - 4.5）</li>
-        <li>スコアの標準偏差は0.45で、メンバー間の中程度のばらつき</li>
-        <li><strong>課題把握が最も高評価</strong>（平均3.7）、<strong>予算把握が最も改善余地あり</strong>（平均3.5）</li>
-        <li>話者比率の平均は<strong>42.4%</strong>（理想範囲: 30-40%）</li>
-        <li>要観察 6名、要改善 1名</li>
-      </ul>
-    </div>
-
-    <!-- AI Insights -->
-    <div class="report-section">
-      <div class="report-section-title">AI分析インサイト</div>
-      <div class="ai-badge">AI生成</div>
-      <div class="ai-timestamp">2026/04/14 22:00 生成</div>
-
-      <div class="ai-insight">
-        <span class="ai-insight-num">1</span>
-        <span class="ai-insight-text">過去4ヶ月で<strong>蓄積350本超</strong>の長期商談データを基盤に、メガバンクA・大手地銀B・信託Cの3アカウントで「規制対応起点でのヒアリング深度」が他テーマより<strong>1.4倍高い</strong>傾向。金融SI領域は商談周期が長いため、初期フェーズでの課題構造化スコアが受注確度を最も強く規定する。</span>
-      </div>
-      <div class="ai-insight">
-        <span class="ai-insight-num">2</span>
-        <span class="ai-insight-text">予算把握はグレードA以上が42%（12名中5名）と半数を下回り、改善余地が最も大きい。B評価の5名に共通するのは「事例の業界フィット不足」で、金融業態（銀行/証券/信託/保険/カード）別の事例ライブラリ整備が組織的な底上げに直結する。</span>
-      </div>
-      <div class="ai-insight">
-        <span class="ai-insight-num">3</span>
-        <span class="ai-insight-text">話者比率40%以下のメンバー（5名）は平均総合スコア4.0、40%超のメンバー（7名）は平均3.4と、<strong>話者比率と商談品質に明確な負の相関</strong>が見られる。大野（53.4%）、田島（49.2%）、黒田（47.8%）は傾聴スキルの強化が優先課題。</span>
-      </div>
-      <div class="ai-insight">
-        <span class="ai-insight-num">4</span>
-        <span class="ai-insight-text">桐山（S評価・話者比率33.1%・3ヶ月74本蓄積）の商談パターンは新人トレーナー教材として最有力。特に「規制ドラフト→影響度の定量化→自社移行ロードマップとの接続→意思決定者の巻き込み」の流れは、長期アカウント営業の勝ちパターンとして他メンバーへの展開価値が高い。</span>
-      </div>
-    </div>
-
-    <!-- Efficiency KPI -->
-    <div class="report-section">
-      <div class="report-section-title">効率化指標</div>
-      <div class="report-kpi">
-        <div class="report-kpi-card">
-          <div class="report-kpi-label">人手想定時間</div>
-          <div class="report-kpi-value">352.0<span class="kpi-unit"> 時間</span></div>
-        </div>
-        <div class="report-kpi-card">
-          <div class="report-kpi-label">削減時間</div>
-          <div class="report-kpi-value">334.4<span class="kpi-unit"> 時間</span></div>
-        </div>
-        <div class="report-kpi-card">
-          <div class="report-kpi-label">削減率</div>
-          <div class="report-kpi-value">95.0<span class="kpi-unit"> %</span></div>
-        </div>
-        <div class="report-kpi-card">
-          <div class="report-kpi-label">コスト換算</div>
-          <div class="report-kpi-value" style="font-size:22px;">&yen;1,504,800</div>
-        </div>
-      </div>
-      <div style="font-size:11px;color:#94a3b8;">算出根拠: 人手評価 60分/件、AI処理 3分/件、時給 4,500円で試算</div>
-    </div>
-
-    <!-- Charts Row 1: Grade Distribution + Recommendation -->
-    <div class="chart-row">
-      <div class="chart-container">
-        <div class="chart-title">グレード分布</div>
-        <canvas id="gradeDistChart" height="200"></canvas>
-      </div>
-      <div class="chart-container">
-        <div class="chart-title">推薦ステータス</div>
-        <div style="display:flex;align-items:center;gap:20px;">
-          <canvas id="recPieChart" height="200" style="max-width:200px;"></canvas>
-          <div style="font-size:12px;color:#475569;line-height:2;">
-            <div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#16a34a;margin-right:6px;"></span>優秀 (5)</div>
-            <div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#d97706;margin-right:6px;"></span>要観察 (6)</div>
-            <div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#dc2626;margin-right:6px;"></span>要改善 (1)</div>
-            <div style="margin-top:8px;font-size:20px;font-weight:700;color:#1e293b;">12<span style="font-size:12px;font-weight:400;color:#94a3b8;"> 名</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Heatmap -->
-    <div class="report-section">
-      <div class="report-section-title">評価基準ヒートマップ</div>
-      <table class="heatmap-table">
-        <thead>
-          <tr><th></th><th>課題把握</th><th>本気度</th><th>予算把握</th><th>期限把握</th></tr>
-        </thead>
-        <tbody>
-          <tr><td class="heatmap-avg"></td><td class="heatmap-avg">平均 3.7</td><td class="heatmap-avg">平均 3.6</td><td class="heatmap-avg">平均 3.5</td><td class="heatmap-avg">平均 3.6</td></tr>
-          <tr><td class="heatmap-name">桐山 真一郎</td><td><span class="heatmap-cell heat-5">4.5</span></td><td><span class="heatmap-cell heat-5">4.5</span></td><td><span class="heatmap-cell heat-5">4.5</span></td><td><span class="heatmap-cell heat-5">4.5</span></td></tr>
-          <tr><td class="heatmap-name">国分 大輔</td><td><span class="heatmap-cell heat-5">4.5</span></td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-4">4.0</span></td></tr>
-          <tr><td class="heatmap-name">結城 千明</td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-5">4.5</span></td><td><span class="heatmap-cell heat-3">3.5</span></td><td><span class="heatmap-cell heat-4">4.0</span></td></tr>
-          <tr><td class="heatmap-name">鈴鹿 隆二</td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-3">3.5</span></td><td><span class="heatmap-cell heat-3">3.5</span></td></tr>
-          <tr><td class="heatmap-name">早瀬 美咲</td><td><span class="heatmap-cell heat-3">3.5</span></td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-3">3.5</span></td><td><span class="heatmap-cell heat-4">4.0</span></td></tr>
-          <tr><td class="heatmap-name">浅野 麻衣</td><td><span class="heatmap-cell heat-4">4.0</span></td><td><span class="heatmap-cell heat-3">3.5</span></td><td><span class="heatmap-cell heat-3">3.5</span></td><td><span class="heatmap-cell heat-3">3.5</span></td></tr>
-          <tr><td class="heatmap-name">平岡 拓也</td><td><span class="heatmap-cell heat-3">3.5</span></td><td><span class="heatmap-cell heat-3">3.5</span></td><td><span class="heatmap-cell heat-3">3.5</span></td><td><span class="heatmap-cell heat-3">3.5</span></td></tr>
-          <tr><td class="heatmap-name">大津 浩司</td><td><span class="heatmap-cell heat-3">3.5</span></td><td><span class="heatmap-cell heat-3">3.5</span></td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-3">3.5</span></td></tr>
-          <tr><td class="heatmap-name">桜井 健太</td><td><span class="heatmap-cell heat-3">3.5</span></td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-3">3.5</span></td><td><span class="heatmap-cell heat-3">3.0</span></td></tr>
-          <tr><td class="heatmap-name">黒田 信行</td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-3">3.5</span></td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-3">3.5</span></td></tr>
-          <tr><td class="heatmap-name">田島 結衣</td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-3">3.5</span></td><td><span class="heatmap-cell heat-3">3.0</span></td></tr>
-          <tr><td class="heatmap-name">大野 健介</td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-3">3.0</span></td><td><span class="heatmap-cell heat-2">2.5</span></td><td><span class="heatmap-cell heat-3">3.0</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Charts Row 2: Scatter + Trend -->
-    <div class="chart-row">
-      <div class="chart-container">
-        <div class="chart-title">スコア x 話者比率</div>
-        <canvas id="scatterChart" height="250"></canvas>
-      </div>
-      <div class="chart-container">
-        <div class="chart-title">月別スコア推移</div>
-        <canvas id="trendChart" height="250"></canvas>
-      </div>
-    </div>
-
+  <!-- Thinking area -->
+  <div class="thinking-area" id="dealThinkingArea">
+    <div class="thinking-title"><span class="ai-spinner"></span><span id="dealThinkingTitleText">ailead が商談を診断しています...</span></div>
+    <div id="dealThinkingSteps"></div>
   </div>
-  <!-- END REPORT PAGE -->
+
+  <!-- Results area -->
+  <div id="dealResults">
+    <div class="result-card" id="rc-deal-summary">
+      <div class="card-header">
+        <span class="rc-icon">📋</span>
+        <span class="rc-title">商談サマリ</span>
+        <span class="rc-sub">商談メタ情報と総合評価</span>
+      </div>
+      <div class="deal-summary-card" id="dealSummaryCard"></div>
+    </div>
+
+    <div class="result-card" id="rc-deal-scores">
+      <div class="card-header">
+        <span class="rc-icon">📊</span>
+        <span class="rc-title">4軸スコア分析</span>
+        <span class="rc-sub">課題把握 / 本気度 / 予算把握 / 期限把握</span>
+      </div>
+      <div class="score-grid" id="dealScoreGrid"></div>
+      <div class="sub-metrics-row" id="dealSubMetrics"></div>
+    </div>
+
+    <div class="result-card" id="rc-deal-good">
+      <div class="card-header">
+        <span class="rc-icon">✅</span>
+        <span class="rc-title">良かったポイント Top 3</span>
+        <span class="rc-sub">過去パターンとの整合つき</span>
+      </div>
+      <div id="dealGoodList"></div>
+    </div>
+
+    <div class="result-card" id="rc-deal-bad">
+      <div class="card-header">
+        <span class="rc-icon">⚠️</span>
+        <span class="rc-title">改善ポイント Top 3</span>
+        <span class="rc-sub">次回ベスト返答案つき</span>
+      </div>
+      <div id="dealBadList"></div>
+    </div>
+
+    <div class="result-card" id="rc-deal-actions">
+      <div class="card-header">
+        <span class="rc-icon">🎯</span>
+        <span class="rc-title">次アクション 3案</span>
+        <span class="rc-sub">優先度・期限・テンプレ付き</span>
+      </div>
+      <div id="dealActionList"></div>
+    </div>
+
+    <div class="reset-bar">
+      <button class="reset-btn" onclick="resetDeal()">↺ 別の商談で診断する</button>
+    </div>
+  </div>
 
 </div>
-<!-- END VIEW: COACHING -->
+<!-- END VIEW: DEAL -->
+
 
 
 <!-- ============================================================ -->
 <!-- ===== VIEW: PROSPECT (新規開拓・与件) ====================== -->
 <!-- ============================================================ -->
-<div class="view" id="view-prospect">
+<div class="view active" id="view-prospect">
   <div class="page-title">
     新規開拓・与件
     <span class="sub">ファイナンシャルサービス第一事業部</span>
@@ -1265,13 +1070,6 @@ function showView(name, evt) {
   document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
   const navItem = document.getElementById('nav-' + name);
   if (navItem) navItem.classList.add('active');
-  // Initialize report charts if coaching view becomes active and report tab is active
-  if (name === 'coaching') {
-    const reportPage = document.getElementById('page-report');
-    if (reportPage && reportPage.classList.contains('active')) {
-      initReportCharts();
-    }
-  }
 }
 
 function toggleView() {
@@ -2494,6 +2292,857 @@ function initGroupFromHash() {
     const head = raw.split(/[&?]/)[0];
     if (head === 'group') {
       initGroupFromHash();
+    } else {
+      _origInit();
+    }
+  };
+})();
+
+
+/* ============================================================ */
+/* ===== Deal Diagnosis Agent (商談診断) ====================== */
+/* ============================================================ */
+
+const dealScenarios = {
+  deal_001: {
+    query_example: 'メガバンクA様の第二営業部 Basel III 初回提案、全体的な評価を確認したい',
+    summary: {
+      name: 'メガバンクA様 第二営業部 初回提案',
+      datetime: '2026/04/15 14:00 - 15:02',
+      duration: '62分',
+      ours: ['桐山 真一郎', '国分 大輔'],
+      theirs: ['田中課長', '中村部長'],
+      grade: 'A', gradeClass: 'gr-a',
+      score: '4.3',
+      oneliner: 'Basel III 最終化対応の課題を顧客自身が言語化できる地点まで到達。本部企画への引き継ぎ布石も適切だが、決裁プロセスの確認が次回への宿題として残る。'
+    },
+    scores: [
+      { name: '課題把握', val: 4.5, comment: '冒頭5分で監督対応の現状課題を構造的に引き出せている' },
+      { name: '本気度確認', val: 4.0, comment: '中村部長から「年度内に方針決定したい」発言を獲得' },
+      { name: '予算把握', val: 4.0, comment: '次年度の投資枠規模感まで踏み込めているが、決裁ルート未確認' },
+      { name: '期限把握', val: 4.5, comment: 'Basel III 最終化スケジュールと社内マイルストンの紐付けに成功' }
+    ],
+    sub_metrics: [
+      { label: '話者比率（自社）', val: '34.2%', note: '理想 30-40%内' },
+      { label: '沈黙時間', val: '6.8%', note: '適正' },
+      { label: 'ベテラン比較', val: '+0.6', note: '上位陣平均比' }
+    ],
+    good_points: [
+      {
+        title: '冒頭5分で意思決定構造を確認できている',
+        timestamp: '02:14',
+        observation: '雑談直後に「監督対応はどの本部が所掌されていますか？」と切り出し、田中課長から「企画本部とリスク管理本部の合議体」という回答を獲得。',
+        quote: '監督対応はどの本部が所掌されていますか？意思決定はどなたが主管されるのか伺ってもよいですか',
+        pattern: 'FS第一事業部の上位陣（桐山・国分・結城）の60%が初回商談の冒頭10分で意思決定構造を確認しており、受注確度との相関が最も強い動き。'
+      },
+      {
+        title: 'Basel III の影響度を顧客自身に語らせている',
+        timestamp: '18:32',
+        observation: '「最終化で一番効きそうな項目はどれですか？」と質問し、中村部長から RWA計算負荷増・統合報告自動化の必要性を引き出した。',
+        quote: '最終化で一番効きそうな項目はどれですか？御行の今のアセットミックスだと…',
+        pattern: '上位陣の商談ログ74本中42本で「規制ドラフト→影響度の定量化」を顧客発言として引き出す動きが確認されており、受注案件のうち68%でこのパターンが先行している。'
+      },
+      {
+        title: '次回への布石として本部企画役員の同席を打診',
+        timestamp: '57:48',
+        observation: '商談クロージングで「次回は本部企画の決裁者と一緒に進めたい」旨を提示。中村部長から「打診してみます」の言質を獲得。',
+        quote: '次回は本部企画の决裁者の方ともご一緒できれば、より具体の話に踏み込めると思います',
+        pattern: '初回商談で2回目に決裁者同席を打診できたケースは、過去類似商談15本中11本で受注に至っており、初回1回切りに比べて受注率が約2.4倍。'
+      }
+    ],
+    bad_points: [
+      {
+        title: '予算化スケジュールの確認が抜けている',
+        timestamp: '35:12',
+        observation: '中村部長から「投資枠は確保している」発言を受けた直後、具体的な予算化タイミング（次期中計／単年度予算／補正）の確認に進まずに次の話題へ移った。',
+        best_response: '「ありがとうございます。確保いただいている投資枠は次年度の単年予算でしょうか？それとも次期中計に紐づくマルチイヤーの枠でしょうか？スケジュールが見えるとこちらの提案の粒度も合わせられます」',
+        peer_reference: '上位陣（結城・国分）は予算言及があった直後に必ず「単年／中計」「四半期サイクル」を確認しており、これが予算把握スコア4.5以上の共通条件。'
+      },
+      {
+        title: '競合提案状況の確認が不足',
+        timestamp: '41:50',
+        observation: '「他社からも提案を受けている」発言があったが、社名・提案内容まで深掘りせず曖昧なまま会話を進めてしまった。',
+        best_response: '「差し支えなければ、どちらのご提案を比較検討されていますか？我々の提案の差別化ポイントをご説明する材料にさせてください」',
+        peer_reference: '競合社名を初回で引き出せたケースは類似商談18本中13本で受注、引き出せなかった5本中4本が失注。'
+      },
+      {
+        title: '次回MTGの具体日程確定まで踏み込めていない',
+        timestamp: '59:30',
+        observation: 'クロージングで「来月どこかで」と曖昧な合意のまま終了。先方の打診回答待ちのままカレンダーが空いている状態。',
+        best_response: '「いったん候補日として5/13（火）、5/15（木）の午後をホールドしておきます。本部企画の方のスケジュール確認後にこちらから候補絞り込みのメールをお送りします」',
+        peer_reference: '上位陣は商談終了前に必ず2-3候補日をホールドする動きをしており、次回MTG設定までのリードタイム平均が4.2日（全体平均9.8日）。'
+      }
+    ],
+    actions: [
+      {
+        title: '予算化スケジュール確認の1on1メールを田中課長宛に送付',
+        desc: '中村部長同席より前に、田中課長と単年／中計の整理を握っておくと本商談での議論精度が上がる。投資枠の四半期区切りまで確認する。',
+        due: '〜2026/05/13', priority: 'high', priorityLabel: '高',
+        templates: [{ label: 'メールテンプレ', icon: '✉' }, { label: 'ヒアリングシート', icon: '📋' }]
+      },
+      {
+        title: '本部企画役員向け提案資料の準備（Basel III最終化版）',
+        desc: '次回MTGで本部企画役員同席を見込んだ提案資料の準備。F様事例の年次レポート工数42%削減データを目玉として組み込み。',
+        due: '〜2026/05/20', priority: 'high', priorityLabel: '高',
+        templates: [{ label: '資料テンプレ', icon: '📑' }, { label: 'F様事例カード', icon: '🗂' }]
+      },
+      {
+        title: '競合状況のヒアリングを電話で実施',
+        desc: '次回MTG前に田中課長へ電話で競合提案の温度感を確認。差別化提案のテンプレを準備して臨む。',
+        due: '〜2026/05/15', priority: 'mid', priorityLabel: '中',
+        templates: [{ label: '電話スクリプト', icon: '☎' }]
+      }
+    ]
+  },
+  deal_002: {
+    query_example: '大手地銀B様 法人事業統括部 2回目訪問、話者比率が気になる',
+    summary: {
+      name: '大手地銀B様 法人事業統括部 2回目訪問',
+      datetime: '2026/04/22 10:30 - 11:25',
+      duration: '55分',
+      ours: ['国分 大輔', '浅野 麻衣'],
+      theirs: ['山下次長', '井上係長'],
+      grade: 'B+', gradeClass: 'gr-bp',
+      score: '3.7',
+      oneliner: '中計見直しの議論を引き出せたが、対面商談特有の議事整理が薄く、論点が複数同時並行で散らかったまま終了。次回までに論点整理メモの共有が必要。'
+    },
+    scores: [
+      { name: '課題把握', val: 4.0, comment: '3行統合議論の温度感まで踏み込めている' },
+      { name: '本気度確認', val: 4.0, comment: '山下次長から「中計に乗せたい」発言を獲得' },
+      { name: '予算把握', val: 3.5, comment: '中計策定中で予算枠が固まっておらず、想定レンジまでは到達' },
+      { name: '期限把握', val: 3.5, comment: '中計発表時期は確認できたが、社内決裁マイルストンが曖昧' }
+    ],
+    sub_metrics: [
+      { label: '話者比率（自社）', val: '47.6%', note: '理想超過 +7.6pt' },
+      { label: '沈黙時間', val: '3.2%', note: 'やや短い' },
+      { label: 'ベテラン比較', val: '-0.2', note: '上位陣平均比' }
+    ],
+    good_points: [
+      {
+        title: '統合議論というセンシティブな話題を顧客から引き出せた',
+        timestamp: '12:08',
+        observation: '「中計の中で他行統合の議論はありますか？」と直球で質問し、山下次長から「3行統合のデータ基盤構想は議論中」との具体的回答を獲得。',
+        quote: '中計の中で他行統合の議論はありますか？差し支えなければ温度感を伺いたいのですが',
+        pattern: '地銀向け商談で統合議論を初回・2回目で引き出せたケースは類似10本中7本で受注に至っており、ファクトを早期に握ることが受注の前提条件。'
+      },
+      {
+        title: '浅野メンバーの与信モデル領域での発言が的を射ていた',
+        timestamp: '28:40',
+        observation: '井上係長の「与信モデルが古い」発言に対し、浅野メンバーが地銀協同データでの精度+15%実績を即応で提示。商談の流れを一気に技術詳細へ動かした。',
+        quote: '地銀協同データを取り込むだけで、現行モデルの精度が概ね10〜15%改善した事例が複数あります',
+        pattern: '同行者のドメイン知見が場で発揮されたケースは類似商談で受注確度が約1.7倍。事前の同行者選定が効いた典型例。'
+      },
+      {
+        title: '小川企画役員への接続を山下次長から打診する流れを作れた',
+        timestamp: '50:14',
+        observation: 'クロージング前に「グループDX会議への参加を提案いただけませんか」と打診。山下次長から「次回までに小川役員に話してみる」言質を獲得。',
+        quote: '次回までに小川役員にお話しいただいて、グループDX会議でご紹介いただけると最も話が早いです',
+        pattern: '上位陣の人付け展開パターン。経営層との接続を「次回MTGまでの宿題」として握ることで紹介率が約3倍。'
+      }
+    ],
+    bad_points: [
+      {
+        title: '話者比率が47.6%と高く、傾聴フェーズが不十分',
+        timestamp: '20:00 - 35:00',
+        observation: '15分間で当社側の発言ターン数が18ターンに対し顧客側10ターン。Basel III 関連の事例紹介を一方的に進めてしまい、顧客の反応質問のターン構築ができていない。',
+        best_response: '「ここまでで違和感や引っかかる点はありませんか？」と3-5分ごとに顧客に投げ返す。あるいは事例紹介後に「御行の場合だとどの論点が刺さりそうでしょうか」と当てる。',
+        peer_reference: '桐山メンバーは事例紹介3分ごとに必ず1回顧客に質問を返す動きをしており、話者比率を33%前後で維持。これが上位陣の共通動作。'
+      },
+      {
+        title: '対面商談で議事整理メモを取れていない',
+        timestamp: '38:25',
+        observation: '山下次長が「3行統合・与信モデル・データガバナンスの3軸」と発言した直後、議事整理せず次の話題へ。商談中盤以降に話題が3軸を行き来して論点が散らかる結果に。',
+        best_response: 'ホワイトボード or 手元メモで「今お話に出た論点は3つですね。①〜 ②〜 ③〜 で合っていますか？」と即時にリフレクションする。',
+        peer_reference: '対面商談で論点リフレクションを入れているメンバーは商談スコア平均4.0、入れていないメンバーは3.4。対面商談で最も差が出る要素。'
+      },
+      {
+        title: '次回MTGの位置づけが曖昧',
+        timestamp: '52:30',
+        observation: '「また3週間後くらいに」と日程感は出たが、次回MTGでの議題・決裁範囲が定義されないまま終了。次回が「経過確認」になりかねない状態。',
+        best_response: '「次回は本部企画にお持ち帰りいただく構想を一緒に固めるMTG、3週間後に2時間枠でいかがでしょう」と次回の到達点を先に定義する。',
+        peer_reference: '次回MTGの到達点を明示できた商談は、次回MTGでの進捗率（受注フェーズ前進率）が約2.1倍。'
+      }
+    ],
+    actions: [
+      {
+        title: '商談議事整理メモを山下次長宛に送付（論点3軸の整理）',
+        desc: '本商談で散らかった3軸（3行統合・与信モデル・データガバナンス）の論点を整理し、次回までに合意したい範囲を明示。',
+        due: '〜2026/04/25', priority: 'high', priorityLabel: '高',
+        templates: [{ label: '議事メモテンプレ', icon: '📝' }]
+      },
+      {
+        title: 'グループDX会議への招待をフォロー（小川役員ライン）',
+        desc: '山下次長から小川企画役員への進言状況を1週間以内に確認。3行統合データ基盤構想のショートサマリを準備して持参可能にする。',
+        due: '〜2026/04/29', priority: 'high', priorityLabel: '高',
+        templates: [{ label: '構想サマリ', icon: '📊' }]
+      },
+      {
+        title: '次回MTGの到達点定義メールの送付',
+        desc: '次回MTGの議題・参加者・到達点を明示するメールを送付。曖昧な「経過確認MTG」化を防ぐ。',
+        due: '〜2026/04/26', priority: 'mid', priorityLabel: '中',
+        templates: [{ label: 'MTG設計メール', icon: '✉' }]
+      }
+    ]
+  },
+  deal_003: {
+    query_example: '信託C様 資産運用部 提案フォロー、失注リスクが気になる',
+    summary: {
+      name: '信託C様 資産運用部 提案フォロー',
+      datetime: '2026/04/28 13:00 - 13:48',
+      duration: '48分',
+      ours: ['結城 千明'],
+      theirs: ['山本部長', '加藤主任'],
+      grade: 'B-', gradeClass: 'gr-bm',
+      score: '3.0',
+      oneliner: '提案後の温度感を確認するフォロー商談だったが、予算化スケジュールと決裁者特定に踏み込めず失注リスクが高まっている。次回までに加藤主任との別ルート確認が必要。'
+    },
+    scores: [
+      { name: '課題把握', val: 3.5, comment: 'ESG開示要件強化は既知。新たな深掘り情報は獲得できず' },
+      { name: '本気度確認', val: 3.0, comment: '「検討中」のままで具体の前進サインが乏しい' },
+      { name: '予算把握', val: 2.5, comment: '予算化スケジュール・枠規模ともに未確認のまま終了' },
+      { name: '期限把握', val: 3.0, comment: '「年度後半」レベルの情報しか取れていない' }
+    ],
+    sub_metrics: [
+      { label: '話者比率（自社）', val: '52.4%', note: '理想超過 +12.4pt' },
+      { label: '沈黙時間', val: '2.1%', note: '短すぎる' },
+      { label: 'ベテラン比較', val: '-0.9', note: '上位陣平均比' }
+    ],
+    good_points: [
+      {
+        title: '加藤主任との接点を維持・強化できている',
+        timestamp: '05:30',
+        observation: '加藤主任からの細かい技術質問に丁寧に回答。実務担当との関係性は維持。山本部長不在時に頼れるルートが残っている状態。',
+        quote: '加藤さんからご質問いただいた点、前回のお打ち合わせ後に持ち帰って社内検証してきました',
+        pattern: '失注リスク局面で実務担当者との関係を維持できているケースは、追加提案で巻き返せた事例が類似8本中5本。'
+      },
+      {
+        title: 'J様事例の数値感（手作業1.5人月→2日）を再度提示できている',
+        timestamp: '22:18',
+        observation: '前回提示した数値を山本部長が忘れていた節があったため、再度同じ数値で提示。当社の主張をブレずに伝えられている。',
+        quote: '改めて整理しますと、J社様では月次の手作業ベースで1.5人月かかっていた工数が、導入後は2日まで圧縮されました',
+        pattern: '提案フォロー時に主張軸をブレずに維持できているケースは、最終提案受理率が約1.4倍。'
+      },
+      {
+        title: '次回MTGの設定までは持ち込めている',
+        timestamp: '45:50',
+        observation: 'クロージングで次回MTG（5/19）の日程は確定。失注リスク局面でも会話のテーブルは維持できている。',
+        quote: '次回、5/19の14時で押さえてください。社内検討状況を共有いただければと思います',
+        pattern: '次回MTG日程を商談内で確定できないケースは70%が失注に進行。日程確定は最低限の維持指標。'
+      }
+    ],
+    bad_points: [
+      {
+        title: '予算化スケジュールの確認が完全に抜けている',
+        timestamp: '商談全体',
+        observation: '48分の商談中、予算化スケジュール・投資枠規模・決裁プロセスの3点いずれにも踏み込めていない。「検討中」を受け流して機能説明に終始してしまった。',
+        best_response: '「検討状況を伺うと共に、率直にお伺いしたいのですが、今期内の投資判断の可能性はどの程度でしょうか？難しいタイミングでしたら次期中計を見据えた仕込みに切り替えたく」',
+        peer_reference: 'フォロー商談で予算化スケジュールの再確認を入れているメンバーは結城・桐山。両名の失注率は12%（全体32%）と顕著に低い。'
+      },
+      {
+        title: '決裁者（部長級より上）の特定ができていない',
+        timestamp: '32:40',
+        observation: '山本部長から「上申は本部の判断」発言があったが、その本部の誰が決裁者かを特定する質問を投げていない。',
+        best_response: '「本部のご判断ということは、具体的にはどなたが最終的なご判断をされる形になりますでしょうか？事前にお会いできる機会があれば調整させていただきたく」',
+        peer_reference: '失注案件の82%が「決裁者を特定できていない」共通点を持つ。これは類似商談分析の最強の失注予測シグナル。'
+      },
+      {
+        title: '話者比率52.4%と一方通行の説明モード',
+        timestamp: '20:00 - 40:00',
+        observation: 'フォロー商談にも関わらず、機能説明・事例説明で20分間を当社側で消費。顧客の懸念・違和感を引き出す質問が皆無。',
+        best_response: '「ここまでお話ししてきた中で、社内で進めるにあたっての引っかかりや障害になりそうな点はありませんか？」と1回でも投げかけて顧客の本音を引き出す。',
+        peer_reference: 'フォロー商談で話者比率45%以下を維持できたケースは受注確度が約2.3倍。説明モードに入りやすいフェーズで最も差が出る。'
+      }
+    ],
+    actions: [
+      {
+        title: '加藤主任に1on1ヒアリングを電話/メールで打診',
+        desc: '山本部長同席だと出てこない本音（予算化スケジュール／決裁者／競合状況）を加藤主任ライン経由で確認する。',
+        due: '〜2026/05/02', priority: 'high', priorityLabel: '高',
+        templates: [{ label: '電話スクリプト', icon: '☎' }, { label: 'メールテンプレ', icon: '✉' }]
+      },
+      {
+        title: '失注リスクアラートを所長へエスカレーション',
+        desc: '失注予測シグナル（予算未確認・決裁者未特定・話者比率超過）3つが揃っているため、所長同席での次回MTGを検討。',
+        due: '〜2026/05/01', priority: 'high', priorityLabel: '高',
+        templates: [{ label: 'リスク報告書', icon: '⚠' }]
+      },
+      {
+        title: '次回MTG（5/19）の議題リセット案を提示',
+        desc: '次回は機能説明ではなく「投資判断のフレームを一緒に作る」MTGに位置づけ直す。社内検討の支援者ポジションへシフト。',
+        due: '〜2026/05/12', priority: 'mid', priorityLabel: '中',
+        templates: [{ label: 'MTG設計案', icon: '📐' }]
+      }
+    ]
+  },
+  deal_004: {
+    query_example: 'カード会社D様 不正対策室 デモ会、技術質問への即応性を確認したい',
+    summary: {
+      name: 'カード会社D様 不正対策室 デモ会',
+      datetime: '2026/05/01 14:00 - 15:15',
+      duration: '75分',
+      ours: ['大津 浩司', '平岡 拓也'],
+      theirs: ['佐藤課長', '森技術主任', '田島スタッフ'],
+      grade: 'B', gradeClass: 'gr-b',
+      score: '3.4',
+      oneliner: 'グラフAIのデモ自体は刺さったが、森技術主任の深い技術質問への即応性が不足。次回は技術専門部隊（データサイエンスチーム）の同席が必須。'
+    },
+    scores: [
+      { name: '課題把握', val: 4.0, comment: '3Dセキュア2.0後の誤検知増加課題は深掘りできた' },
+      { name: '本気度確認', val: 3.5, comment: '佐藤課長は前向きだが、森主任の技術懸念が未解消' },
+      { name: '予算把握', val: 3.0, comment: '年次投資枠の存在は確認、配分は未確認' },
+      { name: '期限把握', val: 3.0, comment: '「下期投資判断」のレベル感のみ' }
+    ],
+    sub_metrics: [
+      { label: '話者比率（自社）', val: '42.8%', note: '理想超過 +2.8pt' },
+      { label: '沈黙時間', val: '8.4%', note: 'やや長い' },
+      { label: 'ベテラン比較', val: '-0.3', note: '上位陣平均比' }
+    ],
+    good_points: [
+      {
+        title: 'グラフAIのデモシーンが森主任に刺さった',
+        timestamp: '32:14',
+        observation: '加盟店横断のリング検知デモで、森主任が「これは現状のアルゴリズムでは検出できない」と発言。技術的優位性を示すデモ設計が機能した。',
+        quote: 'なるほど、これは現状の単一トランザクション評価では検出できないパターンですね',
+        pattern: '技術主任クラスから「現状では検出できない」発言を引き出せたデモ案件は受注確度約2.1倍。技術的優位性の証跡として最強。'
+      },
+      {
+        title: 'M様事例の誤検知42%減データを根拠提示',
+        timestamp: '48:30',
+        observation: '「精度頭打ち」課題に対しM様の誤検知42%減実績を即座に提示。佐藤課長のメモを取る動作を引き出した。',
+        quote: 'M社様では既存ロジックと並走させながら、誤検知率を42%削減することができました',
+        pattern: '事例の数値根拠を即応提示できた商談は提案受理率が約1.6倍。事例カードの事前準備が効いた典型例。'
+      },
+      {
+        title: '次回の技術ディープダイブMTGの設定まで持ち込めた',
+        timestamp: '70:20',
+        observation: '森主任からの深い技術質問への回答保留を口実に、技術専門部隊同席の次回MTG設定に成功。',
+        quote: '今日いただいた技術論点は、次回データサイエンスチームと一緒にディープダイブさせてください',
+        pattern: '技術質問の回答保留を「次回MTG設定」に転換できるケースは上位陣の常套手段。受注確度の前進フラグ。'
+      }
+    ],
+    bad_points: [
+      {
+        title: '森主任の技術質問への即応性が不足',
+        timestamp: '42:50 / 55:20 / 63:10',
+        observation: '3回にわたって森主任から深い技術質問（特徴量設計／モデル更新サイクル／オンライン学習対応）。いずれも「持ち帰り回答」となり、商談中の議論が停滞。',
+        best_response: '技術質問が3つ以上「持ち帰り」になりそうな兆候を察知したら、商談を一旦止めて「30分後にデータサイエンスチームに電話で繋ぎますか」と提案。場で解く動きへ転換。',
+        peer_reference: '技術質問への商談内回答率が80%以上のケースは受注確度約1.9倍。同行者選定で予防できる要素。'
+      },
+      {
+        title: '専門部隊同席のタイミングが遅い',
+        timestamp: '初回デモ会の設計判断',
+        observation: 'デモ会には技術専門部隊（データサイエンスチーム）の同席があるべきだった。事前のステークホルダー把握で森主任の技術志向は予測できたはず。',
+        best_response: '商談前日までに「先方の参加者リスト」を確認し、技術主任クラス以上が含まれる場合は同行者にデータサイエンスチームを必ず加える。事前判断のルール化。',
+        peer_reference: '上位陣（桐山・国分）は商談前日のステークホルダー確認をルーティン化しており、同行者ミスマッチ率が3%（全体16%）と顕著に低い。'
+      },
+      {
+        title: '田島スタッフの発言を引き出せていない',
+        timestamp: '商談全体',
+        observation: '田島スタッフは75分間で発言3回のみ。実務オペレーション側の本音や懸念が拾えておらず、現場合意形成の材料が不足。',
+        best_response: '「田島さんは実際の運用側のお立場かと思いますが、現場目線でこのフローが回りそうか、率直なご意見いただけますか」と明示的に振る。',
+        peer_reference: '商談参加者全員から1回以上発言を引き出せたケースは導入後の現場定着率が約1.8倍。'
+      }
+    ],
+    actions: [
+      {
+        title: 'データサイエンスチーム同席の次回MTG設定',
+        desc: '森主任の技術質問3件への正面回答を含む技術ディープダイブMTGを設定。事前に質問内容を共有して準備時間を確保。',
+        due: '〜2026/05/13', priority: 'high', priorityLabel: '高',
+        templates: [{ label: 'MTG設計', icon: '📐' }, { label: '質問整理シート', icon: '📋' }]
+      },
+      {
+        title: '田島スタッフへの個別ヒアリング機会の打診',
+        desc: '佐藤課長経由で田島スタッフの実務目線ヒアリングを30分打診。現場合意形成の材料収集。',
+        due: '〜2026/05/15', priority: 'mid', priorityLabel: '中',
+        templates: [{ label: 'ヒアリング設計', icon: '📝' }]
+      },
+      {
+        title: '商談前ステークホルダー確認チェックリスト整備',
+        desc: '同行者ミスマッチ予防のため、商談前日の参加者確認ルーティン化。本部内で標準化を所長と相談。',
+        due: '〜2026/05/20', priority: 'low', priorityLabel: '低',
+        templates: [{ label: 'チェックリスト', icon: '✅' }]
+      }
+    ]
+  },
+  deal_005: {
+    query_example: '保険E様 リスク管理部 ヒアリング、新人桜井さんの初商談を診断したい',
+    summary: {
+      name: '保険E様 リスク管理部 ヒアリング',
+      datetime: '2026/05/06 10:00 - 10:55',
+      duration: '55分',
+      ours: ['桜井 健太'],
+      theirs: ['岡田部長', '高橋係長'],
+      grade: 'B-', gradeClass: 'gr-bm',
+      score: '3.1',
+      oneliner: '新人桜井メンバーの単独初商談。基本的なヒアリングはこなせているが、質問の優先順位設計と岡田部長からの一段深い発言を引き出す動きが課題。ベテラン同行が必要だった商談。'
+    },
+    scores: [
+      { name: '課題把握', val: 3.5, comment: 'ALM・ICS の基本論点は引き出せているが深さ不足' },
+      { name: '本気度確認', val: 3.0, comment: '「興味はある」レベル止まりで具体行動コミットなし' },
+      { name: '予算把握', val: 2.5, comment: 'ヒアリング目的のため踏み込まなかったが、規模感の聞き取りすら未実施' },
+      { name: '期限把握', val: 3.0, comment: 'ICS本適用のスケジュール感確認は最低限できた' }
+    ],
+    sub_metrics: [
+      { label: '話者比率（自社）', val: '38.4%', note: '理想範囲内' },
+      { label: '沈黙時間', val: '12.6%', note: '長すぎる' },
+      { label: '新人モード', val: '初回', note: 'ベテラン同行推奨' }
+    ],
+    good_points: [
+      {
+        title: 'P様事例の話を準備して持ち込んでいる',
+        timestamp: '18:40',
+        observation: '初商談にも関わらず、保険業界P様の ALM 高度化事例を持参して提示。事前準備の姿勢が見える。',
+        quote: '事前に伺っていた論点に近い事例として、P社様の ALM 高度化を整理してきました',
+        pattern: '新人の初商談で類似事例を持参できているケースは上位陣の指導下の典型パターン。初商談の評価平均より+0.3。'
+      },
+      {
+        title: '高橋係長との接点を作れている',
+        timestamp: '38:10',
+        observation: '岡田部長が席を外した5分間で、高橋係長と実務レベルの会話を成立させた。今後の継続接点として活用できる関係性。',
+        quote: '高橋さんが実際に手を動かされているんですね。差し支えなければ、今後直接ご相談させていただいてもよろしいですか',
+        pattern: '初商談で部長以外との直接接点を作れたケースは2回目以降の商談組成率が約2.0倍。'
+      },
+      {
+        title: '商談後のお礼メール送付タイミングが速い',
+        timestamp: '商談終了後3時間',
+        observation: '商談終了から3時間以内にお礼メール＋議事メモを送付。新人としてのレスポンス品質は上位陣水準。',
+        quote: '（メール内）本日はお時間をいただきありがとうございました。お話の論点を以下のとおり整理しました…',
+        pattern: 'お礼＋議事メモの3時間以内送付は受注確度約1.4倍。新人でも実行可能な最重要動作。'
+      }
+    ],
+    bad_points: [
+      {
+        title: '質問の優先順位が場当たり的',
+        timestamp: '商談全体',
+        observation: '事前準備した質問リスト10項目を順番通りに消化しようとして、岡田部長から重要な発言が出ても深掘りせず次の質問へ移ってしまった（特に12:30、25:10、44:20）。',
+        best_response: '質問リストは「もし時間が余ったら聞く順」に並べ替え。顧客の発言から論点が出てきたら、その場で深掘りに切り替える「フォローアップ質問の連鎖」を意識する。',
+        peer_reference: '上位陣の商談を分析すると、事前質問の消化率は60%程度で、残り40%は商談中に発言から派生した質問。フォローアップ質問が3回以上連鎖した商談はヒアリング深度スコアが+1.2。'
+      },
+      {
+        title: '岡田部長からの一段深い発言を引き出せていない',
+        timestamp: '25:10',
+        observation: '岡田部長から「ICS準備は経理側との連携が課題」発言があったが、「ありがとうございます、次の質問は…」と流してしまった。経理側との連携課題は最重要論点になり得たポイント。',
+        best_response: '「経理側との連携が課題、と仰っていただきましたが、もう少し具体的にお伺いしてもよろしいですか？どのフェーズで連携が必要になりますか」と即座に深掘りに転換する。',
+        peer_reference: '上位陣は重要発言を察知すると質問リストを一旦離れて深掘りに集中する。これが「課題把握 4.5以上」の必要条件。'
+      },
+      {
+        title: 'ベテラン同行が必要な商談を単独で実施してしまった',
+        timestamp: '事前判断',
+        observation: '岡田部長は ALM・ICS 領域の専門家。新人単独では一段深い議論に踏み込めない。事前のステークホルダー把握で同行判断を所長に相談すべきだった。',
+        best_response: '部長級以上の専門家との初商談は新人単独不可のルール化。事前に同行者（黒田・結城など）の調整を行う。',
+        peer_reference: '新人単独商談で部長級と対面したケースの平均スコアは3.0、ベテラン同行ありは3.8。同行判断のルール化が組織課題。'
+      }
+    ],
+    actions: [
+      {
+        title: 'ベテラン同行ありの2回目MTG設定（黒田または結城）',
+        desc: '岡田部長への深掘りができる ALM・ICS 専門家（黒田か結城）を同行。経理側との連携課題を中心に深掘り。',
+        due: '〜2026/05/18', priority: 'high', priorityLabel: '高',
+        templates: [{ label: '同行依頼テンプレ', icon: '🤝' }]
+      },
+      {
+        title: '高橋係長への個別ヒアリング機会の打診',
+        desc: '実務側との接点を強化。岡田部長同席だと出ない実装課題の本音を確認。',
+        due: '〜2026/05/15', priority: 'mid', priorityLabel: '中',
+        templates: [{ label: 'ヒアリング打診', icon: '✉' }]
+      },
+      {
+        title: '桜井メンバーの商談振り返り1on1（所長と）',
+        desc: '質問の優先順位設計とフォローアップ質問の連鎖の重要性を所長との1on1で構造化。次回商談前の準備事項を確定。',
+        due: '〜2026/05/12', priority: 'high', priorityLabel: '高',
+        templates: [{ label: '1on1シート', icon: '📝' }]
+      }
+    ]
+  },
+  deal_006: {
+    query_example: 'メガバンクF様 クロージング、模範例として他メンバーに共有したい',
+    summary: {
+      name: 'メガバンクF様 リスク管理高度化 クロージング',
+      datetime: '2026/05/08 15:30 - 16:42',
+      duration: '72分',
+      ours: ['桐山 真一郎', '結城 千明'],
+      theirs: ['西村執行役員', '小林部長', '伊藤次長'],
+      grade: 'A', gradeClass: 'gr-a',
+      score: '4.6',
+      oneliner: '8ヶ月の長期商談のクロージングMTG。西村執行役員から具体的な発注意思表示と契約スケジュール合意までを引き出した模範例。FS第一事業部の勝ちパターン教材として横展開推奨。'
+    },
+    scores: [
+      { name: '課題把握', val: 4.5, comment: '8ヶ月の積み上げが結実。論点の網羅性が完璧' },
+      { name: '本気度確認', val: 5.0, comment: '西村役員から「来月から進めましょう」発言を獲得' },
+      { name: '予算把握', val: 4.5, comment: '予算枠・四半期サイクル・追加投資余力まで網羅確認' },
+      { name: '期限把握', val: 4.5, comment: '契約締結スケジュール・移行マイルストン明示合意' }
+    ],
+    sub_metrics: [
+      { label: '話者比率（自社）', val: '31.6%', note: '理想範囲内' },
+      { label: '沈黙時間', val: '4.8%', note: '適正' },
+      { label: 'ベテラン比較', val: '+0.9', note: '上位陣平均比' }
+    ],
+    good_points: [
+      {
+        title: '西村役員から「来月から進めましょう」発言を引き出した一手',
+        timestamp: '32:08',
+        observation: '8ヶ月の論点を3スライドに圧縮してリキャップした直後、「ここまでで御行内で必要な意思決定は出揃っていますでしょうか」と直球で投げ、西村役員から「来月から進めましょう」発言を獲得。',
+        quote: 'ここまでで御行内で必要な意思決定は出揃っていますでしょうか',
+        pattern: 'クロージング商談で「意思決定が出揃っていますか」と直球で投げるのは桐山の常套句。受注確度95%以上に到達した商談の70%でこの問いが使われている。'
+      },
+      {
+        title: '8ヶ月の論点を3スライドにリキャップする構成力',
+        timestamp: '20:00 - 30:00',
+        observation: '初回商談から8ヶ月で議論してきた論点を「課題整理／提案範囲／投資効果」の3スライドに圧縮提示。西村役員（途中参加）にも全体感が即座に伝わる構成。',
+        quote: '本日は西村様にも初めてお越しいただいたので、これまでの議論を3点に圧縮してお話しします',
+        pattern: '長期商談のクロージングでは「途中参加の上位役員」のキャッチアップ設計が勝敗を分ける。3スライドリキャップは上位陣の必須スキル。'
+      },
+      {
+        title: '結城メンバーが規制対応文脈で補完発言',
+        timestamp: '48:30',
+        observation: '小林部長の「監督対応の妥当性」質問に対し、結城メンバーが「J社様（信託）でも金融庁ヒアリング対応事例あり」と即時補完。桐山が話せない他業態事例で説得力を上乗せ。',
+        quote: '横の他業態の話で恐縮ですが、信託のJ社様では金融庁のヒアリングに対しても同基盤で対応されています',
+        pattern: '同行者が「主担当が話せない領域」で補完発言できる商談は受注確度約2.5倍。同行者選定の最強パターン。'
+      }
+    ],
+    bad_points: [
+      {
+        title: '伊藤次長の発言量が少なめだった',
+        timestamp: '商談全体',
+        observation: '伊藤次長は実装レイヤーの責任者だが発言5回のみ。実装側の懸念・要望が拾えておらず、契約後のキックオフで論点化するリスクがある。',
+        best_response: '「伊藤様、実装側のご懸念や事前に押さえておくべき論点はございませんか？契約後すぐにキックオフできるよう、いま洗い出しておきたく」と明示的に振る。',
+        peer_reference: '受注確度が高い商談ほど「実装責任者の論点」を契約前に洗い出している。これは契約後のスムーズな立ち上がりの前提条件。'
+      },
+      {
+        title: '競合提案の最終状況確認が薄い',
+        timestamp: '54:20',
+        observation: '事実上の受注内定だが、競合の最終提案状況の確認が薄い。万一の状況変化に対する備えとして、競合の動きはクロージング段階でも握っておくべき。',
+        best_response: '「失礼ですが、他社様のご提案状況も伺っておきたく。何か今後追加で出てくる可能性はございますか」と低姿勢で確認する。',
+        peer_reference: 'クロージング段階でも競合動向を握っているメンバーは契約締結率が約1.2倍。失注事例で「他社の最後の巻き返しに気付かなかった」が一定数あるため。'
+      },
+      {
+        title: '契約後のフォロー体制の説明がやや簡素',
+        timestamp: '65:00',
+        observation: '契約後の運用フォロー体制（誰が何を担当するか）の説明が3分程度と短い。西村役員クラスは契約後の体制感を重視する傾向あり。',
+        best_response: '契約後の専任担当（カスタマーサクセス）と頻度（週次／月次）、エスカレーション経路まで含めた1スライドを準備して提示する。',
+        peer_reference: '契約後体制の説明を1スライドで明示できた商談はチャーン率が約30%低下。契約クロージング時の必須要素。'
+      }
+    ],
+    actions: [
+      {
+        title: '契約締結に向けたタイムライン詳細案の送付',
+        desc: '西村役員合意の「来月から」をブレイクダウン。法務レビュー・押印・キックオフ日程を確定させる詳細タイムラインを48時間以内に送付。',
+        due: '〜2026/05/10', priority: 'high', priorityLabel: '高',
+        templates: [{ label: 'タイムライン雛形', icon: '📅' }]
+      },
+      {
+        title: '伊藤次長向けの実装論点洗い出しMTG設定',
+        desc: '契約後のキックオフをスムーズに進めるため、伊藤次長との実装論点洗い出しMTGを設定。技術側の懸念を契約前に解消。',
+        due: '〜2026/05/14', priority: 'high', priorityLabel: '高',
+        templates: [{ label: '論点洗い出しシート', icon: '📋' }]
+      },
+      {
+        title: 'FS第一事業部内の横展開教材化',
+        desc: '本商談の録画・議事を「クロージングMTGの模範例」として教材化。特に「8ヶ月論点を3スライドにリキャップ」「意思決定が出揃っていますかの直球」の2点を抽出。',
+        due: '〜2026/05/20', priority: 'mid', priorityLabel: '中',
+        templates: [{ label: '教材化テンプレ', icon: '🎓' }, { label: 'クリップ機能', icon: '✂' }]
+      }
+    ]
+  }
+};
+
+function matchDealScenario(query) {
+  if (!query) return 'deal_001';
+  const q = query.toLowerCase();
+  const rules = [
+    { key: 'deal_006', words: ['メガバンクf', 'f様', 'クロージング', '模範', '8ヶ月'] },
+    { key: 'deal_001', words: ['メガバンクa', 'a様', 'basel', '初回提案', '第二営業部'] },
+    { key: 'deal_002', words: ['地銀', 'b様', '2回目', '法人事業統括'] },
+    { key: 'deal_003', words: ['信託', 'c様', 'フォロー', '資産運用'] },
+    { key: 'deal_004', words: ['カード', 'd様', '不正', 'デモ会'] },
+    { key: 'deal_005', words: ['保険', 'e様', 'リスク管理', 'ヒアリング', '新人', '桜井'] }
+  ];
+  for (const r of rules) {
+    for (const w of r.words) {
+      if (q.includes(w.toLowerCase())) return r.key;
+    }
+  }
+  return 'deal_001';
+}
+
+const DEAL_THINKING_STEPS = [
+  '商談の文字起こしを解析中...',
+  '話者比率・トピック分布を計測中...',
+  '過去類似商談との比較中...',
+  '改善ポイントを抽出中...',
+  '次アクション案を生成中...'
+];
+
+let dealInProgress = false;
+
+function onDealSelectChange() {
+  const sel = document.getElementById('dealSelect');
+  if (!sel) return;
+  const key = sel.value;
+  if (!key) return;
+  const data = dealScenarios[key];
+  if (!data) return;
+  const ta = document.getElementById('dealQuery');
+  if (ta) ta.value = data.query_example;
+}
+
+function runDealSample(key) {
+  const data = dealScenarios[key];
+  if (!data) return;
+  const sel = document.getElementById('dealSelect');
+  if (sel) sel.value = key;
+  const ta = document.getElementById('dealQuery');
+  if (ta) ta.value = data.query_example;
+  analyzeDeal();
+}
+
+function analyzeDeal(opts) {
+  if (dealInProgress) return;
+  const sel = document.getElementById('dealSelect');
+  const ta = document.getElementById('dealQuery');
+  const query = ta ? ta.value.trim() : '';
+  let key = sel && sel.value ? sel.value : '';
+  if (!key) key = matchDealScenario(query);
+  const data = dealScenarios[key];
+  if (!data) return;
+  const instant = opts && opts.instant === true;
+  dealInProgress = true;
+
+  const btn = document.getElementById('dealAnalyzeBtn');
+  if (btn) btn.disabled = true;
+
+  const results = document.getElementById('dealResults');
+  results.classList.remove('active');
+  document.querySelectorAll('#dealResults .result-card').forEach(c => c.classList.remove('show'));
+
+  const thinking = document.getElementById('dealThinkingArea');
+  const stepsEl = document.getElementById('dealThinkingSteps');
+  stepsEl.innerHTML = '';
+
+  if (instant) {
+    thinking.classList.remove('active');
+    renderDealData(data);
+    results.classList.add('active');
+    document.querySelectorAll('#dealResults .result-card').forEach(c => c.classList.add('show'));
+    dealInProgress = false;
+    if (btn) btn.disabled = false;
+    return;
+  }
+
+  thinking.classList.add('active');
+  streamDealThinking(DEAL_THINKING_STEPS, () => {
+    setTimeout(() => {
+      thinking.classList.remove('active');
+      renderDealData(data);
+      results.classList.add('active');
+      revealDealSections(() => {
+        dealInProgress = false;
+        if (btn) btn.disabled = false;
+      });
+    }, 350);
+  });
+}
+
+function streamDealThinking(steps, done) {
+  const stepsEl = document.getElementById('dealThinkingSteps');
+  stepsEl.innerHTML = '';
+  steps.forEach((text, i) => {
+    const div = document.createElement('div');
+    div.className = 'thinking-step pending';
+    div.id = 'dlThStep-' + i;
+    div.innerHTML = '<span class="step-mark">⏳</span><span class="step-text">' + text + '</span>';
+    stepsEl.appendChild(div);
+  });
+
+  const STEP_DELAY = 750;
+  steps.forEach((_, i) => {
+    setTimeout(() => {
+      const el = document.getElementById('dlThStep-' + i);
+      if (el) el.classList.add('visible');
+    }, i * STEP_DELAY + 50);
+    setTimeout(() => {
+      const el = document.getElementById('dlThStep-' + i);
+      if (el) {
+        el.classList.remove('pending');
+        el.classList.add('done');
+        const mark = el.querySelector('.step-mark');
+        if (mark) mark.textContent = '✓';
+      }
+    }, i * STEP_DELAY + STEP_DELAY - 100);
+  });
+  setTimeout(() => { if (typeof done === 'function') done(); }, steps.length * STEP_DELAY + 200);
+}
+
+function renderDealData(data) {
+  const s = data.summary;
+
+  // Summary card
+  const sc = document.getElementById('dealSummaryCard');
+  sc.innerHTML =
+    '<div class="deal-summary-head">' +
+      '<div>' +
+        '<div class="deal-summary-name">' + s.name + '</div>' +
+        '<div class="deal-summary-meta">' +
+          '<span>📅 ' + s.datetime + '</span>' +
+          '<span>⏱ ' + s.duration + '</span>' +
+          '<span>👥 自社：' + s.ours.join('・') + '</span>' +
+          '<span>🏢 顧客：' + s.theirs.join('・') + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="deal-grade-block">' +
+        '<div class="deal-grade-label">総合グレード</div>' +
+        '<div class="deal-grade-big ' + s.gradeClass + '">' + s.grade + '</div>' +
+        '<div class="deal-grade-score"><span class="ds-val">' + s.score + '</span> / 5.0</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="deal-oneliner">' + s.oneliner + '</div>';
+
+  // 4-axis scores
+  const sg = document.getElementById('dealScoreGrid');
+  sg.innerHTML = '';
+  data.scores.forEach(sc2 => {
+    const lv = sc2.val >= 4.0 ? 'lv-hi' : sc2.val >= 3.2 ? 'lv-mid' : 'lv-lo';
+    const pct = Math.round((sc2.val / 5) * 100);
+    const item = document.createElement('div');
+    item.className = 'score-item';
+    item.innerHTML =
+      '<div class="score-item-head">' +
+        '<div class="score-item-name">' + sc2.name + '</div>' +
+        '<div class="score-item-val">' + sc2.val.toFixed(1) + '<span class="sv-max"> / 5.0</span></div>' +
+      '</div>' +
+      '<div class="score-bar"><div class="score-bar-fill ' + lv + '" style="width:' + pct + '%"></div></div>' +
+      '<div class="score-item-comment">' + sc2.comment + '</div>';
+    sg.appendChild(item);
+  });
+
+  // Sub metrics
+  const sm = document.getElementById('dealSubMetrics');
+  sm.innerHTML = '';
+  data.sub_metrics.forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'sub-metric';
+    div.innerHTML =
+      '<div class="sub-metric-label">' + m.label + '</div>' +
+      '<div class="sub-metric-val">' + m.val + '<span class="sm-note">' + m.note + '</span></div>';
+    sm.appendChild(div);
+  });
+
+  // Good points
+  const gl = document.getElementById('dealGoodList');
+  gl.innerHTML = '';
+  data.good_points.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'point-card positive';
+    card.innerHTML =
+      '<div class="point-head">' +
+        '<div class="point-num">' + (i + 1) + '</div>' +
+        '<div class="point-title">' + p.title + '</div>' +
+        '<span class="timestamp-badge">' + p.timestamp + '</span>' +
+      '</div>' +
+      '<div class="point-row"><div class="pr-label">観察</div><div class="pr-text">' + p.observation + '</div></div>' +
+      '<div class="point-row"><div class="pr-label">引用</div><div class="pr-text quote">' + p.quote + '</div></div>' +
+      '<div class="point-row"><div class="pr-label">パターン</div><div class="pr-text">' + p.pattern + '</div></div>';
+    gl.appendChild(card);
+  });
+
+  // Bad points
+  const bl = document.getElementById('dealBadList');
+  bl.innerHTML = '';
+  data.bad_points.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'point-card negative';
+    card.innerHTML =
+      '<div class="point-head">' +
+        '<div class="point-num">' + (i + 1) + '</div>' +
+        '<div class="point-title">' + p.title + '</div>' +
+        '<span class="timestamp-badge">' + p.timestamp + '</span>' +
+      '</div>' +
+      '<div class="point-row"><div class="pr-label">観察</div><div class="pr-text">' + p.observation + '</div></div>' +
+      '<div class="point-row"><div class="pr-label">次回ベスト返答</div><div class="pr-text best">' + p.best_response + '</div></div>' +
+      '<div class="point-row"><div class="pr-label">参考</div><div class="pr-text">' + p.peer_reference + '</div></div>';
+    bl.appendChild(card);
+  });
+
+  // Actions
+  const al = document.getElementById('dealActionList');
+  al.innerHTML = '';
+  data.actions.forEach((a) => {
+    const card = document.createElement('div');
+    card.className = 'action-card';
+    const tpl = (a.templates || []).map(t =>
+      '<span class="action-link" onclick="return false;">' + t.icon + ' ' + t.label + '</span>'
+    ).join('');
+    card.innerHTML =
+      '<div class="action-body">' +
+        '<div class="action-title">' + a.title + '</div>' +
+        '<div class="action-desc">' + a.desc + '</div>' +
+        '<div class="action-meta">' +
+          '<span class="action-due">期限：' + a.due + '</span>' +
+          tpl +
+        '</div>' +
+      '</div>' +
+      '<span class="action-priority action-priority-' + a.priority + '">優先度 ' + a.priorityLabel + '</span>';
+    al.appendChild(card);
+  });
+}
+
+function revealDealSections(done) {
+  const cards = document.querySelectorAll('#dealResults .result-card');
+  const INTERVAL = 800;
+  cards.forEach((card, i) => {
+    setTimeout(() => card.classList.add('show'), i * INTERVAL);
+  });
+  setTimeout(() => { if (typeof done === 'function') done(); }, cards.length * INTERVAL + 100);
+}
+
+function resetDeal() {
+  const sel = document.getElementById('dealSelect');
+  if (sel) sel.value = '';
+  const ta = document.getElementById('dealQuery');
+  if (ta) ta.value = '';
+  document.getElementById('dealResults').classList.remove('active');
+  document.querySelectorAll('#dealResults .result-card').forEach(c => c.classList.remove('show'));
+  document.getElementById('dealThinkingArea').classList.remove('active');
+  document.getElementById('dealThinkingSteps').innerHTML = '';
+  dealInProgress = false;
+  const btn = document.getElementById('dealAnalyzeBtn');
+  if (btn) btn.disabled = false;
+  if (sel) sel.focus();
+}
+
+function initDealFromHash() {
+  const raw = location.hash.slice(1);
+  if (!raw) return;
+  const segs = raw.split(/[&?]/);
+  const head = segs[0];
+  const params = {};
+  segs.slice(1).forEach(s => {
+    const [k, v] = s.split('=');
+    if (k) params[k] = v == null ? '' : v;
+  });
+  if (head === 'deal' || head === 'coaching') {
+    showView('deal');
+    if (params.demo === '1') {
+      const key = params.id && dealScenarios[params.id] ? params.id : 'deal_001';
+      const data = dealScenarios[key];
+      const sel = document.getElementById('dealSelect');
+      if (sel) sel.value = key;
+      const ta = document.getElementById('dealQuery');
+      if (ta) ta.value = data.query_example;
+      analyzeDeal({ instant: true });
+    }
+  }
+}
+
+/* Patch initProspectFromHash to dispatch deal/coaching hash to initDealFromHash */
+(function patchInitForDeal() {
+  if (typeof initProspectFromHash !== 'function' || typeof initDealFromHash !== 'function') return;
+  const _origInit = initProspectFromHash;
+  initProspectFromHash = function() {
+    const raw = location.hash.slice(1);
+    const head = raw.split(/[&?]/)[0];
+    if (head === 'deal' || head === 'coaching') {
+      initDealFromHash();
     } else {
       _origInit();
     }
