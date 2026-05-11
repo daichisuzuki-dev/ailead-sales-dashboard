@@ -399,6 +399,72 @@
   .reset-btn { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 16px; font-size: 12px; color: #64748b; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
   .reset-btn:hover { background: #f8fafc; color: #2563eb; border-color: #cbd5e1; }
 
+  /* ===== Group Interactive Search (グループ会社攻略) ===== */
+  #groupResults { display: none; }
+  #groupResults.active { display: block; }
+
+  .subsidiary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+  .subsidiary-card { border-radius: 10px; padding: 14px 16px; border: 1px solid transparent; position: relative; display: flex; flex-direction: column; gap: 6px; min-height: 110px; }
+  .subsidiary-card .sub-status-badge { display: inline-block; align-self: flex-start; font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 10px; letter-spacing: 0.3px; }
+  .subsidiary-card .sub-co-name { font-size: 14px; font-weight: 700; color: #1e293b; line-height: 1.4; margin-top: 2px; }
+  .subsidiary-card .sub-co-meta { font-size: 11px; color: #64748b; line-height: 1.55; }
+  .subsidiary-card .sub-co-kp { font-size: 11px; color: #475569; line-height: 1.5; margin-top: auto; padding-top: 6px; border-top: 1px dashed #e2e8f0; }
+  .subsidiary-card.status-active { background: #ecfdf5; border-color: #bbf7d0; }
+  .subsidiary-card.status-active .sub-status-badge { background: #16a34a; color: #fff; }
+  .subsidiary-card.status-partial { background: #fffbeb; border-color: #fde68a; }
+  .subsidiary-card.status-partial .sub-status-badge { background: #d97706; color: #fff; }
+  .subsidiary-card.status-untapped { background: #f8fafc; border-color: #e2e8f0; }
+  .subsidiary-card.status-untapped .sub-status-badge { background: #94a3b8; color: #fff; }
+  .subsidiary-card.status-untapped .sub-co-name { color: #475569; }
+
+  .sub-legend { display: flex; gap: 14px; margin-bottom: 14px; font-size: 11px; color: #64748b; flex-wrap: wrap; }
+  .sub-legend .lg-pill { display: inline-flex; align-items: center; gap: 5px; }
+  .sub-legend .lg-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+
+  .path-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; background: #fff; transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+  .path-card:hover { border-color: #2563eb; box-shadow: 0 2px 8px rgba(37,99,235,0.08); }
+  .path-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .path-card-num { width: 24px; height: 24px; background: #2563eb; color: #fff; border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .path-card-title { font-size: 13px; font-weight: 700; color: #1e293b; flex: 1; }
+  .path-success { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 10px; }
+  .path-success-high { background: #dcfce7; color: #16a34a; }
+  .path-success-mid { background: #fef3c7; color: #d97706; }
+  .path-success-low { background: #fee2e2; color: #dc2626; }
+
+  .path-flow { display: flex; align-items: stretch; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
+  .path-flow .path-step-box { flex: 1; min-width: 160px; background: #f8fafc; border-radius: 8px; padding: 10px 12px; border-left: 3px solid #2563eb; }
+  .path-flow .path-step-box.start { border-left-color: #16a34a; }
+  .path-flow .path-step-box.relay { border-left-color: #d97706; }
+  .path-flow .path-step-box.target { border-left-color: #2563eb; background: #eff6ff; }
+  .path-flow .step-role { font-size: 10px; color: #94a3b8; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 3px; }
+  .path-flow .step-person { font-size: 12px; color: #1e293b; font-weight: 600; line-height: 1.4; }
+  .path-flow .step-co { font-size: 11px; color: #64748b; margin-top: 2px; }
+  .path-flow .path-flow-arrow { display: flex; align-items: center; color: #94a3b8; font-size: 18px; font-weight: 700; padding: 0 2px; }
+
+  .path-basis { background: #f1f5f9; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #475569; line-height: 1.6; margin-bottom: 8px; }
+  .path-basis .pb-label { font-weight: 700; color: #1e293b; margin-right: 4px; }
+  .path-action { font-size: 12px; color: #334155; line-height: 1.7; padding: 8px 12px; background: #fff; border-left: 3px solid #16a34a; border-radius: 4px; font-style: italic; }
+  .path-ref { font-size: 11px; color: #94a3b8; margin-top: 8px; }
+
+  .doorknock-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; background: #fff; }
+  .doorknock-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .doorknock-num { width: 24px; height: 24px; background: #1d4ed8; color: #fff; border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .doorknock-title { font-size: 14px; font-weight: 700; color: #1e293b; }
+  .doorknock-row { display: grid; grid-template-columns: 90px 1fr; gap: 10px; font-size: 12px; line-height: 1.7; margin-bottom: 6px; }
+  .doorknock-row:last-child { margin-bottom: 0; }
+  .doorknock-row .dk-label { color: #94a3b8; font-weight: 700; font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; }
+  .doorknock-row .dk-text { color: #334155; }
+  .doorknock-row .dk-text.talk { background: #f8fafc; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #1d4ed8; font-style: italic; color: #475569; }
+  .dk-match { display: flex; flex-wrap: wrap; gap: 5px; }
+  .dk-match-tag { background: #ecfdf5; color: #15803d; padding: 3px 9px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+
+  .success-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .success-card { background: #f8fafc; border-radius: 10px; padding: 14px 16px; border-left: 3px solid #16a34a; }
+  .success-card .sc-group { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+  .success-card .sc-meta { font-size: 11px; color: #64748b; margin-bottom: 8px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .success-card .sc-meta span { display: inline-flex; align-items: center; gap: 3px; }
+  .success-card .sc-quote { background: #fff; border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #334155; line-height: 1.6; font-style: italic; border-left: 2px solid #cbd5e1; }
+
 </style>
 </head>
 <body>
@@ -938,248 +1004,85 @@
     <strong>※ サンプルデータ：</strong> 本ダッシュボードはファイナンシャルサービス第一事業部様向けのイメージ共有用Mockです。実データに基づくものではありません。
   </div>
 
-  <!-- Summary Cards -->
-  <div class="summary-cards">
-    <div class="card">
-      <div class="card-label">対象親会社</div>
-      <div class="card-value">8<span class="unit">社</span></div>
+  <div class="ai-search-section">
+    <div class="ai-search-eyebrow">GROUP EXPANSION INTELLIGENCE</div>
+    <div class="ai-search-headline">親会社・グループ名を入力してください</div>
+    <div class="ai-search-sub">既存取引データ・公開IR・過去のグループ横展開事例から、子会社マップ・人付け展開パス・ドアノック商材を一括生成します。</div>
+    <div class="ai-search-row">
+      <textarea id="groupQuery" class="ai-search-input" rows="2" placeholder="例：メガバンクA グループの未開拓子会社を攻めたい。グループ統合データ基盤がIRで言及されている。"></textarea>
+      <button id="groupAnalyzeBtn" class="ai-search-btn" onclick="analyzeGroup()">展開分析開始 →</button>
     </div>
-    <div class="card">
-      <div class="card-label">未開拓グループ会社</div>
-      <div class="card-value">21<span class="unit">社</span></div>
-    </div>
-    <div class="card">
-      <div class="card-label">人付け候補</div>
-      <div class="card-value">14<span class="unit">名</span></div>
-    </div>
-    <div class="card">
-      <div class="card-label">過去成功パターン</div>
-      <div class="card-value">6<span class="unit">件</span></div>
+    <div class="sample-pills">
+      <span class="pill-label">サンプル：</span>
+      <span class="pill" onclick="runGroupSample('megabank_a_group')"><span class="pill-emoji">🏦</span>メガバンクA グループ</span>
+      <span class="pill" onclick="runGroupSample('regional_holdings_b')"><span class="pill-emoji">🏢</span>地銀ホールディングスB</span>
+      <span class="pill" onclick="runGroupSample('insurance_e_holdings')"><span class="pill-emoji">🛡️</span>保険E ホールディングス</span>
+      <span class="pill" onclick="runGroupSample('sonpo_f_group')"><span class="pill-emoji">🌐</span>損保F グループ</span>
+      <span class="pill" onclick="runGroupSample('trust_g_group')"><span class="pill-emoji">💼</span>信託G グループ</span>
     </div>
   </div>
 
-  <!-- Toolbar -->
-  <div class="toolbar">
-    <input type="text" class="search-box" placeholder="グループ名・子会社で検索">
-    <button class="btn-outline">業態フィルター</button>
-    <button class="btn-outline">展開ステータス</button>
-    <button class="btn-primary">攻略パスを再生成</button>
+  <div class="thinking-area" id="groupThinkingArea">
+    <div class="thinking-title"><span class="ai-spinner"></span><span>ailead がグループ展開パスを生成しています...</span></div>
+    <div id="groupThinkingSteps"></div>
   </div>
 
-  <div class="legend-row">
-    <span><span class="lg-dot" style="background:#16a34a;"></span>取引◎ 主要案件あり</span>
-    <span><span class="lg-dot" style="background:#d97706;"></span>取引△ 接点・小規模</span>
-    <span><span class="lg-dot" style="background:#94a3b8;"></span>未開拓</span>
-  </div>
-
-  <!-- Content Grid -->
-  <div class="content-grid">
-    <!-- Group Cards -->
-    <div>
-      <!-- Group 1: メガバンクA -->
-      <div class="group-card">
-        <div class="group-head">
-          <div>
-            <div class="group-name">メガバンクA グループ</div>
-            <div class="group-meta">主要会社 5社 / うち取引あり 2社 / 未開拓 3社</div>
-          </div>
-          <div class="group-progress">グループ網羅率 <span class="pct">40%</span></div>
-        </div>
-
-        <div class="section-label">グループ会社マップ</div>
-        <div class="sub-grid">
-          <div class="sub-cell sub-active">
-            <span class="sub-icon">取引◎</span>
-            <div class="sub-name">A銀行</div>
-            <div class="sub-status">既存 / 桐山担当</div>
-          </div>
-          <div class="sub-cell sub-active">
-            <span class="sub-icon">取引◎</span>
-            <div class="sub-name">A証券</div>
-            <div class="sub-status">既存 / 国分担当</div>
-          </div>
-          <div class="sub-cell sub-warm">
-            <span class="sub-icon">取引△</span>
-            <div class="sub-name">Aカード</div>
-            <div class="sub-status">過去接点1名</div>
-          </div>
-          <div class="sub-cell sub-cold">
-            <span class="sub-icon">未開拓</span>
-            <div class="sub-name">A信託</div>
-            <div class="sub-status">同業X経由で1段</div>
-          </div>
-          <div class="sub-cell sub-cold">
-            <span class="sub-icon">未開拓</span>
-            <div class="sub-name">Aリース</div>
-            <div class="sub-status">人付けなし</div>
-          </div>
-        </div>
-
-        <div class="section-label">人付け展開パス</div>
-        <div class="path-timeline">
-          <div class="path-step">
-            <span class="path-node connected">A銀行・田中課長</span>
-            <span class="path-arrow">→</span>
-            <span class="path-node connected">A銀行・中村部長（IT統括）</span>
-            <span class="path-arrow">→</span>
-            <span class="path-node pending">Aカード・佐藤部長（接点未）</span>
-            <span class="path-arrow">→</span>
-            <span class="path-node pending">A信託・鈴木副部長</span>
-          </div>
-          <div class="path-note">過去類似パターン：メガバンクX → カード子会社で規制対応起点で接点獲得 → 3ヶ月でRFI到達。同条件成立。</div>
-        </div>
-
-        <div class="section-label">推奨アプローチ</div>
-        <div class="approach-text">
-          A銀行の中村部長は2026年3月の商談で「グループ横断のデータ統合に課題感」と発言。本人経由でAカード佐藤部長への紹介依頼が実現性高（過去類似商談 4本中3本で同様の引き継ぎが成立）。Basel III × 不正検知を共通テーマに、グループ会議へ同席提案を打診する流れが推奨。
-        </div>
+  <div id="groupResults">
+    <div class="result-card" id="gc-profile">
+      <div class="card-header">
+        <span class="rc-icon">🌐</span>
+        <span class="rc-title">親会社プロファイル</span>
+        <span class="rc-sub">IR・有報・グループ報からの集約</span>
       </div>
-
-      <!-- Group 2: 大手地銀B -->
-      <div class="group-card">
-        <div class="group-head">
-          <div>
-            <div class="group-name">大手地銀B 持株グループ</div>
-            <div class="group-meta">主要会社 4社 / うち取引あり 1社 / 未開拓 2社</div>
-          </div>
-          <div class="group-progress">グループ網羅率 <span class="pct">25%</span></div>
-        </div>
-
-        <div class="section-label">グループ会社マップ</div>
-        <div class="sub-grid">
-          <div class="sub-cell sub-active">
-            <span class="sub-icon">取引◎</span>
-            <div class="sub-name">B銀行</div>
-            <div class="sub-status">既存 / 国分担当</div>
-          </div>
-          <div class="sub-cell sub-warm">
-            <span class="sub-icon">取引△</span>
-            <div class="sub-name">B証券</div>
-            <div class="sub-status">小規模案件あり</div>
-          </div>
-          <div class="sub-cell sub-cold">
-            <span class="sub-icon">未開拓</span>
-            <div class="sub-name">Bカード</div>
-            <div class="sub-status">人付けなし</div>
-          </div>
-          <div class="sub-cell sub-cold">
-            <span class="sub-icon">未開拓</span>
-            <div class="sub-name">B保証</div>
-            <div class="sub-status">同業Y経由で1段</div>
-          </div>
-          <div class="sub-cell" style="background:transparent;"></div>
-        </div>
-
-        <div class="section-label">人付け展開パス</div>
-        <div class="path-timeline">
-          <div class="path-step">
-            <span class="path-node connected">B銀行・山下次長</span>
-            <span class="path-arrow">→</span>
-            <span class="path-node connected">B持株会社・小川企画役員</span>
-            <span class="path-arrow">→</span>
-            <span class="path-node pending">B証券・井上部長（接点弱）</span>
-            <span class="path-arrow">→</span>
-            <span class="path-node pending">Bカード・大西部長</span>
-          </div>
-          <div class="path-note">山下次長との直近商談（5/5）で「持株3社統合のデータ基盤検討」と発言。小川役員主催のグループDX会議への参加打診が直近の最短経路。</div>
-        </div>
-
-        <div class="section-label">推奨アプローチ</div>
-        <div class="approach-text">
-          持株会社化後の3社統合データ基盤を切り口に、B銀行 山下次長から小川役員への進言を依頼。グループDX会議で当社主導の構想を提示する流れが、Bカード／B保証への横展開最短ルート（過去類似 2件で平均4.5ヶ月で全社接点獲得）。
-        </div>
-      </div>
-
-      <!-- Group 3: 保険E -->
-      <div class="group-card">
-        <div class="group-head">
-          <div>
-            <div class="group-name">保険E ホールディングス</div>
-            <div class="group-meta">主要会社 6社 / うち取引あり 1社 / 未開拓 4社</div>
-          </div>
-          <div class="group-progress">グループ網羅率 <span class="pct">17%</span></div>
-        </div>
-
-        <div class="section-label">グループ会社マップ</div>
-        <div class="sub-grid">
-          <div class="sub-cell sub-active">
-            <span class="sub-icon">取引◎</span>
-            <div class="sub-name">E生命</div>
-            <div class="sub-status">既存 / 早瀬担当</div>
-          </div>
-          <div class="sub-cell sub-warm">
-            <span class="sub-icon">取引△</span>
-            <div class="sub-name">E損保</div>
-            <div class="sub-status">過去接点2名</div>
-          </div>
-          <div class="sub-cell sub-cold">
-            <span class="sub-icon">未開拓</span>
-            <div class="sub-name">Eアセット</div>
-            <div class="sub-status">人付けなし</div>
-          </div>
-          <div class="sub-cell sub-cold">
-            <span class="sub-icon">未開拓</span>
-            <div class="sub-name">E少額短期</div>
-            <div class="sub-status">人付けなし</div>
-          </div>
-          <div class="sub-cell sub-cold">
-            <span class="sub-icon">未開拓</span>
-            <div class="sub-name">E海外</div>
-            <div class="sub-status">人付けなし</div>
-          </div>
-        </div>
-
-        <div class="section-label">人付け展開パス</div>
-        <div class="path-timeline">
-          <div class="path-step">
-            <span class="path-node connected">E生命・林部長</span>
-            <span class="path-arrow">→</span>
-            <span class="path-node pending">E損保・松井課長（弱接点）</span>
-            <span class="path-arrow">→</span>
-            <span class="path-node pending">Eアセット・木下部長</span>
-          </div>
-          <div class="path-note">E生命 林部長は「損保・アセットとの基盤共通化を本部で議論中」と発言。AIモデルガバナンスを共通テーマとして提案する流れが推奨。</div>
-        </div>
-
-        <div class="section-label">推奨アプローチ</div>
-        <div class="approach-text">
-          AIモデルガバナンス（IFRS17・経済価値ベースSII対応）を共通テーマに、E生命起点でホールディングス本部のIT統括役員への紹介を打診。生損保横断のPoCを最初の一歩として位置づける。
-        </div>
-      </div>
+      <div class="profile-grid" id="groupProfileGrid"></div>
     </div>
 
-    <!-- Right: Best Practices -->
-    <div>
-      <div class="insight-panel">
-        <div class="insight-title">グループ展開ベストプラクティス <span class="ai-badge">AI生成</span></div>
-        <div class="insight-ts">2026/05/10 09:00 / 過去6件の成功パターンを抽出</div>
-
-        <div class="bp-card">
-          <span class="bp-tag">成功事例 / 銀行→カード</span>
-          <div class="bp-title">メガバンクX → カード子会社</div>
-          <div class="bp-text">規制対応（PCI-DSS／3Dセキュア）を起点にカード子会社CTOへの紹介を獲得。3ヶ月でRFI、6ヶ月で受注。鍵は「グループ規制対応の本部横串会議」への同席提案。</div>
-        </div>
-
-        <div class="bp-card">
-          <span class="bp-tag">成功事例 / 持株→子会社2社</span>
-          <div class="bp-title">地銀Y持株 → 証券・カード横展開</div>
-          <div class="bp-text">持株IT統括役員へのデータ基盤共通化提案が起点。3社統合PoCで4.5ヶ月で全子会社接点獲得。営業同行は所長＋本部役員の二段構え。</div>
-        </div>
-
-        <div class="bp-card">
-          <span class="bp-tag">成功事例 / 生保→損保</span>
-          <div class="bp-title">保険Z生命 → 損保・アセット</div>
-          <div class="bp-text">経済価値ベースSII対応を共通テーマとして提示。生保部長から本部役員への進言→グループ会議への招待→損保・アセット部長への紹介、というルートで7ヶ月で全社接点。</div>
-        </div>
-
-        <div class="bp-card">
-          <span class="bp-tag">失敗パターン</span>
-          <div class="bp-title">単発の機能提案で頭打ち</div>
-          <div class="bp-text">既存子会社のみへの単発機能提案では、本部・他子会社へ波及しない傾向。<strong>グループ全体の規制／統合テーマへ抽象化して提示</strong>することが成功と失敗を分ける最大要因。</div>
-        </div>
+    <div class="result-card" id="gc-map">
+      <div class="card-header">
+        <span class="rc-icon">🗺️</span>
+        <span class="rc-title">グループ会社マップ</span>
+        <span class="rc-sub">取引ステータスと推定キーパーソン</span>
       </div>
+      <div class="sub-legend">
+        <span class="lg-pill"><span class="lg-dot" style="background:#16a34a;"></span>取引◎ 主要案件あり</span>
+        <span class="lg-pill"><span class="lg-dot" style="background:#d97706;"></span>取引△ 接点・小規模</span>
+        <span class="lg-pill"><span class="lg-dot" style="background:#94a3b8;"></span>未開拓</span>
+      </div>
+      <div class="subsidiary-grid" id="subsidiaryGrid"></div>
+    </div>
+
+    <div class="result-card" id="gc-paths">
+      <div class="card-header">
+        <span class="rc-icon">🔗</span>
+        <span class="rc-title">人付け展開パス Top 3</span>
+        <span class="rc-sub">起点 → 中継 → ターゲット</span>
+      </div>
+      <div id="groupPathList"></div>
+    </div>
+
+    <div class="result-card" id="gc-doorknock">
+      <div class="card-header">
+        <span class="rc-icon">💼</span>
+        <span class="rc-title">推奨ドアノック商材 3案</span>
+        <span class="rc-sub">グループ共通テーマで切る</span>
+      </div>
+      <div id="groupDoorknockList"></div>
+    </div>
+
+    <div class="result-card" id="gc-success">
+      <div class="card-header">
+        <span class="rc-icon">📈</span>
+        <span class="rc-title">類似グループでの成功パターン</span>
+        <span class="rc-sub">過去FS1案件から類似度抽出</span>
+      </div>
+      <div class="success-grid" id="groupSuccessGrid"></div>
+    </div>
+
+    <div class="reset-bar">
+      <button class="reset-btn" onclick="resetGroup()">↺ 別のグループで分析しなおす</button>
     </div>
   </div>
+
 </div>
 <!-- END VIEW: GROUP -->
 
@@ -1961,6 +1864,641 @@ function initProspectFromHash() {
 document.addEventListener('DOMContentLoaded', () => {
   initProspectFromHash();
 });
+
+
+
+/* ============================================================ */
+/* ===== Group Interactive Agent ============================== */
+/* ============================================================ */
+
+const groupScenarios = {
+  megabank_a_group: {
+    query_example: 'メガバンクA グループの未開拓子会社を攻めたい。グループ統合データ基盤がIRで言及されている。',
+    profile: {
+      group_name: 'メガバンクA グループ',
+      industry: 'メガバンク／金融持株会社',
+      structure: '銀行・信託・証券・カード・リース・アセマネの6本柱',
+      ir_keywords: ['グループ統合経営', '横断データ基盤', '金融プラットフォーム化', 'グループDX'],
+      budget: '年100〜200億円規模のグループ総枠（持株経営企画が配分）',
+      kdm: 'グループCDO／持株経営企画部長／各子会社IT統括役員'
+    },
+    subsidiaries: [
+      { name: 'A銀行', status: 'active', meta: '月3商談・年商10億級', kp: '既存KP：田中課長／中村部長（IT統括）' },
+      { name: 'A信託', status: 'partial', meta: '年2-3商談・潜在', kp: '既存接点：遠野次長（資産運用ライン）' },
+      { name: 'A証券', status: 'active', meta: '月1商談・年商5億級', kp: '既存KP：山田次長（リテール戦略）' },
+      { name: 'Aカード', status: 'untapped', meta: '未開拓', kp: '佐藤部長（推定／不正対策ライン）' },
+      { name: 'Aリース', status: 'untapped', meta: '未開拓', kp: '小林課長（推定／システム企画）' },
+      { name: 'Aアセマネ', status: 'partial', meta: '年1商談・潜在', kp: '吉田部長（運用商品企画）' }
+    ],
+    paths: [
+      {
+        title: 'A銀行 → Aカード（規制連携起点）',
+        success: '高',
+        start: { role: '起点（既存接点）', person: 'A銀行 田中課長', co: '法人営業部／月3商談中' },
+        relay: { role: '中継', person: 'A銀行 中村部長', co: 'IT統括／グループ横断会議参加' },
+        target: { role: 'ターゲット', person: 'Aカード 佐藤部長（推定）', co: '不正対策推進部' },
+        basis: '銀行→カード子会社の送客連携機運が直近のIRで明示。グループ統合データ基盤の議論枠で接続可能。',
+        action: '「中村部長、グループ統合データ基盤の議題でAカード様の不正検知ラインに合流できる機会はありませんか？」',
+        ref: '類似：メガバンクX→カード子会社で12ヶ月3社契約（規制対応起点）'
+      },
+      {
+        title: 'A証券 → Aアセマネ（運用商品共同企画）',
+        success: '中',
+        start: { role: '起点（既存接点）', person: 'A証券 山田次長', co: 'リテール戦略部／月1商談中' },
+        relay: { role: '中継', person: 'A証券 商品開発部・大津部長', co: 'リテール商品企画' },
+        target: { role: 'ターゲット', person: 'Aアセマネ 吉田部長', co: '運用商品企画／年1接点あり' },
+        basis: '証券×アセマネの運用商品共同企画はIR言及あり。山田次長は商品開発との横連携窓口になり得る。',
+        action: '「山田様、Aアセマネ吉田様との運用商品共同企画ラインで、データ基盤の論点を持ち込めるタイミングはありますか？」',
+        ref: '類似：金融グループZ アセマネ→信託の運用連携で10ヶ月2社契約'
+      },
+      {
+        title: '持株経営企画 → A信託（グループDX横断）',
+        success: '中',
+        start: { role: '起点（既存接点）', person: '持株経営企画 鈴木部長', co: 'グループ持株会社／四半期に1接点' },
+        relay: { role: '中継', person: '持株IT統括役員', co: 'グループCDO配下' },
+        target: { role: 'ターゲット', person: 'A信託 遠野次長', co: '資産運用ライン／年2-3接点' },
+        basis: 'グループDX横断テーマは持株主導で動く。経営企画→IT統括→子会社部長の縦線がFS1類似案件で最短実績。',
+        action: '「鈴木部長、グループDX横断の場でA信託様の資産運用ラインを巻き込んだ議論をご一緒できますか？」',
+        ref: '類似：銀行系コングロY 持株起点の横展開で18ヶ月5社契約'
+      }
+    ],
+    doorknock: [
+      {
+        title: 'グループ横断データ統合基盤',
+        hypothesis: '各子会社が個別最適でデータ基盤を持つ非効率。持株主導の統合基盤化がIR言及テーマ。',
+        match: ['A銀行', 'A信託', 'A証券', 'Aカード', 'Aリース', 'Aアセマネ'],
+        talk: '「グループ各社のデータ基盤、いま何系統並走していますか？統合基盤化で投資配分の最適化が見込めます」'
+      },
+      {
+        title: '金融プラットフォーム化AI',
+        hypothesis: '銀行・信託・証券の顧客接点を共通AIで横断するプラットフォーム構想。次期中計の柱に乗せやすい。',
+        match: ['A銀行', 'A信託', 'A証券'],
+        talk: '「金融プラットフォーム化、お客様接点側はどこまで横串設計ですか？AIレイヤーで縫う構想を持ち込めます」'
+      },
+      {
+        title: 'グループ営業最適化',
+        hypothesis: '銀行→カード→リースの送客フローを商談データで可視化し、グループLTV最大化を狙う。',
+        match: ['A銀行', 'Aカード', 'Aリース'],
+        talk: '「銀行→カード→リースの送客、いま定量で見えていますか？商談データの横断で送客効率の地図化が可能です」'
+      }
+    ],
+    success_patterns: [
+      { group: 'メガバンクX グループ', period: '12ヶ月', scale: '3社契約', quote: '銀行入口の規制対応案件 → 3ヶ月でカード子会社CTOへ紹介 → 半年で証券子会社へ波及。' },
+      { group: '銀行系コングロY', period: '18ヶ月', scale: '5社契約', quote: '持株経営企画への提案が起点。グループDX会議への同席が決まった瞬間に5社への接続線が一気に開通。' },
+      { group: '金融グループZ', period: '10ヶ月', scale: '2社契約', quote: 'アセマネ→信託の運用連携テーマを共通議論にしたことで、運用商品レイヤーで2社同時受注。' },
+      { group: '大手金融W', period: '14ヶ月', scale: '4社契約', quote: '統合データ基盤を「中計の数値目標」として位置づけ直したことで、本部役員が4社合同検討を主導。' }
+    ]
+  },
+  regional_holdings_b: {
+    query_example: '地銀ホールディングスB の3行統合データ基盤テーマで未開拓子会社を攻めたい。',
+    profile: {
+      group_name: '地銀ホールディングスB',
+      industry: '地方銀行ホールディングス／3行統合体',
+      structure: 'B第1銀行・B第2銀行・B第3銀行・Bカード・B証券の5本柱',
+      ir_keywords: ['3行統合DX', '地域経済プラットフォーム', '持株経営強化', 'グループ与信統合'],
+      budget: '年30〜60億円規模／統合シナジー枠あり',
+      kdm: '持株経営企画部長／3行IT統括役員（持株配下）'
+    },
+    subsidiaries: [
+      { name: 'B第1銀行', status: 'active', meta: '月1商談・年商3億級', kp: '既存KP：大野部長（営業企画）' },
+      { name: 'B第2銀行', status: 'partial', meta: '年2商談・潜在', kp: '接点：野村次長（システム企画）' },
+      { name: 'B第3銀行', status: 'untapped', meta: '未開拓', kp: '伊川部長（推定／企画統括）' },
+      { name: 'Bカード', status: 'untapped', meta: '未開拓', kp: '山本課長（推定／不正対策）' },
+      { name: 'B証券', status: 'partial', meta: '年1商談', kp: '接点：中田課長（リテール商品）' }
+    ],
+    paths: [
+      {
+        title: 'B第1銀行 → B第3銀行（統合機運での横断）',
+        success: '高',
+        start: { role: '起点（既存接点）', person: 'B第1銀行 大野部長', co: '営業企画部／月1商談中' },
+        relay: { role: '中継', person: '持株経営企画', co: '3行統合プロジェクト室' },
+        target: { role: 'ターゲット', person: 'B第3銀行 伊川部長（推定）', co: '企画統括部' },
+        basis: '3行統合DXは持株主導で動く。第1行の大野部長は統合PJ参加が見込まれ、横断議論への同席が現実的。',
+        action: '「大野様、3行統合データ基盤の議論で第3銀行様の企画ラインを巻き込む段取りに合流できませんか？」',
+        ref: '類似：地銀ホールディングスW で3行統合テーマで14ヶ月3行同時受注'
+      },
+      {
+        title: '持株経営企画 → Bカード幹部',
+        success: '中',
+        start: { role: '起点（既存接点）', person: '持株経営企画・宮本副部長', co: 'グループ持株会社／半期に1接点' },
+        relay: { role: '中継', person: '持株経営企画 統合戦略担当', co: 'グループシナジー検討室' },
+        target: { role: 'ターゲット', person: 'Bカード 山本課長（推定）', co: '不正対策ライン' },
+        basis: 'カード子会社は3行統合シナジーの最初の受益子会社として持株が位置づけ中。経営企画からの紹介が最短。',
+        action: '「宮本様、グループシナジー検討の一環でBカード様に統合データ起点の議論を持ち込める枠はありますか？」',
+        ref: '類似：地銀ホールディングスV 持株→カードで8ヶ月接続'
+      },
+      {
+        title: 'B第1銀行・中堅 → B証券・若手',
+        success: '中',
+        start: { role: '起点（既存接点）', person: 'B第1銀行 高見係長', co: 'リテール推進部／週次接点' },
+        relay: { role: '中継', person: 'B第1銀行 リテール本部長', co: '銀証連携プロジェクト主管' },
+        target: { role: 'ターゲット', person: 'B証券 中田課長', co: 'リテール商品・年1接点あり' },
+        basis: '銀証連携PJが直近IRで言及。現場の高見係長から本部長経由でB証券へつなぐ縦線が他社で成立した実績あり。',
+        action: '「高見様、銀証連携PJの本部長会議で当社の商談可視化テーマを話題に出していただけませんか？」',
+        ref: '類似：地銀U 銀証連携起点で6ヶ月2社接続'
+      }
+    ],
+    doorknock: [
+      {
+        title: '3行統合データ基盤',
+        hypothesis: '3行ごとに別々のデータ系統が並走。持株主導の統合基盤化は次期中計の必須テーマ。',
+        match: ['B第1銀行', 'B第2銀行', 'B第3銀行'],
+        talk: '「3行のデータ系統、統合のロードマップは中計に書かれていますか？基盤統合の標準モデルをご提示できます」'
+      },
+      {
+        title: '地域DXプラットフォーム',
+        hypothesis: '地域経済プラットフォーム化はIRで継続言及。地方公共・中小企業との連携基盤を商談データで設計可能。',
+        match: ['B第1銀行', 'B第2銀行', 'B第3銀行', 'Bカード'],
+        talk: '「地域DXプラットフォーム、各行で個別に動いていませんか？グループ標準を作る段階で介入できます」'
+      },
+      {
+        title: 'グループ与信モデル統合AI',
+        hypothesis: '3行で与信モデルが別々。法人ポートフォリオの統合で精度+15%が他社で実現済み。',
+        match: ['B第1銀行', 'B第2銀行', 'B第3銀行', 'Bカード'],
+        talk: '「与信モデル、3行で個別チューニングですよね？統合データで再学習する選択肢はご検討されていますか？」'
+      }
+    ],
+    success_patterns: [
+      { group: '地銀ホールディングスW', period: '14ヶ月', scale: '3行同時受注', quote: '統合PJ室への提案が起点。3行のシステム企画部を同時に巻き込めたことが決定的。' },
+      { group: '地銀ホールディングスV', period: '8ヶ月', scale: '持株＋1社契約', quote: '持株経営企画への単独提案からスタート。カード子会社への横展開で2社目を獲得。' },
+      { group: '地銀U', period: '6ヶ月', scale: '銀行＋証券契約', quote: '銀証連携PJの本部長会議で当社事例を提示。証券子会社への紹介が翌月に実現。' }
+    ]
+  },
+  insurance_e_holdings: {
+    query_example: '保険E ホールディングスでALMグループ統合テーマを切り口に未開拓子会社を攻めたい。',
+    profile: {
+      group_name: '保険E ホールディングス',
+      industry: '保険持株会社／生損保コングロ',
+      structure: 'E生保・E損保・Eカード・E運用・Eヘルスケアの5本柱',
+      ir_keywords: ['ALMグループ統合', 'ICS準備', 'ヘルスケア新事業', 'グループリスク横断'],
+      budget: '年20〜40億円規模／ICS対応の追加投資枠あり',
+      kdm: 'グループCRO／持株IT統括役員／生保リスク管理部長'
+    },
+    subsidiaries: [
+      { name: 'E生保', status: 'active', meta: '月2商談・年商4億級', kp: '既存KP：桜井部長（リスク管理）' },
+      { name: 'E損保', status: 'partial', meta: '年2商談・潜在', kp: '接点：大津部長（統合リスク本部）' },
+      { name: 'Eカード', status: 'untapped', meta: '未開拓', kp: '平岡部長（推定／決済企画）' },
+      { name: 'E運用', status: 'untapped', meta: '未開拓', kp: '橋本課長（推定／運用システム）' },
+      { name: 'Eヘルスケア', status: 'untapped', meta: '未開拓', kp: '新事業統括（推定）' }
+    ],
+    paths: [
+      {
+        title: 'E生保 → E損保（ALM統合起点）',
+        success: '高',
+        start: { role: '起点（既存接点）', person: 'E生保 桜井部長', co: 'リスク管理部／月2商談中' },
+        relay: { role: '中継', person: 'E持株 CRO配下', co: 'グループリスク統括' },
+        target: { role: 'ターゲット', person: 'E損保 大津部長', co: '統合リスク本部／年2接点あり' },
+        basis: 'ALMグループ統合はICS準備の本命テーマ。桜井部長は持株CRO配下のグループ横断会議に参加実績あり。',
+        action: '「桜井様、ALMグループ統合の議論でE損保様の統合リスク本部と当社事例を共有できる場はありますか？」',
+        ref: '類似：保険Z 生保→損保で7ヶ月2社受注'
+      },
+      {
+        title: 'E生保 → Eカード（決済×保険データ連携）',
+        success: '中',
+        start: { role: '起点（既存接点）', person: 'E生保 マーケ本部・国分次長', co: 'デジタル戦略／隔月接点' },
+        relay: { role: '中継', person: '持株デジタル戦略室', co: 'グループ横断データ施策' },
+        target: { role: 'ターゲット', person: 'Eカード 平岡部長（推定）', co: '決済企画' },
+        basis: '保険×決済の購買データ連携はホールディングス内シナジーの未開拓領域。デジタル戦略室経由が現実的。',
+        action: '「国分様、購買データを保険商品設計に活かす議論でEカード様の決済企画と接続できる導線はありますか？」',
+        ref: '類似：保険コングロT 生保×カードで11ヶ月2社契約'
+      },
+      {
+        title: 'E運用 → Eヘルスケア',
+        success: '低',
+        start: { role: '起点（弱接点）', person: 'E運用 名刺接点のみ', co: '運用システム部' },
+        relay: { role: '中継', person: '持株新事業推進室', co: 'ヘルスケア戦略' },
+        target: { role: 'ターゲット', person: 'Eヘルスケア 新事業統括', co: '立ち上げ期' },
+        basis: '新事業ヘルスケアは外部接点が少なく、まず持株新事業推進室との関係構築が前提。長期戦覚悟が必要。',
+        action: '「持株新事業推進室の月次定例にゲスト参加の打診から始めるのが、現実的な接点づくりです」',
+        ref: '類似：保険S 新事業×運用で14ヶ月接続（接続まで時間要）'
+      }
+    ],
+    doorknock: [
+      {
+        title: 'ALMグループ統合',
+        hypothesis: '生保・損保のALMモデルが別系統で運用。ICS本適用前に統合する圧力が持株CRO配下で高まる。',
+        match: ['E生保', 'E損保', 'E運用'],
+        talk: '「ALM、生損保で別モデルですよね？ICS本適用前にグループ統合する想定スケジュールはありますか？」'
+      },
+      {
+        title: 'グループリスク横断管理',
+        hypothesis: 'リスク管理を子会社単独でなく持株横串で見る潮流。当社の統合リスク基盤は他社4社で稼働実績。',
+        match: ['E生保', 'E損保', 'E運用'],
+        talk: '「グループリスク、いま持株でどこまで吸い上げられていますか？横串基盤の標準モデルをご提示できます」'
+      },
+      {
+        title: 'ヘルスケア × 保険データ統合',
+        hypothesis: '新事業ヘルスケアのデータと既存保険データの統合は新事業立ち上げの肝。先行PoCの座を取れる。',
+        match: ['Eヘルスケア', 'E生保', 'E損保'],
+        talk: '「ヘルスケア新事業のデータ設計、既存の保険データとの統合は誰が見ていますか？早期にPoCで型作りが可能です」'
+      }
+    ],
+    success_patterns: [
+      { group: '保険Z ホールディングス', period: '7ヶ月', scale: '2社契約', quote: '生保リスク管理部発の議論を持株CRO会議に持ち込んだ瞬間、損保子会社のリスク本部から声がかかった。' },
+      { group: '保険コングロT', period: '11ヶ月', scale: '2社契約', quote: '購買データ×保険のクロス分析PoCをデジタル戦略室と組成。半年でカード子会社の決済企画と本契約。' },
+      { group: '保険S', period: '14ヶ月', scale: '新事業＋既存契約', quote: '新事業ヘルスケアへの参画から始め、結果的に既存運用システム側のリプレース案件も同時獲得。' }
+    ]
+  },
+  sonpo_f_group: {
+    query_example: '損保F グループの海外展開と少額短期保険ラインを攻めたい。ICS準備中。',
+    profile: {
+      group_name: '損保F グループ',
+      industry: '損害保険持株会社／海外損保含む',
+      structure: 'F損保・F生保・海外F損保・F少額短期保険の4本柱',
+      ir_keywords: ['海外損保強化', 'ICS準備', 'ストレステスト統合', '少額短期事業拡大'],
+      budget: '年25〜50億円規模／海外展開枠あり',
+      kdm: 'グループCRO／海外事業統括役員／持株経営企画'
+    },
+    subsidiaries: [
+      { name: 'F損保', status: 'active', meta: '月2商談・年商5億級', kp: '既存KP：田島部長（リスク管理）' },
+      { name: 'F生保', status: 'partial', meta: '年2商談・潜在', kp: '接点：早瀬次長（数理ライン）' },
+      { name: '海外F損保', status: 'untapped', meta: '未開拓', kp: '駐在役員（推定）' },
+      { name: 'F少額短期', status: 'untapped', meta: '未開拓', kp: '黒田部長（推定／システム企画）' }
+    ],
+    paths: [
+      {
+        title: 'F損保 → 海外F損保（ストレステスト統合起点）',
+        success: '中',
+        start: { role: '起点（既存接点）', person: 'F損保 田島部長', co: 'リスク管理部／月2商談中' },
+        relay: { role: '中継', person: '海外事業統括役員', co: '持株海外事業ライン' },
+        target: { role: 'ターゲット', person: '海外F損保 駐在役員', co: '現地リスク管理統括' },
+        basis: 'ICS準備で国内損保のストレステスト基盤と海外損保の整合が議題化。海外事業統括への接続が起点になる。',
+        action: '「田島様、ICS準備でストレステスト統合の議論があれば、海外損保様との接続の場をご一緒できますか？」',
+        ref: '類似：損保R 国内→海外で12ヶ月接続'
+      },
+      {
+        title: 'F損保 → F少額短期',
+        success: '中',
+        start: { role: '起点（既存接点）', person: 'F損保 田島部長', co: 'リスク管理部' },
+        relay: { role: '中継', person: 'F持株 新事業統括', co: '少額短期事業の親管掌' },
+        target: { role: 'ターゲット', person: 'F少額短期 黒田部長（推定）', co: 'システム企画' },
+        basis: '少額短期事業の拡大はIR言及あり。リスク管理基盤を持株側で標準化する流れに乗せやすい。',
+        action: '「田島様、少額短期事業のリスク管理基盤の標準化議論で当社事例を入れる枠はありますか？」',
+        ref: '類似：損保Q 本体→少額短期で9ヶ月接続'
+      },
+      {
+        title: 'F生保 → 海外F損保（数理連携）',
+        success: '低',
+        start: { role: '起点（弱接点）', person: 'F生保 早瀬次長', co: '数理ライン／年2接点' },
+        relay: { role: '中継', person: 'F持株 グループ数理委員会', co: '生損海外の数理横串組織' },
+        target: { role: 'ターゲット', person: '海外F損保 駐在役員', co: '現地リスク管理' },
+        basis: 'グループ数理委員会経由は理論的に成立するが、早瀬次長の影響範囲が限定的で中継強度が低い。',
+        action: '「早瀬様、グループ数理委員会の議題に入れるテーマがあれば、海外損保様と当社の接点づくりに使えませんか？」',
+        ref: '類似：保険P 数理経由で18ヶ月接続（時間要）'
+      }
+    ],
+    doorknock: [
+      {
+        title: '海外展開支援基盤',
+        hypothesis: '国内ノウハウを海外損保に移植する基盤化はICS準備と並走できる。海外駐在役員の説得材料に。',
+        match: ['F損保', '海外F損保'],
+        talk: '「海外損保様への国内ノウハウ移植、いま属人化していませんか？基盤化で再現性ある展開が可能です」'
+      },
+      {
+        title: 'グループストレステスト統合',
+        hypothesis: '国内損保・海外損保・少額短期で別々に走るストレステスト基盤を持株横串で統合する構想。',
+        match: ['F損保', 'F生保', '海外F損保', 'F少額短期'],
+        talk: '「ストレステスト、いま何系統並走していますか？ICS本適用前に統合する標準モデルをお持ちです」'
+      },
+      {
+        title: 'ICS準備スイート',
+        hypothesis: 'ICS本適用前のラスト1年で持株主導の投資が動く。複数子会社への一括導入の絶好機。',
+        match: ['F損保', 'F生保', '海外F損保'],
+        talk: '「ICS、本適用までのギャップ分析は終わっていますか？グループ単位でやり切るパッケージをご提示できます」'
+      }
+    ],
+    success_patterns: [
+      { group: '損保R グループ', period: '12ヶ月', scale: '国内＋海外2社', quote: 'ストレステスト統合を切り口に、国内→海外損保へ展開。海外駐在役員との接続が4ヶ月目で実現。' },
+      { group: '損保Q グループ', period: '9ヶ月', scale: '本体＋少額短期', quote: '本体リスク管理から少額短期への接続を持株新事業統括経由で実現。基盤標準化の建付けがハマった。' },
+      { group: '保険P', period: '18ヶ月', scale: '生保＋数理委員会経由', quote: 'グループ数理委員会経由は時間がかかるが、最終的に複数子会社が同時にPoC化したケース。' }
+    ]
+  },
+  trust_g_group: {
+    query_example: '信託G グループでアセマネ・不動産REITラインを攻めたい。相続承継案件も増えている。',
+    profile: {
+      group_name: '信託G グループ',
+      industry: '信託金融グループ／アセマネ・不動産含む',
+      structure: 'G信託・G銀行・Gアセマネ・G不動産の4本柱',
+      ir_keywords: ['受託資産拡大', 'グループ運用統合', '相続・承継ソリューション', '不動産REIT強化'],
+      budget: '年15〜30億円規模／受託資産連動の追加投資枠',
+      kdm: 'グループ運用統括役員／持株経営企画／信託CTO'
+    },
+    subsidiaries: [
+      { name: 'G信託', status: 'active', meta: '月2商談・年商4億級', kp: '既存KP：結城部長（資産運用ソリューション）' },
+      { name: 'G銀行', status: 'partial', meta: '年2商談・潜在', kp: '接点：浅野次長（リテール）' },
+      { name: 'Gアセマネ', status: 'partial', meta: '年1商談', kp: '接点：鈴鹿課長（運用商品）' },
+      { name: 'G不動産', status: 'untapped', meta: '未開拓', kp: '大野部長（推定／REIT戦略）' }
+    ],
+    paths: [
+      {
+        title: 'G信託 → Gアセマネ（運用統合起点）',
+        success: '高',
+        start: { role: '起点（既存接点）', person: 'G信託 結城部長', co: '資産運用ソリューション部／月2商談中' },
+        relay: { role: '中継', person: 'グループ運用統括役員', co: '持株運用ライン' },
+        target: { role: 'ターゲット', person: 'Gアセマネ 鈴鹿課長', co: '運用商品ライン／年1接点あり' },
+        basis: '受託資産拡大のIRトーン下で、信託×アセマネの運用商品横断は最有望テーマ。結城部長の影響範囲内。',
+        action: '「結城様、運用統括役員主催の運用商品横断会議でGアセマネ様と当社事例の共有を進められませんか？」',
+        ref: '類似：信託J ESG運用基盤で9ヶ月2社契約'
+      },
+      {
+        title: 'G銀行 → G不動産（REIT起点）',
+        success: '中',
+        start: { role: '起点（既存接点)', person: 'G銀行 浅野次長', co: 'リテール部／隔月接点' },
+        relay: { role: '中継', person: 'G銀行 不動産金融部', co: '銀行内のREIT管掌' },
+        target: { role: 'ターゲット', person: 'G不動産 大野部長（推定）', co: 'REIT戦略' },
+        basis: '不動産REIT強化は中計の柱。銀行内の不動産金融部が銀→不動産子会社の自然な橋渡し。',
+        action: '「浅野様、不動産金融部からG不動産様REIT戦略部への接続でAI不動産評価の議論を入れていただけませんか？」',
+        ref: '類似：信託L 銀行→不動産で11ヶ月2社契約'
+      },
+      {
+        title: '持株経営企画 → G信託（相続承継テーマで横展開拡大）',
+        success: '中',
+        start: { role: '起点（既存接点）', person: '持株経営企画', co: '半期に1接点' },
+        relay: { role: '中継', person: 'グループ承継ソリューション本部', co: '相続・承継横断組織' },
+        target: { role: 'ターゲット', person: 'G信託 結城部長', co: '既存顧客／拡大余地あり' },
+        basis: '既存接点の結城部長の管掌領域を相続・承継ラインまで広げる戦略。経営企画経由で正規ルート化。',
+        action: '「経営企画様、相続承継ソリューションの議論でG信託様の結城部長と再度ご一緒する枠を作れませんか？」',
+        ref: '類似：信託K 経営企画→既存部署の拡大で7ヶ月案件深耕'
+      }
+    ],
+    doorknock: [
+      {
+        title: '不動産AI評価基盤',
+        hypothesis: 'REIT強化下で不動産評価の自動化・標準化はGアセマネ／G不動産で共通課題。',
+        match: ['G不動産', 'Gアセマネ', 'G信託'],
+        talk: '「不動産評価、いま何営業日かかっていますか？AI評価基盤でREITの組成回転を上げる事例があります」'
+      },
+      {
+        title: 'グループ運用統合',
+        hypothesis: '信託・アセマネで運用基盤が別。受託資産拡大に対応する横断統合は次期中計の目玉。',
+        match: ['G信託', 'Gアセマネ', 'G銀行'],
+        talk: '「受託資産拡大、運用基盤は信託とアセマネで別ですよね？統合で運用商品の組成スピードが上がります」'
+      },
+      {
+        title: '相続・承継ソリューション',
+        hypothesis: '相続承継は信託本業×銀行リテール×不動産の三位一体で組成可能。グループ横串の典型例。',
+        match: ['G信託', 'G銀行', 'G不動産'],
+        talk: '「相続承継、信託・銀行・不動産で別々の窓口になっていませんか？お客様体験を統合する設計が可能です」'
+      }
+    ],
+    success_patterns: [
+      { group: '信託J', period: '9ヶ月', scale: '信託＋アセマネ', quote: '運用商品横断会議への同席が決まった瞬間、ESG運用基盤の議論で2社同時に意思決定が動いた。' },
+      { group: '信託L', period: '11ヶ月', scale: '銀行＋不動産', quote: '銀行の不動産金融部経由で不動産子会社へ。REIT組成スピードが受注の決め手になった。' },
+      { group: '信託K', period: '7ヶ月', scale: '既存深耕', quote: '相続承継テーマで既存信託部署の予算枠を3倍に拡大。横展開の前にまず深耕で成果を作った典型例。' }
+    ]
+  }
+};
+
+function matchGroupScenario(query) {
+  if (!query) return 'megabank_a_group';
+  const q = query.toLowerCase();
+  const rules = [
+    { key: 'megabank_a_group',     words: ['メガバンク', 'グループ統合', '金融プラットフォーム', 'a グループ', 'aグループ'] },
+    { key: 'regional_holdings_b',  words: ['地銀ホールディングス', '3行統合', '地銀グループ', '地方銀行', 'bホールディングス'] },
+    { key: 'insurance_e_holdings', words: ['保険ホールディングス', '生損保', '保険持株', 'e ホールディングス', 'eホールディングス', 'alm'] },
+    { key: 'sonpo_f_group',        words: ['損保', '海外', 'ics', 'f グループ', 'fグループ'] },
+    { key: 'trust_g_group',        words: ['信託グループ', 'アセマネ', '不動産', 'reit', 'g グループ', 'gグループ', '承継'] }
+  ];
+  for (const r of rules) {
+    for (const w of r.words) {
+      if (q.includes(w.toLowerCase())) return r.key;
+    }
+  }
+  return 'megabank_a_group';
+}
+
+const GROUP_THINKING_STEPS = [
+  '親会社・子会社の関係性を解析中...',
+  '既存取引データから接点を洗い出し中...',
+  '人付け展開パスを過去事例から抽出中...',
+  '推奨ドアノック商材を選定中...',
+  '類似グループでの成功パターンを照合中...'
+];
+
+let groupInProgress = false;
+
+function runGroupSample(key) {
+  const data = groupScenarios[key];
+  if (!data) return;
+  const ta = document.getElementById('groupQuery');
+  if (ta) ta.value = data.query_example;
+  analyzeGroup();
+}
+
+function analyzeGroup(opts) {
+  if (groupInProgress) return;
+  const ta = document.getElementById('groupQuery');
+  const query = ta ? ta.value.trim() : '';
+  const key = matchGroupScenario(query);
+  const data = groupScenarios[key];
+  const instant = opts && opts.instant === true;
+  groupInProgress = true;
+
+  const btn = document.getElementById('groupAnalyzeBtn');
+  if (btn) btn.disabled = true;
+
+  const results = document.getElementById('groupResults');
+  results.classList.remove('active');
+  document.querySelectorAll('#groupResults .result-card').forEach(c => c.classList.remove('show'));
+
+  const thinking = document.getElementById('groupThinkingArea');
+  const stepsEl = document.getElementById('groupThinkingSteps');
+  stepsEl.innerHTML = '';
+
+  if (instant) {
+    thinking.classList.remove('active');
+    renderGroupData(data);
+    results.classList.add('active');
+    document.querySelectorAll('#groupResults .result-card').forEach(c => c.classList.add('show'));
+    groupInProgress = false;
+    if (btn) btn.disabled = false;
+    return;
+  }
+
+  thinking.classList.add('active');
+  streamGroupThinking(GROUP_THINKING_STEPS, () => {
+    setTimeout(() => {
+      thinking.classList.remove('active');
+      renderGroupData(data);
+      results.classList.add('active');
+      revealGroupSections(() => {
+        groupInProgress = false;
+        if (btn) btn.disabled = false;
+      });
+    }, 350);
+  });
+}
+
+function streamGroupThinking(steps, done) {
+  const stepsEl = document.getElementById('groupThinkingSteps');
+  stepsEl.innerHTML = '';
+  steps.forEach((text, i) => {
+    const div = document.createElement('div');
+    div.className = 'thinking-step pending';
+    div.id = 'grpStep-' + i;
+    div.innerHTML = '<span class="step-mark">⏳</span><span class="step-text">' + text + '</span>';
+    stepsEl.appendChild(div);
+  });
+  const STEP_DELAY = 750;
+  steps.forEach((_, i) => {
+    setTimeout(() => {
+      const el = document.getElementById('grpStep-' + i);
+      if (el) el.classList.add('visible');
+    }, i * STEP_DELAY + 50);
+    setTimeout(() => {
+      const el = document.getElementById('grpStep-' + i);
+      if (el) {
+        el.classList.remove('pending');
+        el.classList.add('done');
+        const mark = el.querySelector('.step-mark');
+        if (mark) mark.textContent = '✓';
+      }
+    }, i * STEP_DELAY + STEP_DELAY - 100);
+  });
+  setTimeout(() => { if (typeof done === 'function') done(); }, steps.length * STEP_DELAY + 200);
+}
+
+function renderGroupData(data) {
+  const pg = document.getElementById('groupProfileGrid');
+  pg.innerHTML = '';
+  const cells = [
+    { label: '対象グループ', value: data.profile.group_name },
+    { label: '業種・領域', value: data.profile.industry },
+    { label: 'グループ構成', value: data.profile.structure, full: true },
+    { label: 'IRキーワード', value: data.profile.ir_keywords.map(k => '<span class="ir-tag">' + k + '</span>').join(''), html: true, full: true },
+    { label: '推定総予算枠', value: data.profile.budget },
+    { label: '主要意思決定者', value: data.profile.kdm }
+  ];
+  cells.forEach(c => {
+    const cell = document.createElement('div');
+    cell.className = 'profile-cell' + (c.full ? ' full' : '');
+    cell.innerHTML = '<div class="pc-label">' + c.label + '</div>' +
+      '<div class="pc-value">' + (c.html ? '<div class="ir-tags">' + c.value + '</div>' : c.value) + '</div>';
+    pg.appendChild(cell);
+  });
+
+  const sg = document.getElementById('subsidiaryGrid');
+  sg.innerHTML = '';
+  const statusLabel = { active: '取引◎', partial: '取引△', untapped: '未開拓' };
+  data.subsidiaries.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'subsidiary-card status-' + s.status;
+    card.innerHTML =
+      '<span class="sub-status-badge">' + statusLabel[s.status] + '</span>' +
+      '<div class="sub-co-name">' + s.name + '</div>' +
+      '<div class="sub-co-meta">' + s.meta + '</div>' +
+      '<div class="sub-co-kp">' + s.kp + '</div>';
+    sg.appendChild(card);
+  });
+
+  const pl = document.getElementById('groupPathList');
+  pl.innerHTML = '';
+  data.paths.forEach((p, i) => {
+    const successClass = p.success === '高' ? 'path-success-high' : (p.success === '中' ? 'path-success-mid' : 'path-success-low');
+    const card = document.createElement('div');
+    card.className = 'path-card';
+    card.innerHTML =
+      '<div class="path-card-head">' +
+        '<div class="path-card-num">' + (i + 1) + '</div>' +
+        '<div class="path-card-title">' + p.title + '</div>' +
+        '<span class="path-success ' + successClass + '">成功確度 ' + p.success + '</span>' +
+      '</div>' +
+      '<div class="path-flow">' +
+        '<div class="path-step-box start"><div class="step-role">' + p.start.role + '</div><div class="step-person">' + p.start.person + '</div><div class="step-co">' + p.start.co + '</div></div>' +
+        '<div class="path-flow-arrow">→</div>' +
+        '<div class="path-step-box relay"><div class="step-role">' + p.relay.role + '</div><div class="step-person">' + p.relay.person + '</div><div class="step-co">' + p.relay.co + '</div></div>' +
+        '<div class="path-flow-arrow">→</div>' +
+        '<div class="path-step-box target"><div class="step-role">' + p.target.role + '</div><div class="step-person">' + p.target.person + '</div><div class="step-co">' + p.target.co + '</div></div>' +
+      '</div>' +
+      '<div class="path-basis"><span class="pb-label">根拠：</span>' + p.basis + '</div>' +
+      '<div class="path-action">' + p.action + '</div>' +
+      '<div class="path-ref">' + p.ref + '</div>';
+    pl.appendChild(card);
+  });
+
+  const dl = document.getElementById('groupDoorknockList');
+  dl.innerHTML = '';
+  data.doorknock.forEach((d, i) => {
+    const matches = d.match.map(m => '<span class="dk-match-tag">' + m + '</span>').join('');
+    const card = document.createElement('div');
+    card.className = 'doorknock-card';
+    card.innerHTML =
+      '<div class="doorknock-head"><div class="doorknock-num">' + (i + 1) + '</div><div class="doorknock-title">' + d.title + '</div></div>' +
+      '<div class="doorknock-row"><div class="dk-label">仮説</div><div class="dk-text">' + d.hypothesis + '</div></div>' +
+      '<div class="doorknock-row"><div class="dk-label">子会社マッチ</div><div class="dk-text"><div class="dk-match">' + matches + '</div></div></div>' +
+      '<div class="doorknock-row"><div class="dk-label">トーク冒頭</div><div class="dk-text talk">' + d.talk + '</div></div>';
+    dl.appendChild(card);
+  });
+
+  const ssg = document.getElementById('groupSuccessGrid');
+  ssg.innerHTML = '';
+  data.success_patterns.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'success-card';
+    card.innerHTML =
+      '<div class="sc-group">' + s.group + '</div>' +
+      '<div class="sc-meta"><span>展開期間：' + s.period + '</span><span>受注規模：' + s.scale + '</span></div>' +
+      '<div class="sc-quote">' + s.quote + '</div>';
+    ssg.appendChild(card);
+  });
+}
+
+function revealGroupSections(done) {
+  const cards = document.querySelectorAll('#groupResults .result-card');
+  const INTERVAL = 800;
+  cards.forEach((card, i) => {
+    setTimeout(() => card.classList.add('show'), i * INTERVAL);
+  });
+  setTimeout(() => { if (typeof done === 'function') done(); }, cards.length * INTERVAL + 100);
+}
+
+function resetGroup() {
+  const ta = document.getElementById('groupQuery');
+  if (ta) ta.value = '';
+  document.getElementById('groupResults').classList.remove('active');
+  document.querySelectorAll('#groupResults .result-card').forEach(c => c.classList.remove('show'));
+  document.getElementById('groupThinkingArea').classList.remove('active');
+  document.getElementById('groupThinkingSteps').innerHTML = '';
+  groupInProgress = false;
+  const btn = document.getElementById('groupAnalyzeBtn');
+  if (btn) btn.disabled = false;
+  if (ta) ta.focus();
+}
+
+function initGroupFromHash() {
+  const raw = location.hash.slice(1);
+  if (!raw) return;
+  const segs = raw.split(/[&?]/);
+  const head = segs[0];
+  if (head !== 'group') return;
+  const params = {};
+  segs.slice(1).forEach(s => {
+    const [k, v] = s.split('=');
+    if (k) params[k] = v == null ? '' : v;
+  });
+  showView('group');
+  if (params.demo === '1') {
+    const sampleKey = params.sample && groupScenarios[params.sample] ? params.sample : 'megabank_a_group';
+    const data = groupScenarios[sampleKey];
+    const ta = document.getElementById('groupQuery');
+    if (ta) ta.value = data.query_example;
+    analyzeGroup({ instant: true });
+  }
+}
+
+(function patchInitForGroup() {
+  if (typeof initProspectFromHash !== 'function') return;
+  const _origInit = initProspectFromHash;
+  initProspectFromHash = function() {
+    const raw = location.hash.slice(1);
+    const head = raw.split(/[&?]/)[0];
+    if (head === 'group') {
+      initGroupFromHash();
+    } else {
+      _origInit();
+    }
+  };
+})();
 
 </script>
 
