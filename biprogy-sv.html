@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<title>ailead Sales Dashboard - BIPROGY SV事業部 営業推進室</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif; background: #f5f6fa; color: #333; display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar { width: 220px; background: #fff; border-right: 1px solid #e8e8e8; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 0; position: fixed; height: 100vh; z-index: 10; }
+  .sidebar-logo { padding: 0 20px; margin-bottom: 28px; display: flex; align-items: center; gap: 10px; }
+  .sidebar-logo svg { width: 28px; height: 28px; }
+  .sidebar-logo .logo-text { font-size: 18px; font-weight: 700; color: #106CFF; }
+  .sidebar-logo .logo-sub { font-size: 11px; color: #94a3b8; display: block; margin-top: 2px; }
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav li { padding: 10px 20px; font-size: 14px; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+  .sidebar-nav li.active { color: #106CFF; background: #eff6ff; border-right: 3px solid #106CFF; font-weight: 600; }
+  .sidebar-nav li:hover { background: #f8fafc; }
+  .sidebar-nav li svg { width: 18px; height: 18px; }
+  .sidebar-bottom { padding: 0 20px; }
+  .sidebar-client { display: flex; align-items: center; gap: 8px; padding: 12px 0; border-top: 1px solid #e8e8e8; }
+  .sidebar-client-icon { width: 32px; height: 32px; background: #6366f1; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+  .sidebar-client-name { font-size: 12px; color: #334155; font-weight: 600; line-height: 1.3; }
+  .sidebar-client-sub { font-size: 10px; color: #94a3b8; }
+  .sidebar-account { display: flex; align-items: center; gap: 8px; padding-top: 12px; font-size: 13px; color: #64748b; cursor: pointer; }
+  .sidebar-account svg { width: 18px; height: 18px; }
+  .back-to-top { display: inline-flex; align-items: center; gap: 6px; margin: 4px 20px 12px; font-size: 11px; color: #94a3b8; text-decoration: none; border: 1px solid #e2e8f0; padding: 5px 10px; border-radius: 6px; background: #f8fafc; }
+  .back-to-top:hover { color: #106CFF; border-color: #cbd5e1; }
+
+  /* Main */
+  .main { margin-left: 220px; flex: 1; padding: 32px 40px; }
+  .page-title { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+  .page-title .pill { background: #e0e7ff; color: #4f46e5; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 10px; }
+  .page-desc { font-size: 12px; color: #94a3b8; margin-bottom: 20px; }
+
+  /* Summary Cards */
+  .summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .card { background: #fff; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .card-label { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+  .card-value { font-size: 32px; font-weight: 700; color: #1e293b; }
+  .card-value .unit { font-size: 14px; font-weight: 400; color: #94a3b8; margin-left: 2px; }
+  .card-value .sub { font-size: 14px; font-weight: 400; color: #94a3b8; }
+  .card-trend { font-size: 11px; color: #0ac274; margin-top: 4px; }
+  .card-trend.neutral { color: #94a3b8; }
+
+  /* Toolbar */
+  .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-box { flex: 1; max-width: 260px; padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; outline: none; background: #fff; }
+  .search-box:focus { border-color: #106CFF; }
+  .btn-outline { padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #fff; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .btn-outline:hover { background: #f8fafc; }
+  .filter-chip { padding: 4px 12px; border-radius: 14px; font-size: 11px; border: 1px solid #e2e8f0; color: #64748b; background: #fff; cursor: pointer; }
+  .filter-chip.active { background: #eff6ff; border-color: #106CFF; color: #106CFF; font-weight: 600; }
+
+  /* Table */
+  .table-wrap { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { text-align: left; padding: 12px 14px; color: #94a3b8; font-weight: 500; font-size: 11px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; cursor: pointer; user-select: none; }
+  thead th:hover { color: #64748b; }
+  thead th .sort-icon { display: inline-block; margin-left: 4px; font-size: 10px; }
+  tbody td { padding: 12px 14px; border-bottom: 1px solid #f8fafc; white-space: nowrap; font-size: 12px; }
+  tbody tr:hover { background: #fafbfd; }
+  .member-name { color: #106CFF; font-weight: 500; }
+  .member-name a { color: inherit; text-decoration: none; cursor: pointer; }
+  .member-name a:hover { text-decoration: underline; }
+  .link-icon { font-size: 10px; color: #94a3b8; margin-left: 4px; }
+
+  /* Grade badge */
+  .grade { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 24px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+  .grade-s  { background: #dcfce7; color: #16a34a; }
+  .grade-a  { background: #dbeafe; color: #106CFF; }
+  .grade-b-plus { background: #e0f2fe; color: #0284c7; }
+  .grade-b  { background: #fef3c7; color: #d97706; }
+  .grade-b-minus { background: #fed7aa; color: #ea580c; }
+  .grade-c  { background: #fee2e2; color: #dc2626; }
+
+  /* Recommendation badge */
+  .rec-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .rec-yes { background: #dcfce7; color: #16a34a; }
+  .rec-hold { background: #fef3c7; color: #d97706; }
+  .rec-no { background: #fee2e2; color: #dc2626; }
+
+  .score { font-weight: 600; }
+  .ratio { color: #64748b; }
+  .deal-name { color: #475569; font-size: 12px; }
+  .deal-date { color: #94a3b8; font-size: 11px; }
+
+  /* Prompt tag */
+  .prompt-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+  .tag-p1 { background: #eff6ff; color: #106CFF; }
+  .tag-p2 { background: #f5f3ff; color: #7c3aed; }
+
+  /* Access control badge */
+  .access-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; border: 1px solid; }
+  .access-restricted { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+  .access-team { background: #f0f9ff; color: #0369a1; border-color: #bae6fd; }
+  .access-public { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+  .access-badge svg { width: 10px; height: 10px; }
+
+  /* ===== Report Page ===== */
+  .page { display: none; }
+  .page.active { display: block; }
+  .report-section { background: #fff; border-radius: 12px; padding: 24px 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 20px; }
+  .report-section-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .report-summary-text { font-size: 13px; color: #475569; line-height: 1.8; }
+  .report-summary-text li { margin-bottom: 6px; }
+  .report-kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 12px; }
+  .report-kpi-card { background: #f8fafc; border-radius: 10px; padding: 18px; text-align: center; }
+  .report-kpi-label { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
+  .report-kpi-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+  .report-kpi-value .kpi-unit { font-size: 13px; font-weight: 400; color: #94a3b8; }
+  .ai-insight { background: #eff6ff; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
+  .ai-insight-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #106CFF; color: #fff; border-radius: 50%; font-size: 11px; font-weight: 700; margin-right: 8px; }
+  .ai-insight-text { font-size: 13px; color: #334155; line-height: 1.7; display: inline; }
+  .ai-badge { display: inline-block; background: #dbeafe; color: #106CFF; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-bottom: 12px; }
+  .ai-timestamp { font-size: 11px; color: #94a3b8; margin-bottom: 16px; }
+  .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .chart-container { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .chart-title { font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 16px; }
+  .heatmap-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .heatmap-table th { padding: 8px 10px; text-align: left; color: #94a3b8; font-weight: 500; border-bottom: 1px solid #f1f5f9; font-size: 11px; }
+  .heatmap-table td { padding: 8px 10px; border-bottom: 1px solid #f8fafc; }
+  .heatmap-cell { display: inline-block; width: 38px; height: 24px; border-radius: 4px; text-align: center; line-height: 24px; font-weight: 600; font-size: 11px; }
+  .heat-5 { background: #dcfce7; color: #16a34a; }
+  .heat-4 { background: #dbeafe; color: #106CFF; }
+  .heat-3 { background: #fef3c7; color: #d97706; }
+  .heat-2 { background: #fed7aa; color: #ea580c; }
+  .heat-1 { background: #fee2e2; color: #dc2626; }
+  .heatmap-name { color: #334155; font-weight: 500; font-size: 12px; }
+  .heatmap-avg { font-size: 11px; color: #94a3b8; font-weight: 500; }
+
+  /* Knowledge page */
+  .knowledge-intro { background: #eff6ff; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; border-left: 4px solid #106CFF; }
+  .knowledge-intro-title { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+  .knowledge-intro-text { font-size: 12px; color: #475569; line-height: 1.7; }
+  .phrase-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .phrase-card { background: #f8fafc; border-radius: 10px; padding: 14px 16px; border: 1px solid #e2e8f0; }
+  .phrase-cat { display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 3px; margin-bottom: 8px; }
+  .phrase-text { font-size: 13px; color: #1e293b; font-weight: 600; line-height: 1.6; margin-bottom: 8px; font-style: italic; }
+  .phrase-meta { font-size: 11px; color: #64748b; line-height: 1.5; }
+  .phrase-meta strong { color: #334155; }
+  .pattern-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 22px; margin-bottom: 12px; }
+  .pattern-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .pattern-num { display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; background: #106CFF; color:#fff; border-radius: 50%; font-size: 12px; font-weight: 700; }
+  .pattern-title { font-size: 14px; font-weight: 700; color: #1e293b; }
+  .pattern-owner { margin-left: auto; font-size: 11px; color: #94a3b8; }
+  .pattern-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+  .pattern-step { background: #f8fafc; border-radius: 8px; padding: 10px 12px; position: relative; }
+  .pattern-step-num { font-size: 10px; color: #94a3b8; font-weight: 600; margin-bottom: 4px; }
+  .pattern-step-text { font-size: 11px; color: #334155; line-height: 1.5; }
+  .pattern-step::after { content: '→'; position: absolute; right: -10px; top: 50%; transform: translateY(-50%); color: #cbd5e1; font-size: 14px; z-index: 1; }
+  .pattern-step:last-child::after { content: ''; }
+  .partner-board { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+  .partner-flow { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; }
+  .partner-flow-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 12px; }
+  .partner-flow-row:last-child { border-bottom: none; }
+  .partner-icon { width: 36px; height: 36px; border-radius: 8px; display:flex; align-items:center; justify-content:center; color:#fff; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .partner-icon-sv { background: #6366f1; }
+  .partner-icon-agent { background: #d97706; }
+  .partner-icon-end { background: #16a34a; }
+  .partner-flow-label { flex:1; color: #334155; font-weight: 600; }
+  .partner-flow-sub { color: #94a3b8; font-size: 11px; margin-top: 2px; }
+  .partner-status { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 20px; }
+  .partner-status-title { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 12px; }
+  .partner-step { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 12px; border-bottom: 1px dashed #f1f5f9; }
+  .partner-step:last-child { border-bottom: none; }
+  .partner-step-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .partner-step-done { background: #16a34a; }
+  .partner-step-active { background: #d97706; box-shadow: 0 0 0 4px rgba(217,119,6,0.15); }
+  .partner-step-todo { background: #cbd5e1; }
+  .partner-step-text { color: #334155; }
+  .partner-step-text.done { color: #94a3b8; text-decoration: line-through; }
+  .deploy-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .deploy-table th { text-align: left; padding: 10px 12px; color: #94a3b8; font-weight: 500; font-size: 11px; border-bottom: 1px solid #f1f5f9; }
+  .deploy-table td { padding: 12px; border-bottom: 1px solid #f8fafc; }
+  .deploy-status { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .deploy-status-going { background: #dcfce7; color: #16a34a; }
+  .deploy-status-prep { background: #fef3c7; color: #d97706; }
+  .deploy-status-idea { background: #e2e8f0; color: #64748b; }
+
+  /* Category cards (2軸別) */
+  .category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 8px; }
+  .category-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 20px; position:relative; }
+  .category-card.cat-new { border-left: 4px solid #106CFF; }
+  .category-card.cat-existing { border-left: 4px solid #16a34a; }
+  .category-card.cat-partner { border-left: 4px solid #d97706; }
+  .category-tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; margin-bottom: 8px; }
+  .cat-tag-new { background: #eff6ff; color: #106CFF; }
+  .cat-tag-existing { background: #f0fdf4; color: #16a34a; }
+  .cat-tag-partner { background: #fffbeb; color: #d97706; }
+  .category-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 10px; }
+  .category-stats { display:flex; gap: 14px; margin-bottom: 10px; }
+  .category-stat-block { font-size: 11px; color: #94a3b8; }
+  .category-stat-value { font-size: 18px; font-weight: 700; color: #1e293b; display:block; }
+  .category-model { font-size: 12px; color: #475569; line-height: 1.6; padding-top: 8px; border-top: 1px solid #f1f5f9; }
+  .category-model strong { color: #1e293b; }
+
+  /* Prompt info cards */
+  .prompt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .prompt-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 22px; }
+  .prompt-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .prompt-card-tag { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
+  .prompt-card-title { font-size: 15px; font-weight: 700; color: #1e293b; }
+  .prompt-card-desc { font-size: 12px; color: #64748b; line-height: 1.6; margin-bottom: 12px; }
+  .prompt-axis-list { list-style: none; }
+  .prompt-axis-list li { font-size: 12px; color: #334155; padding: 5px 0; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; }
+  .prompt-axis-list li:first-child { border-top: none; }
+  .axis-score { font-weight: 700; color: #106CFF; }
+
+  /* ===== Detail Panel ===== */
+  .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 100; }
+  .overlay.active { display: block; }
+  .detail-panel { display: none; position: fixed; top: 0; right: 0; width: 600px; height: 100vh; background: #fff; z-index: 200; box-shadow: -4px 0 24px rgba(0,0,0,0.1); overflow-y: auto; }
+  .detail-panel.active { display: block; }
+  .detail-header { padding: 24px 28px 16px; border-bottom: 1px solid #f1f5f9; }
+  .detail-header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .detail-member-name { font-size: 18px; font-weight: 700; color: #1e293b; }
+  .detail-deal-name { font-size: 12px; color: #64748b; margin-top: 4px; }
+  .detail-header-actions { display: flex; gap: 8px; }
+  .detail-btn { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid #e2e8f0; background: #fff; color: #106CFF; }
+  .detail-btn:hover { background: #eff6ff; }
+  .detail-btn-close { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid #e2e8f0; background: #fff; color: #64748b; }
+  .detail-btn-close:hover { background: #f8fafc; }
+
+  .detail-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 20px 28px; border-bottom: 1px solid #f1f5f9; }
+  .detail-card { text-align: center; }
+  .detail-card-label { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
+  .detail-card-value { font-size: 24px; font-weight: 700; color: #1e293b; }
+  .detail-card-value .d-unit { font-size: 12px; font-weight: 400; color: #94a3b8; }
+  .detail-card-value .d-grade { font-size: 20px; }
+  .detail-card-value .d-rec { font-size: 13px; }
+
+  .radar-section { padding: 20px 28px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: center; }
+  .radar-wrap { width: 360px; height: 360px; }
+
+  .detail-section { padding: 20px 28px; border-bottom: 1px solid #f1f5f9; }
+  .detail-section-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 16px; }
+  .detail-section-sub { font-size: 11px; color: #94a3b8; font-weight: 500; margin: 6px 0 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .criteria-card { background: #f8fafc; border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
+  .criteria-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .criteria-name { font-size: 13px; font-weight: 600; color: #334155; }
+  .criteria-right { display: flex; align-items: center; gap: 8px; }
+  .criteria-score { font-size: 14px; font-weight: 700; color: #1e293b; }
+  .criteria-block { margin-bottom: 10px; }
+  .criteria-block:last-child { margin-bottom: 0; }
+  .criteria-label { font-size: 11px; font-weight: 600; color: #94a3b8; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .criteria-text { font-size: 13px; color: #475569; line-height: 1.6; }
+  .criteria-quote { font-size: 13px; color: #64748b; line-height: 1.6; font-style: italic; background: #fff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #e2e8f0; }
+
+  .comment-block { margin-bottom: 14px; }
+  .comment-block:last-child { margin-bottom: 0; }
+  .comment-label { font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 6px; }
+  .comment-text { font-size: 13px; color: #334155; line-height: 1.7; }
+  .comment-positive { border-left: 3px solid #16a34a; padding-left: 12px; }
+  .comment-negative { border-left: 3px solid #dc2626; padding-left: 12px; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div>
+    <div class="sidebar-logo">
+      <div>
+        <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#106CFF"/><path d="M10 22V12l6-4 6 4v10" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 22v-5h4v5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <span class="logo-text">ailead</span>
+        <span class="logo-sub">Sales Dashboard</span>
+      </div>
+    </div>
+    <a href="#" class="back-to-top">← 一覧に戻る</a>
+    <ul class="sidebar-nav">
+      <li class="active" id="nav-list" onclick="showPage('list')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"/></svg>
+        商談一覧
+      </li>
+      <li id="nav-report" onclick="showPage('report')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm8-3a1 1 0 00-1 1v3a1 1 0 00.293.707l2 2a1 1 0 001.414-1.414L11 10.586V8a1 1 0 00-1-1z"/></svg>
+        レポート
+      </li>
+      <li id="nav-knowledge" onclick="showPage('knowledge')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 00-1 1v1H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V6a2 2 0 00-2-2h-2V3a1 1 0 00-1-1H9zm0 5a1 1 0 100 2 1 1 0 000-2zm-3 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm0 4a1 1 0 011-1h4a1 1 0 110 2H7a1 1 0 01-1-1z"/></svg>
+        型・ナレッジ
+      </li>
+    </ul>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="sidebar-client">
+      <div class="sidebar-client-icon">SV</div>
+      <div>
+        <div class="sidebar-client-name">BIPROGY株式会社</div>
+        <div class="sidebar-client-sub">SV事業部 営業推進室</div>
+      </div>
+    </div>
+    <div class="sidebar-account">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+      アカウント
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+
+<!-- ===== LIST PAGE ===== -->
+<div class="page active" id="page-list">
+  <div class="page-title">商談一覧 <span class="pill">SV事業部 営業推進室</span></div>
+  <div class="page-desc">「ソリューションセールス基礎」「型化への素材抽出」2プロンプトで自動評価された営業推進室の商談ログ</div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="card">
+      <div class="card-label">総商談数（営業推進室発足後）</div>
+      <div class="card-value">38<span class="unit">件</span></div>
+      <div class="card-trend neutral">2026/04/01〜 累計</div>
+    </div>
+    <div class="card">
+      <div class="card-label">平均総合スコア</div>
+      <div class="card-value">3.5<span class="sub"> /5.0</span></div>
+      <div class="card-trend">▲ 直近2週 +0.3</div>
+    </div>
+    <div class="card">
+      <div class="card-label">次回商談化率</div>
+      <div class="card-value">47<span class="unit">%</span></div>
+      <div class="card-trend neutral">データ蓄積中</div>
+    </div>
+    <div class="card">
+      <div class="card-label">AIフィードバック実行数</div>
+      <div class="card-value">26<span class="unit">件</span></div>
+      <div class="card-trend">直近7日: 9件</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <input type="text" class="search-box" placeholder="メンバー名／商談名で検索">
+    <span class="filter-chip active">全て</span>
+    <span class="filter-chip">既存ソリューション拡販</span>
+    <span class="filter-chip">新規面開拓</span>
+    <span class="filter-chip">販売代理店</span>
+    <span class="filter-chip">要観察</span>
+    <button class="btn-outline" style="margin-left:auto;">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      CSVエクスポート
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>メンバー <span class="sort-icon">↕</span></th>
+          <th>商談名</th>
+          <th>商談日時 <span class="sort-icon">↕</span></th>
+          <th>公開範囲</th>
+          <th>プロンプト</th>
+          <th>総合 <span class="sort-icon">↕</span></th>
+          <th>スコア</th>
+          <th>業務フロー理解</th>
+          <th>横展開シグナル検知</th>
+          <th>ソリューション仮説</th>
+          <th>共通言語獲得</th>
+          <th>顧客発話</th>
+          <th>次提案フック</th>
+          <th>話者比率</th>
+          <th>推薦</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+<!-- END LIST PAGE -->
+
+<!-- ===== REPORT PAGE ===== -->
+<div class="page" id="page-report">
+  <div class="page-title">レポート <span class="pill">SV事業部 営業推進室</span></div>
+  <div class="page-desc">営業推進室発足後・6メンバー・38商談の集計インサイト（2026-04-01 〜 2026-05-20）</div>
+
+  <div class="report-section">
+    <div class="report-section-title">サマリー</div>
+    <ul class="report-summary-text">
+      <li>メンバーの<strong>33%が優秀評価</strong>（6名中2名）— 新規面開拓・既存拡販それぞれにモデル成立</li>
+      <li>総合スコア: 平均 <strong>3.5</strong> / 中央値 3.4（範囲: 2.9 - 4.2）</li>
+      <li><strong>顧客業務フロー理解力が最も高評価</strong>（平均3.7）、<strong>共通言語の獲得が最も改善余地あり</strong>（平均2.8）</li>
+      <li>話者比率の平均は<strong>45.8%</strong>（理想範囲: 30-40%）— SI営業出身者ほど話しすぎ傾向</li>
+      <li>「次の提案フック獲得」スコアと次回商談化率に強い正の相関（r=0.71）</li>
+      <li>要観察 3名、要改善 1名</li>
+    </ul>
+  </div>
+
+  <div class="report-section">
+    <div class="report-section-title">商談カテゴリ別集計（営業推進室の2軸構造）</div>
+    <div style="font-size:12px;color:#64748b;margin-bottom:14px;line-height:1.6;">営業推進室の2軸構造（新規面開拓／既存ソリューション拡販）と、追加軸となる販売代理店展開の3カテゴリで集計。各カテゴリでモデル商談が成立しているかを可視化。</div>
+    <div class="category-grid">
+      <div class="category-card cat-new">
+        <span class="category-tag cat-tag-new">新規面開拓</span>
+        <div class="category-title">新規面開拓</div>
+        <div class="category-stats">
+          <div class="category-stat-block">商談数<span class="category-stat-value">18件</span></div>
+          <div class="category-stat-block">平均スコア<span class="category-stat-value">3.5</span></div>
+          <div class="category-stat-block">担当<span class="category-stat-value">3名</span></div>
+        </div>
+        <div class="category-model"><strong>型モデル: メンバー1</strong>（4.2／話者比率33.5%）<br>業務フロー深掘り→顧客の言葉で課題発話→次フック獲得</div>
+      </div>
+      <div class="category-card cat-existing">
+        <span class="category-tag cat-tag-existing">既存ソリューション拡販</span>
+        <div class="category-title">既存ソリューション拡販</div>
+        <div class="category-stats">
+          <div class="category-stat-block">商談数<span class="category-stat-value">15件</span></div>
+          <div class="category-stat-block">平均スコア<span class="category-stat-value">3.6</span></div>
+          <div class="category-stat-block">担当<span class="category-stat-value">2名</span></div>
+        </div>
+        <div class="category-model"><strong>型モデル: メンバー2</strong>（4.0／話者比率36.2%）<br>既存運用の振り返り→更改ではなく拡張への仮説転換</div>
+      </div>
+      <div class="category-card cat-partner">
+        <span class="category-tag cat-tag-partner">販売代理店展開</span>
+        <div class="category-title">販売代理店展開</div>
+        <div class="category-stats">
+          <div class="category-stat-block">商談数<span class="category-stat-value">5件</span></div>
+          <div class="category-stat-block">平均スコア<span class="category-stat-value">2.9</span></div>
+          <div class="category-stat-block">担当<span class="category-stat-value">1名</span></div>
+        </div>
+        <div class="category-model"><strong>型モデル: 未確立</strong>（メンバー6が立ち上げ中）<br>営業推進室着想: 代理店経由のエンドユーザー支援にailead紹介</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:#94a3b8;margin-top:14px;line-height:1.6;">▶ 新規面開拓・既存拡販はモデル成立、販売代理店展開は型未確立。ナレッジページ「販売代理店展開ロードマップ」で次の打ち手を整理。</div>
+  </div>
+
+  <div class="report-section">
+    <div class="report-section-title">AI分析インサイト</div>
+    <div class="ai-badge">AI生成</div>
+    <div class="ai-timestamp">2026/05/22 08:00 生成</div>
+
+    <div class="ai-insight">
+      <span class="ai-insight-num">1</span>
+      <span class="ai-insight-text"><strong>顧客業務フロー理解力（平均3.7）</strong>は営業推進室最大の強み。「お客様の業務内容や業務フローをしっかりケアリングして次の案件につなげる」という営業推進室の方針が浸透しつつあり、SI営業出身メンバーの業務理解の深さが寄与している。一方で<strong>聞き出した業務フロー情報を横展開のフックに繋げる動線が弱い</strong>ため、業務フロー理解→横展開シグナル検知への連携設計が次の打ち手として有効。</span>
+    </div>
+    <div class="ai-insight">
+      <span class="ai-insight-num">2</span>
+      <span class="ai-insight-text"><strong>共通言語の獲得（平均2.8）</strong>は6軸中最も低く、「うまくいったフレーズ・言葉の使い方をチームで共有できていない」という営業推進室の課題感が定量的にも裏付けられている。メンバー1の研修畑文脈での『業務影響を顧客の口で語らせる』フレーズ群は再現性が高く、<strong>営業推進室の共通言語ライブラリの第一弾</strong>として抽出・配布する価値が高い。</span>
+    </div>
+    <div class="ai-insight">
+      <span class="ai-insight-num">3</span>
+      <span class="ai-insight-text">話者比率40%以下のメンバー（2名）は平均総合スコア<strong>4.0</strong>、40%超（4名）は平均<strong>3.1</strong>と明確な負の相関。特にSI営業出身者ほど提案フェーズで話しすぎる傾向が強い。<strong>営業推進室の『型』の第一原則として話者比率35%を全員のKPI</strong>に置く価値がある。</span>
+    </div>
+    <div class="ai-insight">
+      <span class="ai-insight-num">4</span>
+      <span class="ai-insight-text">営業推進室の<strong>2軸構造（新規面開拓／既存ソリューション拡販）それぞれにモデル商談が成立</strong>している。メンバー1（S評価・話者比率33.5%）は<strong>新規面開拓の型</strong>として「業務フロー深掘り→顧客の言葉で課題発話→次フック獲得」の連鎖を確立。メンバー2（A評価・話者比率36.2%）は<strong>既存ソリューション拡販の型</strong>として「既存運用の振り返り→更改ではなく拡張への仮説転換」を確立。2人の商談録画を<strong>営業推進室の標準商談教材＋BIPROGY全社展開のリファレンス</strong>として整備することが、『営業推進室で作った型を他の営業部門にも広げる』ミッションの最短経路。</span>
+    </div>
+  </div>
+
+  <div class="report-section">
+    <div class="report-section-title">プロンプト別平均スコア</div>
+    <div class="prompt-grid">
+      <div class="prompt-card">
+        <div class="prompt-card-head">
+          <span class="prompt-card-tag tag-p1">プロンプト①</span>
+          <div class="prompt-card-title">ソリューションセールス基礎</div>
+        </div>
+        <div class="prompt-card-desc">顧客の業務理解の深さと、横展開シグナルの検知力を評価（2026-05-15版）</div>
+        <ul class="prompt-axis-list">
+          <li><span>顧客業務フロー理解力</span><span class="axis-score">3.7</span></li>
+          <li><span>横展開シグナル検知力</span><span class="axis-score">3.1</span></li>
+        </ul>
+      </div>
+      <div class="prompt-card">
+        <div class="prompt-card-head">
+          <span class="prompt-card-tag tag-p2">プロンプト②</span>
+          <div class="prompt-card-title">型化への素材抽出</div>
+        </div>
+        <div class="prompt-card-desc">営業推進室の「型」を作るために必要な素材が商談に現れているかを評価（2026-05-15版）</div>
+        <ul class="prompt-axis-list">
+          <li><span>ソリューション仮説提示力</span><span class="axis-score">3.3</span></li>
+          <li><span>共通言語の獲得</span><span class="axis-score">2.8</span></li>
+          <li><span>お客様自身の言葉での課題発話</span><span class="axis-score">3.4</span></li>
+          <li><span>次の提案フックの獲得</span><span class="axis-score">3.1</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-section">
+    <div class="report-section-title">効率化指標</div>
+    <div class="report-kpi">
+      <div class="report-kpi-card">
+        <div class="report-kpi-label">人手想定時間</div>
+        <div class="report-kpi-value">38.0<span class="kpi-unit"> 時間</span></div>
+      </div>
+      <div class="report-kpi-card">
+        <div class="report-kpi-label">削減時間</div>
+        <div class="report-kpi-value">36.1<span class="kpi-unit"> 時間</span></div>
+      </div>
+      <div class="report-kpi-card">
+        <div class="report-kpi-label">削減率</div>
+        <div class="report-kpi-value">95.0<span class="kpi-unit"> %</span></div>
+      </div>
+      <div class="report-kpi-card">
+        <div class="report-kpi-label">コスト換算</div>
+        <div class="report-kpi-value" style="font-size:22px;">&yen;162,450</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:#94a3b8;">算出根拠: 人手評価 60分/件、AI処理 3分/件、時給 4,500円で試算</div>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-container">
+      <div class="chart-title">6評価軸の得点分布</div>
+      <canvas id="gradeDistChart" height="220"></canvas>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">推薦ステータス</div>
+      <div style="display:flex;align-items:center;gap:20px;">
+        <canvas id="recPieChart" height="200" style="max-width:200px;"></canvas>
+        <div style="font-size:12px;color:#475569;line-height:2;">
+          <div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#16a34a;margin-right:6px;"></span>優秀 (2)</div>
+          <div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#d97706;margin-right:6px;"></span>要観察 (3)</div>
+          <div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#dc2626;margin-right:6px;"></span>要改善 (1)</div>
+          <div style="margin-top:8px;font-size:20px;font-weight:700;color:#1e293b;">6<span style="font-size:12px;font-weight:400;color:#94a3b8;"> 名</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-section">
+    <div class="report-section-title">メンバー×6評価軸ヒートマップ</div>
+    <table class="heatmap-table">
+      <thead>
+        <tr><th></th><th>業務フロー理解</th><th>横展開シグナル検知</th><th>ソリューション仮説</th><th>共通言語獲得</th><th>顧客発話</th><th>次提案フック</th></tr>
+      </thead>
+      <tbody id="heatBody"></tbody>
+    </table>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-container">
+      <div class="chart-title">スコア × 話者比率</div>
+      <canvas id="scatterChart" height="250"></canvas>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">週次スコア推移（営業推進室発足後8週間）</div>
+      <canvas id="trendChart" height="250"></canvas>
+    </div>
+  </div>
+
+</div>
+<!-- END REPORT PAGE -->
+
+<!-- ===== KNOWLEDGE PAGE ===== -->
+<div class="page" id="page-knowledge">
+  <div class="page-title">型・ナレッジ <span class="pill">SV事業部 営業推進室</span></div>
+  <div class="page-desc">営業推進室の商談から抽出された共通言語ライブラリ・勝ちパターン・販売代理店展開ロードマップ・他部門展開ステータス</div>
+
+  <div class="knowledge-intro">
+    <div class="knowledge-intro-title">このページの位置づけ</div>
+    <div class="knowledge-intro-text">商談一覧・レポートで蓄積したデータから抽出した「型」を集約。「営業推進室で作った型を他の営業部門にも広げる」というミッションへの素材を蓄積していく作業ページです。</div>
+  </div>
+
+  <div class="report-section">
+    <div class="report-section-title">共通言語ライブラリ <span style="font-size:11px;color:#94a3b8;font-weight:500;">（10フレーズ・うまくいった言葉の使い方）</span></div>
+    <div style="font-size:12px;color:#64748b;margin-bottom:14px;line-height:1.6;">「うまくいった話の流れ・言葉の使い方をチームで共有できていない」という営業推進室の課題への打ち手。優秀評価のメンバー1・メンバー2の商談から抽出。</div>
+    <div class="phrase-grid">
+      <div class="phrase-card">
+        <span class="phrase-cat cat-tag-new">新規面開拓</span>
+        <div class="phrase-text">"現状の業務フローで、上司のどんな関わり方が機能していて、逆にどこが個人差で吸収度が大きくぶれている感覚がありますか"</div>
+        <div class="phrase-meta"><strong>使いどころ:</strong> 業務フロー深掘りの第一手／<strong>効果:</strong> 制度ではなく運用実態が引き出せる<br><strong>出典:</strong> メンバー1（金融機関A様）</div>
+      </div>
+      <div class="phrase-card">
+        <span class="phrase-cat cat-tag-existing">既存ソリューション拡販</span>
+        <div class="phrase-text">"現状の◯◯で「データは取れているけど活用できていない」と感じている部分はどこですか"</div>
+        <div class="phrase-meta"><strong>使いどころ:</strong> 既存導入済み顧客への初手／<strong>効果:</strong> 「入れただけ問題」を顧客の口で言わせられる<br><strong>出典:</strong> メンバー2（大手EC様）</div>
+      </div>
+      <div class="phrase-card">
+        <span class="phrase-cat cat-tag-new">新規面開拓</span>
+        <div class="phrase-text">"今お話いただいた◯◯部門の課題、××部門でも同じ悩みを抱えていそうな気がしたのですが、ご認識いかがですか"</div>
+        <div class="phrase-meta"><strong>使いどころ:</strong> 横展開シグナル検知の打診／<strong>効果:</strong> 1部署→隣接部署への話題拡張<br><strong>出典:</strong> メンバー1（金融機関A様）</div>
+      </div>
+      <div class="phrase-card">
+        <span class="phrase-cat cat-tag-existing">既存ソリューション拡販</span>
+        <div class="phrase-text">"更改ではなく、現プラットフォームに◯◯レイヤーを足す提案の方が刺さりそうですが、いかがでしょうか"</div>
+        <div class="phrase-meta"><strong>使いどころ:</strong> リプレース提案ではなく拡張仮説の提示／<strong>効果:</strong> 既存資産を否定せず追加投資を引き出す<br><strong>出典:</strong> メンバー2（大手EC様）</div>
+      </div>
+      <div class="phrase-card">
+        <span class="phrase-cat cat-tag-new">新規面開拓</span>
+        <div class="phrase-text">"おそらく◯◯パッケージ単体ではなく、その後のフォロー設計までセットにする方が課題感に近そうですが、いかがでしょうか"</div>
+        <div class="phrase-meta"><strong>使いどころ:</strong> ソリューション仮説提示／<strong>効果:</strong> 機能説明ではなく仮説に乗ってもらえる<br><strong>出典:</strong> メンバー1（金融機関A様）</div>
+      </div>
+      <div class="phrase-card">
+        <span class="phrase-cat cat-tag-existing">既存ソリューション拡販</span>
+        <div class="phrase-text">『入れただけ問題』『活用フェーズへの段差』"</div>
+        <div class="phrase-meta"><strong>使いどころ:</strong> 既存顧客に共通する状況整理／<strong>効果:</strong> 業界横断で再利用できる課題ラベル<br><strong>出典:</strong> メンバー2（大手EC様）</div>
+      </div>
+      <div class="phrase-card">
+        <span class="phrase-cat cat-tag-new">新規面開拓</span>
+        <div class="phrase-text">『現場OJTの個人差問題』『配属後フォローの設計不足』"</div>
+        <div class="phrase-meta"><strong>使いどころ:</strong> 人事領域での課題ラベル／<strong>効果:</strong> 同業界他社にそのまま再利用可能<br><strong>出典:</strong> メンバー1（金融機関A様）</div>
+      </div>
+      <div class="phrase-card">
+        <span class="phrase-cat cat-tag-new">新規面開拓</span>
+        <div class="phrase-text">"では次回、参考事例と、◯◯部門の方も同席いただける可能性をご確認いただけますでしょうか"</div>
+        <div class="phrase-meta"><strong>使いどころ:</strong> クロージング／<strong>効果:</strong> 次回議題＋同席者＋宿題の3点を握れる<br><strong>出典:</strong> メンバー1（金融機関A様）</div>
+      </div>
+      <div class="phrase-card">
+        <span class="phrase-cat cat-tag-existing">既存ソリューション拡販</span>
+        <div class="phrase-text">"次回、拡張案と、◯◯部門の方も同席いただけるかご確認お願いできますか"</div>
+        <div class="phrase-meta"><strong>使いどころ:</strong> 既存拡販のクロージング／<strong>効果:</strong> 既存窓口から隣接部門への接続<br><strong>出典:</strong> メンバー2（大手EC様）</div>
+      </div>
+      <div class="phrase-card">
+        <span class="phrase-cat cat-tag-partner">販売代理店展開</span>
+        <div class="phrase-text">"代理店様のエンドユーザーで、営業活動でお困りの方を一緒にご支援するイメージは持てそうでしょうか"</div>
+        <div class="phrase-meta"><strong>使いどころ:</strong> 販売代理店経由のailead紹介／<strong>効果:</strong> 営業推進室着想の運用化フレーズ<br><strong>出典:</strong> ailead側ドラフト（実商談に未投入）</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-section">
+    <div class="report-section-title">勝ちパターン <span style="font-size:11px;color:#94a3b8;font-weight:500;">（営業推進室から抽出された3つの型）</span></div>
+    <div style="font-size:12px;color:#64748b;margin-bottom:14px;line-height:1.6;">商談の中で繰り返し機能している進行パターン。BIPROGY全社展開時の標準商談フローのドラフトに転用可能。</div>
+
+    <div class="pattern-card">
+      <div class="pattern-head">
+        <span class="pattern-num">1</span>
+        <div class="pattern-title">新規面開拓の型「業務フロー深掘り→言わせる→次フック獲得」</div>
+        <span class="pattern-owner">モデル: メンバー1 ／ 12商談で再現確認</span>
+      </div>
+      <div class="pattern-steps">
+        <div class="pattern-step"><div class="pattern-step-num">STEP 1</div><div class="pattern-step-text">業務フローを「制度」ではなく「現場の運用実態」レベルで深掘る</div></div>
+        <div class="pattern-step"><div class="pattern-step-num">STEP 2</div><div class="pattern-step-text">隣接部署への展開仮説を投げて反応を取る</div></div>
+        <div class="pattern-step"><div class="pattern-step-num">STEP 3</div><div class="pattern-step-text">機能説明ではなく仮説提示でソリューションを乗せる</div></div>
+        <div class="pattern-step"><div class="pattern-step-num">STEP 4</div><div class="pattern-step-text">次回議題＋同席者＋宿題の3点を商談中に握って閉じる</div></div>
+      </div>
+    </div>
+
+    <div class="pattern-card">
+      <div class="pattern-head">
+        <span class="pattern-num">2</span>
+        <div class="pattern-title">既存ソリューション拡販の型「振り返り→拡張仮説→隣接部門接続」</div>
+        <span class="pattern-owner">モデル: メンバー2 ／ 9商談で再現確認</span>
+      </div>
+      <div class="pattern-steps">
+        <div class="pattern-step"><div class="pattern-step-num">STEP 1</div><div class="pattern-step-text">既存導入済みソリューションの「入れただけ問題」を顧客の口で言わせる</div></div>
+        <div class="pattern-step"><div class="pattern-step-num">STEP 2</div><div class="pattern-step-text">本音発話を引き出し、次の仮説に直接連結</div></div>
+        <div class="pattern-step"><div class="pattern-step-num">STEP 3</div><div class="pattern-step-text">更改ではなく拡張レイヤーの仮説を提示</div></div>
+        <div class="pattern-step"><div class="pattern-step-num">STEP 4</div><div class="pattern-step-text">既存窓口から隣接部門への接続を握る</div></div>
+      </div>
+    </div>
+
+    <div class="pattern-card">
+      <div class="pattern-head">
+        <span class="pattern-num">3</span>
+        <div class="pattern-title">販売代理店展開の型（仮置きドラフト・実証中）</div>
+        <span class="pattern-owner">設計: ailead側ドラフト ／ メンバー6が実証中</span>
+      </div>
+      <div class="pattern-steps">
+        <div class="pattern-step"><div class="pattern-step-num">STEP 1</div><div class="pattern-step-text">代理店の事業構造とエンドユーザー像を整理</div></div>
+        <div class="pattern-step"><div class="pattern-step-num">STEP 2</div><div class="pattern-step-text">代理店営業の現状課題（パイプライン・育成）を聞き出す</div></div>
+        <div class="pattern-step"><div class="pattern-step-num">STEP 3</div><div class="pattern-step-text">エンドユーザー支援にailead紹介の仮説提示</div></div>
+        <div class="pattern-step"><div class="pattern-step-num">STEP 4</div><div class="pattern-step-text">代理店経由のセッション設計／同席トライアル</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-section">
+    <div class="report-section-title">販売代理店展開ロードマップ <span style="font-size:11px;color:#94a3b8;font-weight:500;">（営業推進室着想・5/11 MTGベース）</span></div>
+    <div style="font-size:12px;color:#64748b;margin-bottom:14px;line-height:1.6;">「販売代理店の営業活動の支援に、aileadを我々がご紹介する」という営業推進室の着想（5/11 MTG）。aileadプラットフォーム計画と接続し、SV事業部経由でエンドユーザーへailead展開する構想。</div>
+    <div class="partner-board">
+      <div class="partner-flow">
+        <div style="font-size:13px;font-weight:600;color:#1e293b;margin-bottom:14px;">展開フロー</div>
+        <div class="partner-flow-row">
+          <div class="partner-icon partner-icon-sv">SV</div>
+          <div><div class="partner-flow-label">SV事業部 営業推進室</div><div class="partner-flow-sub">aileadで商談データを蓄積／型を確立</div></div>
+        </div>
+        <div class="partner-flow-row" style="padding-left:18px;color:#cbd5e1;">↓ 営業ノウハウとailead を一緒に提案</div>
+        <div class="partner-flow-row">
+          <div class="partner-icon partner-icon-agent">代理店</div>
+          <div><div class="partner-flow-label">販売代理店（既存顧客）</div><div class="partner-flow-sub">SV経由でailead導入／代理店営業の活動可視化</div></div>
+        </div>
+        <div class="partner-flow-row" style="padding-left:18px;color:#cbd5e1;">↓ 代理店経由で展開</div>
+        <div class="partner-flow-row">
+          <div class="partner-icon partner-icon-end">END</div>
+          <div><div class="partner-flow-label">エンドユーザー</div><div class="partner-flow-sub">代理店ソリューション＋ailead のセット提供</div></div>
+        </div>
+      </div>
+      <div class="partner-status">
+        <div class="partner-status-title">進捗ステータス</div>
+        <div class="partner-step"><span class="partner-step-dot partner-step-done"></span><span class="partner-step-text done">営業推進室から着想ヒアリング（5/11 MTG）</span></div>
+        <div class="partner-step"><span class="partner-step-dot partner-step-done"></span><span class="partner-step-text done">aileadプラットフォーム計画と接続整理</span></div>
+        <div class="partner-step"><span class="partner-step-dot partner-step-active"></span><span class="partner-step-text"><strong>本日: 展開ロードマップすり合わせ</strong></span></div>
+        <div class="partner-step"><span class="partner-step-dot partner-step-todo"></span><span class="partner-step-text">代理店候補リストアップ（営業推進室）</span></div>
+        <div class="partner-step"><span class="partner-step-dot partner-step-todo"></span><span class="partner-step-text">第1号代理店との3者セッション設計</span></div>
+        <div class="partner-step"><span class="partner-step-dot partner-step-todo"></span><span class="partner-step-text">エンドユーザー導入トライアル</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-section">
+    <div class="report-section-title">他部門展開ステータス <span style="font-size:11px;color:#94a3b8;font-weight:500;">（BIPROGY営業スタンダードへの展開）</span></div>
+    <div style="font-size:12px;color:#64748b;margin-bottom:14px;line-height:1.6;">「営業推進室で作った型を他の営業部門にも広げる」という営業推進室ミッション／5/11 MTGで提起された「BI推進との連携」への対応進捗。営業推進室で確立した型を、BIPROGY他事業部に配布していくロードマップ。</div>
+    <table class="deploy-table">
+      <thead>
+        <tr><th>展開先</th><th>展開ステータス</th><th>展開する型</th><th>キーマン</th><th>次のアクション</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>SV事業部 本体</strong><br><span style="font-size:11px;color:#94a3b8;">岡村様・永田様</span></td>
+          <td><span class="deploy-status deploy-status-going">展開中</span></td>
+          <td>新規面開拓の型 ／ 既存拡販の型</td>
+          <td>岡村様</td>
+          <td>営業推進室の成果を月次共有</td>
+        </tr>
+        <tr>
+          <td><strong>FS第一事業部</strong><br><span style="font-size:11px;color:#94a3b8;">福井様・西上様</span></td>
+          <td><span class="deploy-status deploy-status-going">展開中</span></td>
+          <td>新人トレーナー型（4ヶ月350本蓄積）</td>
+          <td>伊東所属長</td>
+          <td>営業推進室の型と相互フィードバック</td>
+        </tr>
+        <tr>
+          <td><strong>BI推進</strong><br><span style="font-size:11px;color:#94a3b8;">5/11 MTGで連携案提起</span></td>
+          <td><span class="deploy-status deploy-status-prep">準備中</span></td>
+          <td>営業データの全社活用基盤</td>
+          <td>未接触</td>
+          <td>本日MTGで連携案を協議</td>
+        </tr>
+        <tr>
+          <td><strong>IS第三事業部</strong><br><span style="font-size:11px;color:#94a3b8;">関原様・丸尾所長</span></td>
+          <td><span class="deploy-status deploy-status-prep">準備中</span></td>
+          <td>新規面開拓の型（印刷業界向け）</td>
+          <td>諸橋所長</td>
+          <td>営業推進室の事例を共有予定</td>
+        </tr>
+        <tr>
+          <td><strong>PS1事業部 北海道公共</strong><br><span style="font-size:11px;color:#94a3b8;">山口様・坂本様</span></td>
+          <td><span class="deploy-status deploy-status-idea">構想段階</span></td>
+          <td>キャプテン連携型</td>
+          <td>未接触</td>
+          <td>営業推進室の型確立後に紹介</td>
+        </tr>
+        <tr>
+          <td><strong>IS1事業部 営業2部</strong><br><span style="font-size:11px;color:#94a3b8;">荒井様・高石様</span></td>
+          <td><span class="deploy-status deploy-status-idea">構想段階</span></td>
+          <td>新規面開拓の型（EC・通販系）</td>
+          <td>増田部長</td>
+          <td>部長キックオフ後に紹介</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="font-size:11px;color:#94a3b8;margin-top:12px;line-height:1.6;">▶ 営業推進室を「型の生産拠点」、他事業部を「型の消費拠点」と位置づけることで、<strong>「今年度かけてBIPROGYの営業スタンダードを作る」</strong>というミッションが構造化される。</div>
+  </div>
+
+</div>
+<!-- END KNOWLEDGE PAGE -->
+
+</div>
+<!-- END MAIN -->
+
+<div class="overlay" id="overlay" onclick="closeDetail()"></div>
+
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <div class="detail-header-top">
+      <div>
+        <div class="detail-member-name" id="detailName"></div>
+        <div class="detail-deal-name" id="detailDeal"></div>
+      </div>
+      <div class="detail-header-actions">
+        <button class="detail-btn">aileadで開く</button>
+        <button class="detail-btn-close" onclick="closeDetail()">閉じる</button>
+      </div>
+    </div>
+  </div>
+  <div class="detail-summary">
+    <div class="detail-card"><div class="detail-card-label">総合スコア</div><div class="detail-card-value" id="detailScore"></div></div>
+    <div class="detail-card"><div class="detail-card-label">総合グレード</div><div class="detail-card-value" id="detailGrade"></div></div>
+    <div class="detail-card"><div class="detail-card-label">推薦</div><div class="detail-card-value" id="detailRec"></div></div>
+    <div class="detail-card"><div class="detail-card-label">話者比率</div><div class="detail-card-value" id="detailRatio"></div></div>
+  </div>
+  <div class="radar-section"><div class="radar-wrap"><canvas id="radarChart"></canvas></div></div>
+  <div class="detail-section">
+    <div class="detail-section-title">評価基準別スコア</div>
+    <div class="detail-section-sub">プロンプト① ソリューションセールス基礎</div>
+    <div id="detailCriteria1"></div>
+    <div class="detail-section-sub">プロンプト② 型化への素材抽出</div>
+    <div id="detailCriteria2"></div>
+  </div>
+  <div class="detail-section">
+    <div class="detail-section-title">総合コメント</div>
+    <div id="detailComment"></div>
+  </div>
+</div>
+
+<script>
+// ============ DATA ============
+const AXES = ['業務フロー理解','横展開シグナル検知','ソリューション仮説','共通言語獲得','顧客発話','次提案フック'];
+
+// 6軸: 業務フロー理解 / 横展開シグナル検知 / ソリューション仮説 / 共通言語獲得 / 顧客発話 / 次提案フック
+const members = [
+  {
+    id:'m1', name:'メンバー1（研修畑出身）', deal:'大手金融機関A様_新人研修プログラム提案', date:'2026/05/19 14:00',
+    score:'4.2', grade:'S', gradeClass:'grade-s', rec:'優秀', recClass:'rec-yes', ratio:'33.5%',
+    access:'public', category:'新規面開拓', scores:[5,4,4,4,5,4],
+    criteria1:[
+      {name:'顧客業務フロー理解力',grade:'S',gradeClass:'grade-s',score:'5.0',
+        quote:'新人配属後の現場OJTでは、上司のどんな関わり方が機能していて、逆にどこが個人差で吸収度が大きくぶれている感覚がありますか',
+        context:'業務フローを「制度」ではなく「現場の運用実態」レベルまで踏み込んで聞き出している。お客様の組織課題の輪郭が会話の中で立ち上がってくる。',
+        memo:'業務理解の深さは営業推進室のお手本。質問テンプレート化する価値あり'},
+      {name:'横展開シグナル検知力',grade:'A',gradeClass:'grade-a',score:'4.0',
+        quote:'今お話いただいた営業部門の課題、人事部門でも同じ悩みを抱えていそうな気がしたのですが、ご認識いかがですか',
+        context:'1部署の課題を聞きながら、隣接部門への横展開仮説を会話の中で投げて反応を取れている。販売代理店展開への布石にも応用可能。',
+        memo:'他部署展開の打診タイミングが秀逸'}
+    ],
+    criteria2:[
+      {name:'ソリューション仮説提示力',grade:'A',gradeClass:'grade-a',score:'4.0',
+        quote:'おそらく研修パッケージ単体ではなく、配属後3ヶ月のフォロー設計までセットにする方が課題感に近そうですが、いかがでしょうか',
+        context:'機能説明ではなく「お客様の課題に対する仮説」として提示。お客様が「そうそう」と乗ってきている。',
+        memo:'仮説提示型の営業の模範。営業推進室の標準にしたいスタイル'},
+      {name:'共通言語の獲得',grade:'A',gradeClass:'grade-a',score:'4.0',
+        quote:'『現場OJTの個人差問題』『配属後フォローの設計不足』というフレーズで状況を整理',
+        context:'お客様の課題を端的に表すフレーズを会話の中で生成。これは他メンバーが同じ業界に提案する時の共通言語として再利用可能。',
+        memo:'共通言語ライブラリ第1号として登録推奨'},
+      {name:'お客様自身の言葉での課題発話',grade:'S',gradeClass:'grade-s',score:'5.0',
+        quote:'（お客様）「結局、新人が独り立ちするまでの3ヶ月が一番ブラックボックスで、ここを可視化したいんですよね」',
+        context:'お客様自身の口から課題が言語化される展開。営業から「こうですよね」と押し付けていない。',
+        memo:'顧客発話の引き出し方が極めて自然'},
+      {name:'次の提案フックの獲得',grade:'A',gradeClass:'grade-a',score:'4.0',
+        quote:'では次回、配属後フォロー設計の参考事例と、人事部門の方も同席いただける可能性をご確認いただけますでしょうか',
+        context:'次回商談の議題＋同席者＋宿題の3点を明確にして商談を閉じている。',
+        memo:'クロージングが連続商談を生む構造になっている'}
+    ],
+    comment:{summary:'話者比率33.5%は営業推進室最高水準。研修畑のバックボーンを活かした業務フロー深掘りが、顧客の口から課題発話を引き出すスタイルに繋がっている。BIPROGY営業スタンダードの第1号モデルとして横展開すべき。',
+      positive:'業務フロー深掘り／仮説提示の自然さ／顧客主導の対話設計',
+      negative:'金融機関以外の業界での再現性をまだ検証できていない。次は製造業案件で同じスタイルが効くか確認したい'}
+  },
+  {
+    id:'m2', name:'メンバー2（SaaS畑出身）', deal:'大手EC様_既存研修プラットフォーム更改', date:'2026/05/16 11:00',
+    score:'4.0', grade:'A', gradeClass:'grade-a', rec:'優秀', recClass:'rec-yes', ratio:'36.2%',
+    access:'public', category:'既存ソリューション拡販', scores:[4,4,4,4,4,4],
+    criteria1:[
+      {name:'顧客業務フロー理解力',grade:'A',gradeClass:'grade-a',score:'4.0',
+        quote:'現状の研修プラットフォームで「データは取れているけど活用できていない」と感じている部分はどこですか',
+        context:'SaaS的な観点（データ活用）から既存ソリューションの活用課題を引き出せている。既存運用の振り返り起点は既存拡販型の模範。',
+        memo:'既存拡販型の質問テンプレートの起点として採用したい'},
+      {name:'横展開シグナル検知力',grade:'A',gradeClass:'grade-a',score:'4.0',
+        quote:'同じデータ活用の課題は、おそらく営業部門の商談データでも起きていそうですが',
+        context:'機能横展開ではなく「課題の横展開」で他部署接続を仮説提示できている。一件の拡販を次の領域に繋ぐ動線が機能。',
+        memo:'既存拡販から横領域への展開設計が秀逸'}
+    ],
+    criteria2:[
+      {name:'ソリューション仮説提示力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'更改ではなく、現プラットフォームに分析レイヤーを足す提案の方が刺さりそうですが',context:'「更改→拡張」への仮説転換。既存顧客にリプレース提案ではなく追加投資を引き出す型として再現性が高い。',memo:'既存拡販の型の中心仮説として明文化したい'},
+      {name:'共通言語の獲得',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'『入れただけ問題』『活用フェーズへの段差』というフレーズで状況を整理',context:'既存導入済み顧客に共通するフレーズを生成。他メンバーが既存拡販に行く際に再利用可能。',memo:'共通言語ライブラリ「既存拡販」カテゴリの第1号'},
+      {name:'お客様自身の言葉での課題発話',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'（お客様）「正直、入れただけで満足してしまっていた部分はあります」',context:'お客様の本音を引き出し、その発話を次の仮説（拡張提案）に直接繋いでいる。',memo:'本音発話→次仮説の連結が綺麗'},
+      {name:'次の提案フックの獲得',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'次回、分析レイヤーの拡張案と、営業部門の方も同席いただけるかご確認お願いできますか',context:'次回議題＋同席者＋宿題の3点が握れている。',memo:'クロージング設計が連続商談を生む構造になっている'}
+    ],
+    comment:{summary:'話者比率36.2%と理想レンジ。SaaS畑のバックボーンを活かした「既存運用の振り返り→更改ではなく拡張」の仮説提示が機能。メンバー1（新規面開拓モデル）と並ぶ、既存ソリューション拡販の型の第一号モデルとして横展開すべき。',
+      positive:'既存運用の振り返り設計／更改→拡張の仮説転換／本音発話と仮説の連結',
+      negative:'業界をまたいだ再現性はこれから検証。次は金融・製造業の既存導入顧客で同じスタイルが効くか確認したい'}
+  },
+  {
+    id:'m3', name:'メンバー3（営業推進室若手）', deal:'農中関連団体B様_新規ヒアリング', date:'2026/05/14 15:30',
+    score:'3.4', grade:'B', gradeClass:'grade-b', rec:'要観察', recClass:'rec-hold', ratio:'41.2%',
+    access:'restricted', category:'新規面開拓', scores:[3,3,3,3,4,3],
+    criteria1:[
+      {name:'顧客業務フロー理解力',grade:'B',gradeClass:'grade-b',score:'3.0',
+        quote:'業務フローについて教えていただけますでしょうか',
+        context:'質問が抽象的で、お客様の説明を受け取るだけで深掘りができていない。',
+        memo:'仮説持参のヒアリングへ。「我々の理解だと〇〇のはず、実態はどうですか」型に切り替える'},
+      {name:'横展開シグナル検知力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'（横展開仮説の打診なし）',context:'1部署の話を聞いて終わっている。',memo:'隣接部署への打診を必ず入れる'}
+    ],
+    criteria2:[
+      {name:'ソリューション仮説提示力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'弊社のサービスでこのような対応も可能でして',context:'機能紹介寄り。仮説になっていない。',memo:'「お客様の課題ならこういう形が刺さると思うのですが」型の提示に'},
+      {name:'共通言語の獲得',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'（一般的な質問のみ）',context:'業界・組織特有のフレーズを採取できていない。',memo:'お客様の言葉を必ずメモする習慣を'},
+      {name:'お客様自身の言葉での課題発話',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'（お客様）「現場のオペレーションがアナログに戻りがちで、それが課題ですね」',context:'お客様から自然と課題発話を引き出せている。傾聴力は強い。',memo:'引き出した発話を次の仮説に繋ぐ動線がほしい'},
+      {name:'次の提案フックの獲得',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'また情報整理してご連絡します',context:'次回までの具体性が低い。',memo:'必ず「次回までに何を持っていくか」を商談中に握る'}
+    ],
+    comment:{summary:'傾聴力（顧客発話の引き出し）は強いが、聞いた内容を次の提案・横展開に転換する動きが弱い。「聞いて終わる」パターンを「聞いて仮説を投げ返す」パターンに転換するロープレが有効。',
+      positive:'丁寧な傾聴／お客様の本音を引き出す姿勢',
+      negative:'聞いた内容が次の動きにつながっていない／仮説提示の不足'}
+  },
+  {
+    id:'m4', name:'メンバー4（SI営業出身）', deal:'製造業C社様_業務効率化ソリューション提案', date:'2026/05/13 10:00',
+    score:'3.3', grade:'B', gradeClass:'grade-b', rec:'要観察', recClass:'rec-hold', ratio:'48.5%',
+    access:'team', category:'新規面開拓', scores:[4,3,4,2,3,3],
+    criteria1:[
+      {name:'顧客業務フロー理解力',grade:'A',gradeClass:'grade-a',score:'4.0',
+        quote:'現状の生産管理システムから受注管理までのデータ連携、どの部分がボトルネックになっていますか',
+        context:'SI営業の経験で業務フローの構造を正確に押さえている。',
+        memo:'業務理解の深さはSI出身の強み。これは標準化したい'},
+      {name:'横展開シグナル検知力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'（横展開の打診なし）',context:'目の前の案件最適化に集中しすぎ。',memo:'業務フローを聞きながら隣接領域への打診を入れる'}
+    ],
+    criteria2:[
+      {name:'ソリューション仮説提示力',grade:'A',gradeClass:'grade-a',score:'4.0',quote:'御社の課題でしたらRPAではなくAIエージェントの方が業務適合度が高そうです',context:'仮説提示は明確。',memo:'仮説の根拠を「他社事例」で補強できると更に強い'},
+      {name:'共通言語の獲得',grade:'C',gradeClass:'grade-c',score:'2.0',quote:'（一方的な技術用語が多い）',context:'お客様の業界フレーズを採取するより、こちらの技術用語を多用してしまっている。',memo:'お客様の言葉を借りて返すクセを。営業推進室の重点改善ポイント'},
+      {name:'お客様自身の言葉での課題発話',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'（営業側の発話が多すぎる）',context:'話者比率48.5%。お客様が話す前に営業が解を提示してしまっている。',memo:'話す前に「3秒待つ」習慣を'},
+      {name:'次の提案フックの獲得',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'次回、技術検証のご提案をお持ちします',context:'技術寄りの宿題に偏る。',memo:'業務側の宿題（誰がオーナー／いつまでに何の判断）も並行で'}
+    ],
+    comment:{summary:'業務理解と仮説提示はSI出身の強みで高水準。一方で話者比率48.5%は話しすぎ、共通言語の獲得が2.0と最も低い。「話しすぎる」「お客様の言葉を借りない」がSI営業から営業推進室型への転換ポイント。',
+      positive:'業務フロー理解の深さ／ソリューション仮説の明確さ',
+      negative:'話者比率過多／共通言語の獲得不足／業界フレーズの不採取'}
+  },
+  {
+    id:'m5', name:'メンバー5（人事系畑出身）', deal:'パートナーD社様_HR商材リプレース相談', date:'2026/05/12 16:00',
+    score:'3.1', grade:'B', gradeClass:'grade-b', rec:'要観察', recClass:'rec-hold', ratio:'46.0%',
+    access:'team', category:'既存ソリューション拡販', scores:[3,3,3,3,3,3],
+    criteria1:[
+      {name:'顧客業務フロー理解力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'採用フローはどんな感じで回されていますか',context:'抽象的でフロー全体は押さえられているが、ボトルネック特定まで踏み込めていない。',memo:'「最も時間がかかる工程はどこですか」の一段深掘りを'},
+      {name:'横展開シグナル検知力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'採用以外の人事領域でもお困りごとは',context:'打診はあるが「いかがですか」型で発話を引き出せていない。',memo:'具体仮説で打診する'}
+    ],
+    criteria2:[
+      {name:'ソリューション仮説提示力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'こちらのプロダクトでしたらフィットしそうです',context:'機能説明寄り。',memo:'課題仮説→ソリューション仮説の順で'},
+      {name:'共通言語の獲得',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'（一般的な人事用語のみ）',context:'お客様独自のフレーズが見えてこない。',memo:'お客様の言葉を借りる訓練を'},
+      {name:'お客様自身の言葉での課題発話',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'（お客様の発話が短く終わる）',context:'問いが広すぎて発話が広がっていない。',memo:'論点を絞った問いに'},
+      {name:'次の提案フックの獲得',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'ご検討のほどよろしくお願いします',context:'次回宿題が握れていない。',memo:'「次回までに〇〇をすり合わせる」を商談中に明示する'}
+    ],
+    comment:{summary:'人事系のバックボーンは強みになり得るが、現状は全軸が平均的。仮説提示・共通言語・次フック獲得の3点を集中的に磨くことで一気にメンバー2クラスに到達可能。',
+      positive:'安定した進行／人事領域の基礎知識',
+      negative:'全体が平均的で突出した強みも弱みもない／仮説提示の不足'}
+  },
+  {
+    id:'m6', name:'メンバー6（新人）', deal:'販売代理店E社様_営業支援サービス紹介', date:'2026/05/11 14:00',
+    score:'2.9', grade:'B-', gradeClass:'grade-b-minus', rec:'要改善', recClass:'rec-no', ratio:'53.2%',
+    access:'team', category:'販売代理店', scores:[3,2,3,2,3,3],
+    criteria1:[
+      {name:'顧客業務フロー理解力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'業務内容についてお聞かせください',context:'質問が広く、業務フローの構造を引き出せていない。',memo:'準備段階で仮説図を持参するクセを'},
+      {name:'横展開シグナル検知力',grade:'C',gradeClass:'grade-c',score:'2.0',quote:'（横展開の打診なし）',context:'目の前のサービス紹介で完結。',memo:'販売代理店ならではの『その先のエンドユーザー』への展開仮説を持つ'}
+    ],
+    criteria2:[
+      {name:'ソリューション仮説提示力',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'弊社のailead は営業支援に強く...',context:'機能説明に終始。',memo:'仮説提示型へ'},
+      {name:'共通言語の獲得',grade:'C',gradeClass:'grade-c',score:'2.0',quote:'（営業側の用語のみ）',context:'代理店業界特有のフレーズを採取できていない。',memo:'代理店ビジネスの言葉を学ぶ／メンバー1の商談を聞いて吸収'},
+      {name:'お客様自身の言葉での課題発話',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'（お客様の発話量が少ない）',context:'話者比率53.2%でお客様が話す余白が少ない。',memo:'まず話さない／聞く側に回る練習を'},
+      {name:'次の提案フックの獲得',grade:'B',gradeClass:'grade-b',score:'3.0',quote:'またご連絡します',context:'次回宿題なし。',memo:'必ず次回までのアクションを商談内で握る'}
+    ],
+    comment:{summary:'新人のため全軸が未形成。最優先課題は話者比率（53.2%）の削減と、メンバー1の商談録画を教材として吸収すること。営業推進室の標準ロープレ対象。',
+      positive:'熱量と準備姿勢は良い',
+      negative:'話者比率過多／横展開シグナル検知欠如／共通言語の獲得不足'}
+  }
+];
+
+// ============ RENDER TABLE ============
+function renderTable(){
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = members.map(m => {
+    const s = m.scores;
+    const cell = v => `<td class="score">${v.toFixed(1)}</td>`;
+    const accessMap = {
+      'restricted': '<span class="access-badge access-restricted">🔒 参加者限定</span>',
+      'team': '<span class="access-badge access-team">👥 営業推進室</span>',
+      'public': '<span class="access-badge access-public">🌐 全社公開</span>'
+    };
+    return `<tr>
+      <td class="member-name"><a onclick="openDetail('${m.id}')">${m.name.split('（')[0]}</a> <span class="link-icon">↗</span></td>
+      <td class="deal-name">${m.deal}</td>
+      <td class="deal-date">${m.date}</td>
+      <td>${accessMap[m.access] || accessMap['team']}</td>
+      <td><span class="prompt-tag tag-p1">①</span> <span class="prompt-tag tag-p2">②</span></td>
+      <td><span class="grade ${m.gradeClass}">${m.grade}</span></td>
+      <td class="score">${m.score}</td>
+      ${cell(s[0])}${cell(s[1])}${cell(s[2])}${cell(s[3])}${cell(s[4])}${cell(s[5])}
+      <td class="ratio">${m.ratio}</td>
+      <td><span class="rec-badge ${m.recClass}">${m.rec}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ============ RENDER HEATMAP ============
+function renderHeatmap(){
+  const tbody = document.getElementById('heatBody');
+  const avg = AXES.map((_, i) => (members.reduce((s,m)=>s+m.scores[i],0)/members.length).toFixed(1));
+  const head = `<tr><td class="heatmap-avg"></td>${avg.map(a=>`<td class="heatmap-avg">平均 ${a}</td>`).join('')}</tr>`;
+  const rows = [...members].sort((a,b)=>parseFloat(b.score)-parseFloat(a.score)).map(m => {
+    const cells = m.scores.map(v => {
+      const cls = v>=4.5?'heat-5':v>=3.5?'heat-4':v>=2.5?'heat-3':v>=1.5?'heat-2':'heat-1';
+      return `<td><span class="heatmap-cell ${cls}">${v.toFixed(1)}</span></td>`;
+    }).join('');
+    return `<tr><td class="heatmap-name">${m.name.split('（')[0]}</td>${cells}</tr>`;
+  }).join('');
+  tbody.innerHTML = head + rows;
+}
+
+// ============ DETAIL PANEL ============
+function openDetail(id){
+  const m = members.find(x => x.id===id);
+  if(!m) return;
+  document.getElementById('detailName').textContent = m.name;
+  document.getElementById('detailDeal').textContent = `${m.deal} ・ ${m.date}`;
+  document.getElementById('detailScore').textContent = m.score;
+  document.getElementById('detailGrade').innerHTML = `<span class="grade ${m.gradeClass} d-grade">${m.grade}</span>`;
+  document.getElementById('detailRec').innerHTML = `<span class="rec-badge ${m.recClass} d-rec">${m.rec}</span>`;
+  document.getElementById('detailRatio').textContent = m.ratio;
+
+  const renderCriteria = (list) => list.map(c => `
+    <div class="criteria-card">
+      <div class="criteria-header"><span class="criteria-name">${c.name}</span>
+        <div class="criteria-right"><span class="grade ${c.gradeClass}">${c.grade}</span><span class="criteria-score">${c.score}</span></div></div>
+      <div class="criteria-block"><div class="criteria-label">引用</div><div class="criteria-quote">${c.quote}</div></div>
+      <div class="criteria-block"><div class="criteria-label">文脈分析</div><div class="criteria-text">${c.context}</div></div>
+      <div class="criteria-block"><div class="criteria-label">改善メモ</div><div class="criteria-text">${c.memo}</div></div>
+    </div>`).join('');
+  document.getElementById('detailCriteria1').innerHTML = renderCriteria(m.criteria1);
+  document.getElementById('detailCriteria2').innerHTML = renderCriteria(m.criteria2);
+
+  document.getElementById('detailComment').innerHTML =
+    `<div class="comment-block"><div class="comment-label">総合所見</div><div class="comment-text">${m.comment.summary}</div></div>
+     <div class="comment-block"><div class="comment-label">ポジティブ要素</div><div class="comment-text comment-positive">${m.comment.positive}</div></div>
+     <div class="comment-block"><div class="comment-label">ネガティブ要素</div><div class="comment-text comment-negative">${m.comment.negative}</div></div>`;
+
+  if(window._radarChart) window._radarChart.destroy();
+  window._radarChart = new Chart(document.getElementById('radarChart').getContext('2d'), {
+    type:'radar',
+    data:{ labels: AXES, datasets:[{ label: m.name.split('（')[0], data: m.scores,
+      backgroundColor:'rgba(16,108,255,0.15)', borderColor:'rgba(16,108,255,0.8)', borderWidth:2,
+      pointBackgroundColor:'rgba(16,108,255,1)', pointBorderColor:'#fff', pointBorderWidth:2, pointRadius:5 }] },
+    options:{ responsive:true, maintainAspectRatio:true,
+      scales:{ r:{ min:0, max:5, ticks:{ stepSize:1, font:{size:11}, backdropColor:'transparent', color:'#94a3b8' },
+        grid:{ color:'#e2e8f0' }, angleLines:{ color:'#e2e8f0' },
+        pointLabels:{ font:{size:12, weight:'600'}, color:'#334155' } } },
+      plugins:{ legend:{ display:false } } }
+  });
+
+  document.getElementById('overlay').classList.add('active');
+  document.getElementById('detailPanel').classList.add('active');
+}
+function closeDetail(){
+  document.getElementById('overlay').classList.remove('active');
+  document.getElementById('detailPanel').classList.remove('active');
+}
+
+// ============ PAGE SWITCH ============
+function showPage(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.sidebar-nav li').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.getElementById('nav-'+p).classList.add('active');
+  if(p==='report') initReportCharts();
+}
+
+// ============ REPORT CHARTS ============
+let reportInit = false;
+function initReportCharts(){
+  if(reportInit) return; reportInit = true;
+
+  // Grade distribution across 6 axes
+  const counts = AXES.map((_, i) => {
+    const c = {S:0,A:0,B:0,Cneg:0};
+    members.forEach(m => {
+      const v = m.scores[i];
+      if(v>=4.5) c.S++; else if(v>=3.5) c.A++; else if(v>=2.5) c.B++; else c.Cneg++;
+    });
+    return c;
+  });
+  new Chart(document.getElementById('gradeDistChart'), {
+    type:'bar',
+    data:{ labels: AXES,
+      datasets:[
+        {label:'S', data: counts.map(c=>c.S), backgroundColor:'#16a34a'},
+        {label:'A', data: counts.map(c=>c.A), backgroundColor:'#106CFF'},
+        {label:'B', data: counts.map(c=>c.B), backgroundColor:'#d97706'},
+        {label:'C', data: counts.map(c=>c.Cneg), backgroundColor:'#dc2626'} ] },
+    options:{ responsive:true, indexAxis:'y',
+      scales:{ x:{ stacked:true, max:6, ticks:{stepSize:1} }, y:{ stacked:true } },
+      plugins:{ legend:{ position:'top', labels:{boxWidth:12, font:{size:11}} } } }
+  });
+
+  new Chart(document.getElementById('recPieChart'), {
+    type:'doughnut',
+    data:{ labels:['優秀','要観察','要改善'], datasets:[{ data:[2,3,1], backgroundColor:['#16a34a','#d97706','#dc2626'], borderWidth:0 }] },
+    options:{ responsive:true, plugins:{ legend:{ display:false } }, cutout:'60%' }
+  });
+
+  const scatterData = members.map(m => ({ x: parseFloat(m.ratio), y: parseFloat(m.score), label: m.name.split('（')[0] }));
+  new Chart(document.getElementById('scatterChart'), {
+    type:'scatter',
+    data:{ datasets:[{
+      data: scatterData.map(d=>({x:d.x, y:d.y})),
+      backgroundColor: scatterData.map(d => d.y>=3.8?'#16a34a':d.y>=3.2?'#d97706':'#dc2626'),
+      pointRadius:8, pointHoverRadius:10 }] },
+    options:{ responsive:true,
+      scales:{
+        x:{ title:{display:true, text:'話者比率 (%)'}, min:25, max:60 },
+        y:{ title:{display:true, text:'総合スコア'}, min:2, max:5 } },
+      plugins:{ legend:{display:false},
+        tooltip:{ callbacks:{ label:ctx => `${scatterData[ctx.dataIndex].label} (${ctx.parsed.x}%, ${ctx.parsed.y})` } } } }
+  });
+
+  new Chart(document.getElementById('trendChart'), {
+    type:'line',
+    data:{ labels:['1週目','2週目','3週目','4週目','5週目','6週目','7週目','8週目'],
+      datasets:[
+        {label:'業務フロー理解', data:[3.2,3.3,3.5,3.5,3.6,3.6,3.7,3.7], borderColor:'#106CFF', tension:0.3, fill:false},
+        {label:'横展開シグナル検知', data:[2.6,2.7,2.8,2.9,2.9,3.0,3.0,3.1], borderColor:'#16a34a', tension:0.3, fill:false},
+        {label:'ソリューション仮説', data:[2.8,3.0,3.1,3.1,3.2,3.2,3.3,3.3], borderColor:'#7c3aed', tension:0.3, fill:false},
+        {label:'共通言語獲得', data:[2.3,2.4,2.5,2.6,2.6,2.7,2.7,2.8], borderColor:'#dc2626', tension:0.3, fill:false},
+        {label:'顧客発話', data:[3.0,3.1,3.2,3.3,3.3,3.4,3.4,3.4], borderColor:'#d97706', tension:0.3, fill:false},
+        {label:'次提案フック', data:[2.7,2.8,2.9,2.9,3.0,3.0,3.1,3.1], borderColor:'#0284c7', tension:0.3, fill:false} ] },
+    options:{ responsive:true, scales:{ y:{min:2, max:5, ticks:{stepSize:0.5}} },
+      plugins:{ legend:{position:'top', labels:{boxWidth:10, font:{size:10}} } } }
+  });
+}
+
+// ============ INIT ============
+renderTable();
+renderHeatmap();
+</script>
+
+</body>
+</html>
