@@ -1,0 +1,2824 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<title>ailead Sales Dashboard ｜ プラスアルファ・コンサルティング 営業本部</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif; background: #f5f6fa; color: #333; display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar { width: 200px; background: #fff; border-right: 1px solid #e8e8e8; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 0; position: fixed; height: 100vh; z-index: 10; }
+  .sidebar-top { }
+  .sidebar-logo { padding: 0 20px; margin-bottom: 32px; display: flex; align-items: center; gap: 8px; }
+  .sidebar-logo svg { width: 28px; height: 28px; }
+  .sidebar-logo .logo-text { font-size: 18px; font-weight: 700; color: #106CFF; }
+  .sidebar-logo .logo-sub { font-size: 11px; color: #94a3b8; display: block; margin-top: 2px; }
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav li { padding: 10px 20px; font-size: 14px; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+  .sidebar-nav li.active { color: #106CFF; background: #eff6ff; border-right: 3px solid #106CFF; font-weight: 600; }
+  .sidebar-nav li:hover { background: #f8fafc; }
+  .sidebar-nav li svg { width: 18px; height: 18px; }
+  .sidebar-bottom { padding: 0 20px; }
+  .sidebar-client { display: flex; align-items: center; gap: 8px; padding: 12px 0; border-top: 1px solid #e8e8e8; }
+  .sidebar-client-icon { width: 32px; height: 32px; background: #1e293b; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+  .sidebar-client-name { font-size: 13px; color: #334155; font-weight: 500; }
+  .sidebar-account { display: flex; align-items: center; gap: 8px; padding-top: 12px; font-size: 13px; color: #64748b; cursor: pointer; }
+  .sidebar-account svg { width: 18px; height: 18px; }
+
+  /* Main */
+  .main { margin-left: 200px; flex: 1; padding: 32px 40px; }
+  .page-title { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 24px; }
+  .page-title .sub { font-size: 13px; font-weight: 400; color: #94a3b8; margin-left: 12px; }
+  .page-title .badge { font-size: 11px; font-weight: 600; background: #dbeafe; color: #106CFF; padding: 3px 10px; border-radius: 12px; margin-left: 8px; }
+
+  /* View switching */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* Sub-tabs (coaching view: 一覧 / レポート) */
+  .subtabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; }
+  .subtab { padding: 10px 18px; font-size: 13px; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; font-weight: 500; }
+  .subtab.active { color: #106CFF; border-bottom-color: #106CFF; font-weight: 600; }
+  .subtab:hover { color: #106CFF; }
+
+  /* Disclaimer */
+  .disclaimer { background: #fef9c3; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 12px; color: #854d0e; }
+
+  /* Summary Cards */
+  .summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .card { background: #fff; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .card-label { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+  .card-value { font-size: 32px; font-weight: 700; color: #1e293b; }
+  .card-value .unit { font-size: 14px; font-weight: 400; color: #94a3b8; margin-left: 2px; }
+  .card-value .sub { font-size: 14px; font-weight: 400; color: #94a3b8; }
+
+  /* Toolbar */
+  .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-box { flex: 1; max-width: 280px; padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; outline: none; background: #fff; }
+  .search-box:focus { border-color: #106CFF; }
+  .btn-outline { padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #fff; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .btn-outline:hover { background: #f8fafc; }
+  .btn-primary { padding: 8px 14px; border: none; border-radius: 8px; font-size: 13px; background: #106CFF; color: #fff; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+  .btn-primary:hover { background: #0a4fd1; }
+
+  /* Table */
+  .table-wrap { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { text-align: left; padding: 12px 16px; color: #94a3b8; font-weight: 500; font-size: 12px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; cursor: pointer; user-select: none; }
+  thead th:hover { color: #64748b; }
+  thead th .sort-icon { display: inline-block; margin-left: 4px; font-size: 10px; }
+  tbody td { padding: 12px 16px; border-bottom: 1px solid #f8fafc; white-space: nowrap; }
+  tbody tr:hover { background: #fafbfd; }
+  .member-name { color: #106CFF; font-weight: 500; }
+  .member-name a { color: inherit; text-decoration: none; cursor: pointer; }
+  .member-name a:hover { text-decoration: underline; }
+  .link-icon { font-size: 11px; color: #94a3b8; margin-left: 4px; }
+
+  /* Grade badge */
+  .grade { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 24px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+  .grade-s  { background: #dcfce7; color: #16a34a; }
+  .grade-a  { background: #dbeafe; color: #106CFF; }
+  .grade-b-plus { background: #e0f2fe; color: #0284c7; }
+  .grade-b  { background: #fef3c7; color: #d97706; }
+  .grade-b-minus { background: #fed7aa; color: #ea580c; }
+  .grade-c  { background: #fee2e2; color: #dc2626; }
+
+  /* Recommendation badge */
+  .rec-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .rec-yes { background: #dcfce7; color: #16a34a; }
+  .rec-hold { background: #fef3c7; color: #d97706; }
+  .rec-no { background: #fee2e2; color: #dc2626; }
+
+  .score { font-weight: 600; }
+  .ratio { color: #64748b; }
+  .deal-name { color: #475569; font-size: 12px; }
+  .deal-date { color: #94a3b8; font-size: 12px; }
+
+  /* ===== Report Page ===== */
+  .page { display: none; }
+  .page.active { display: block; }
+  .report-section { background: #fff; border-radius: 12px; padding: 24px 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 20px; }
+  .report-section-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 16px; }
+  .report-summary-text { font-size: 13px; color: #475569; line-height: 1.8; }
+  .report-summary-text li { margin-bottom: 6px; }
+  .report-kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+  .report-kpi-card { background: #f8fafc; border-radius: 10px; padding: 18px; text-align: center; }
+  .report-kpi-label { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
+  .report-kpi-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+  .report-kpi-value .kpi-unit { font-size: 13px; font-weight: 400; color: #94a3b8; }
+  .ai-insight { background: #eff6ff; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
+  .ai-insight-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #106CFF; color: #fff; border-radius: 50%; font-size: 11px; font-weight: 700; margin-right: 8px; }
+  .ai-insight-text { font-size: 13px; color: #334155; line-height: 1.7; display: inline; }
+  .ai-badge { display: inline-block; background: #dbeafe; color: #106CFF; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-bottom: 12px; }
+  .ai-timestamp { font-size: 11px; color: #94a3b8; margin-bottom: 16px; }
+  .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .chart-container { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .chart-title { font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 16px; }
+  .heatmap-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .heatmap-table th { padding: 8px 12px; text-align: left; color: #94a3b8; font-weight: 500; border-bottom: 1px solid #f1f5f9; }
+  .heatmap-table td { padding: 8px 12px; border-bottom: 1px solid #f8fafc; }
+  .heatmap-cell { display: inline-block; width: 36px; height: 24px; border-radius: 4px; text-align: center; line-height: 24px; font-weight: 600; font-size: 11px; }
+  .heat-5 { background: #dcfce7; color: #16a34a; }
+  .heat-4 { background: #dbeafe; color: #106CFF; }
+  .heat-3 { background: #fef3c7; color: #d97706; }
+  .heat-2 { background: #fed7aa; color: #ea580c; }
+  .heat-1 { background: #fee2e2; color: #dc2626; }
+  .heatmap-name { color: #334155; font-weight: 500; }
+  .heatmap-avg { font-size: 11px; color: #94a3b8; font-weight: 500; }
+
+  /* ===== Detail Panel ===== */
+  .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 100; }
+  .overlay.active { display: block; }
+
+  .detail-panel { display: none; position: fixed; top: 0; right: 0; width: 560px; height: 100vh; background: #fff; z-index: 200; box-shadow: -4px 0 24px rgba(0,0,0,0.1); overflow-y: auto; }
+  .detail-panel.active { display: block; }
+
+  .detail-header { padding: 24px 28px 16px; border-bottom: 1px solid #f1f5f9; }
+  .detail-header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .detail-member-name { font-size: 18px; font-weight: 700; color: #1e293b; }
+  .detail-header-actions { display: flex; gap: 8px; }
+  .detail-btn { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid #e2e8f0; background: #fff; color: #106CFF; }
+  .detail-btn:hover { background: #eff6ff; }
+  .detail-btn-close { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid #e2e8f0; background: #fff; color: #64748b; }
+  .detail-btn-close:hover { background: #f8fafc; }
+
+  /* Detail summary cards */
+  .detail-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 20px 28px; border-bottom: 1px solid #f1f5f9; }
+  .detail-card { text-align: center; }
+  .detail-card-label { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
+  .detail-card-value { font-size: 24px; font-weight: 700; color: #1e293b; }
+  .detail-card-value .d-unit { font-size: 12px; font-weight: 400; color: #94a3b8; }
+  .detail-card-value .d-grade { font-size: 20px; }
+  .detail-card-value .d-rec { font-size: 13px; }
+
+  /* Radar chart */
+  .radar-section { padding: 20px 28px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: center; }
+  .radar-wrap { width: 320px; height: 320px; }
+
+  /* Section */
+  .detail-section { padding: 20px 28px; border-bottom: 1px solid #f1f5f9; }
+  .detail-section-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 16px; }
+
+  /* Criteria card */
+  .criteria-card { background: #f8fafc; border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
+  .criteria-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .criteria-name { font-size: 13px; font-weight: 600; color: #334155; }
+  .criteria-right { display: flex; align-items: center; gap: 8px; }
+  .criteria-score { font-size: 14px; font-weight: 700; color: #1e293b; }
+
+  .criteria-block { margin-bottom: 10px; }
+  .criteria-block:last-child { margin-bottom: 0; }
+  .criteria-label { font-size: 11px; font-weight: 600; color: #94a3b8; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .criteria-text { font-size: 13px; color: #475569; line-height: 1.6; }
+  .criteria-quote { font-size: 13px; color: #64748b; line-height: 1.6; font-style: italic; background: #fff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #e2e8f0; }
+
+  /* Overall comment */
+  .comment-block { margin-bottom: 14px; }
+  .comment-block:last-child { margin-bottom: 0; }
+  .comment-label { font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 6px; }
+  .comment-text { font-size: 13px; color: #334155; line-height: 1.7; }
+  .comment-positive { border-left: 3px solid #16a34a; padding-left: 12px; }
+  .comment-negative { border-left: 3px solid #dc2626; padding-left: 12px; }
+
+  /* Member view: hide scoring columns and AI evaluation details */
+  body.member-view thead th:nth-child(4),
+  body.member-view thead th:nth-child(5),
+  body.member-view thead th:nth-child(6),
+  body.member-view thead th:nth-child(7),
+  body.member-view thead th:nth-child(8),
+  body.member-view thead th:nth-child(9),
+  body.member-view tbody td:nth-child(4),
+  body.member-view tbody td:nth-child(5),
+  body.member-view tbody td:nth-child(6),
+  body.member-view tbody td:nth-child(7),
+  body.member-view tbody td:nth-child(8),
+  body.member-view tbody td:nth-child(9),
+  body.member-view thead th:nth-child(10),
+  body.member-view tbody td:nth-child(10) { display: none; }
+  body.member-view #page-report .report-section:has(.heatmap-table),
+  body.member-view #page-report .chart-row,
+  body.member-view #page-report .ai-badge ~ .ai-insight { display: none; }
+  body.member-view .summary-cards .card:nth-child(2) { display: none; }
+  body.member-view .detail-summary .detail-card:nth-child(1),
+  body.member-view .detail-summary .detail-card:nth-child(2) { display: none; }
+  body.member-view #detailCriteria .grade,
+  body.member-view #detailCriteria .score { display: none !important; }
+  body.member-view #page-list::before {
+    content: "メンバー画面：スコアは非表示。文脈分析・改善メモのみ表示";
+    display: block;
+    background: #ecfdf5;
+    border: 1px solid #6ee7b7;
+    color: #065f46;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* ===== Prospect view (新規開拓・与件) ===== */
+  .content-grid { display: grid; grid-template-columns: 1fr 360px; gap: 20px; }
+
+  .prospect-card { background: #fff; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 14px; }
+  .prospect-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+  .prospect-name { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+  .prospect-meta { font-size: 12px; color: #64748b; display: flex; gap: 12px; flex-wrap: wrap; }
+  .prospect-meta span { display: inline-flex; align-items: center; gap: 4px; }
+  .prospect-meta .meta-tag { background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+  .priority-badge { padding: 4px 10px; border-radius: 14px; font-size: 11px; font-weight: 600; }
+  .priority-high { background: #fee2e2; color: #dc2626; }
+  .priority-mid { background: #fef3c7; color: #d97706; }
+  .priority-low { background: #e0f2fe; color: #0284c7; }
+
+  .match-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .match-label { font-size: 11px; color: #94a3b8; min-width: 88px; }
+  .match-bar-wrap { flex: 1; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+  .match-bar { height: 100%; background: linear-gradient(90deg, #60a5fa, #106CFF); border-radius: 4px; }
+  .match-value { font-size: 13px; font-weight: 700; color: #106CFF; min-width: 42px; text-align: right; }
+
+  .section-label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .hypo-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .hypo-item { background: #f8fafc; border-left: 3px solid #106CFF; border-radius: 6px; padding: 10px 14px; font-size: 13px; color: #334155; line-height: 1.6; }
+  .hypo-item .hypo-num { display: inline-block; background: #106CFF; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 8px; margin-right: 6px; }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .tag-product { background: #eff6ff; color: #106CFF; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+  .tag-person { background: #ecfdf5; color: #16a34a; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+
+  .card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #f1f5f9; }
+  .card-footer .sources { font-size: 11px; color: #94a3b8; }
+
+  .insight-panel { background: #fff; border-radius: 12px; padding: 20px 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); position: sticky; top: 24px; align-self: start; }
+  .insight-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+  .insight-title .ai-badge { background: #dbeafe; color: #106CFF; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-bottom: 0; }
+  .insight-ts { font-size: 11px; color: #94a3b8; margin-bottom: 16px; }
+  .insight-block { background: #eff6ff; border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; font-size: 12px; color: #334155; line-height: 1.7; }
+  .insight-block strong { color: #1e293b; }
+  .insight-block .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; background: #106CFF; color: #fff; border-radius: 50%; font-size: 10px; font-weight: 700; margin-right: 6px; vertical-align: middle; }
+  .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 12px; }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-row .stat-label { color: #64748b; }
+  .stat-row .stat-value { color: #1e293b; font-weight: 600; }
+
+  /* ===== Group view (グループ会社攻略) ===== */
+  .group-card { background: #fff; border-radius: 12px; padding: 22px 26px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 16px; }
+  .group-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+  .group-name { font-size: 17px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+  .group-meta { font-size: 12px; color: #64748b; }
+  .group-progress { font-size: 12px; color: #64748b; }
+  .group-progress .pct { color: #106CFF; font-weight: 700; font-size: 14px; }
+
+  .sub-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 18px; }
+  .sub-cell { padding: 12px 10px; border-radius: 8px; text-align: center; }
+  .sub-cell .sub-icon { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-bottom: 6px; }
+  .sub-cell .sub-name { font-size: 12px; color: #334155; font-weight: 600; line-height: 1.3; }
+  .sub-cell .sub-status { font-size: 10px; color: #64748b; margin-top: 4px; }
+  .sub-active { background: #ecfdf5; }
+  .sub-active .sub-icon { background: #16a34a; color: #fff; }
+  .sub-warm { background: #fef3c7; }
+  .sub-warm .sub-icon { background: #d97706; color: #fff; }
+  .sub-cold { background: #f1f5f9; }
+  .sub-cold .sub-icon { background: #94a3b8; color: #fff; }
+
+  .path-timeline { background: #f8fafc; border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
+  .path-step { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #334155; flex-wrap: wrap; line-height: 1.6; }
+  .path-node { background: #fff; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 16px; font-size: 12px; color: #334155; font-weight: 500; }
+  .path-node.connected { border-color: #16a34a; background: #ecfdf5; color: #15803d; }
+  .path-node.pending { border-color: #d97706; background: #fffbeb; color: #b45309; border-style: dashed; }
+  .path-arrow { color: #94a3b8; font-size: 14px; }
+  .path-note { font-size: 11px; color: #64748b; margin-top: 8px; padding-left: 4px; }
+
+  .approach-text { font-size: 13px; color: #475569; line-height: 1.7; padding-left: 12px; border-left: 3px solid #106CFF; }
+
+  .bp-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+  .bp-card .bp-title { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+  .bp-card .bp-text { font-size: 12px; color: #475569; line-height: 1.7; }
+  .bp-card .bp-tag { display: inline-block; background: #ecfdf5; color: #15803d; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-bottom: 8px; }
+
+  .legend-row { display: flex; gap: 14px; margin-bottom: 16px; font-size: 11px; color: #64748b; }
+  .legend-row .lg-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+
+  /* ===== Prospect Interactive Search ===== */
+  .ai-search-section { background: linear-gradient(135deg, #106CFF 0%, #0a4fd1 100%); border-radius: 14px; padding: 28px 32px; margin-bottom: 22px; color: #fff; box-shadow: 0 4px 16px rgba(16,108,255,0.18); }
+  .ai-search-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 1px; opacity: 0.85; margin-bottom: 6px; text-transform: uppercase; }
+  .ai-search-headline { font-size: 19px; font-weight: 700; margin-bottom: 4px; }
+  .ai-search-sub { font-size: 12px; opacity: 0.85; margin-bottom: 18px; line-height: 1.6; }
+  .ai-search-row { display: flex; gap: 10px; align-items: stretch; }
+  .ai-search-input { flex: 1; min-height: 54px; padding: 12px 16px; border: none; border-radius: 10px; font-size: 14px; line-height: 1.6; resize: vertical; font-family: inherit; outline: none; color: #1e293b; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .ai-search-input:focus { box-shadow: 0 0 0 3px rgba(255,255,255,0.45); }
+  .ai-search-btn { padding: 0 22px; min-width: 130px; border: none; border-radius: 10px; background: #fff; color: #0a4fd1; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: transform 0.1s ease, box-shadow 0.2s ease; }
+  .ai-search-btn:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); transform: translateY(-1px); }
+  .ai-search-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  .sample-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .sample-pills .pill-label { font-size: 11px; opacity: 0.85; align-self: center; margin-right: 4px; }
+  .pill { background: rgba(255,255,255,0.16); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 6px 12px; border-radius: 16px; font-size: 12px; cursor: pointer; transition: background 0.15s ease; display: inline-flex; align-items: center; gap: 5px; }
+  .pill:hover { background: rgba(255,255,255,0.28); }
+  .pill .pill-emoji { font-size: 13px; }
+
+  /* Thinking area */
+  .thinking-area { background: #fff; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 16px; display: none; }
+  .thinking-area.active { display: block; animation: aiFadeIn 0.3s ease; }
+  .thinking-title { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .thinking-title .ai-spinner { width: 14px; height: 14px; border: 2px solid #dbeafe; border-top-color: #106CFF; border-radius: 50%; animation: aiSpin 0.8s linear infinite; }
+  .thinking-step { font-size: 12px; color: #475569; padding: 6px 0; display: flex; align-items: center; gap: 8px; line-height: 1.5; opacity: 0; transform: translateY(4px); transition: opacity 0.25s ease, transform 0.25s ease; }
+  .thinking-step.visible { opacity: 1; transform: translateY(0); }
+  .thinking-step .step-mark { width: 16px; display: inline-flex; justify-content: center; }
+  .thinking-step.pending .step-mark { color: #94a3b8; }
+  .thinking-step.done .step-mark { color: #16a34a; font-weight: 700; }
+  .thinking-step.done .step-text { color: #334155; }
+
+  @keyframes aiSpin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+  @keyframes aiFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes aiSlideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Result cards */
+  #prospectResults { display: none; }
+  #prospectResults.active { display: block; }
+  .result-card { background: #fff; border-radius: 12px; padding: 22px 26px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 16px; opacity: 0; transform: translateY(12px); }
+  .result-card.show { animation: aiSlideUp 0.45s ease forwards; }
+  .result-card .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; }
+  .result-card .card-header .rc-icon { font-size: 20px; }
+  .result-card .card-header .rc-title { font-size: 15px; font-weight: 700; color: #1e293b; }
+  .result-card .card-header .rc-sub { font-size: 11px; color: #94a3b8; margin-left: auto; }
+
+  /* Profile section */
+  .profile-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .profile-cell { background: #f8fafc; border-radius: 10px; padding: 12px 14px; }
+  .profile-cell .pc-label { font-size: 10px; color: #94a3b8; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px; }
+  .profile-cell .pc-value { font-size: 13px; color: #1e293b; font-weight: 600; line-height: 1.5; }
+  .profile-cell.full { grid-column: 1 / -1; }
+  .ir-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ir-tag { background: #dbeafe; color: #0a4fd1; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px; }
+
+  /* Similar deals */
+  .deal-row { display: grid; grid-template-columns: 28px 1fr 80px 100px 80px; gap: 12px; align-items: center; padding: 12px 14px; background: #f8fafc; border-radius: 10px; margin-bottom: 8px; }
+  .deal-rank { font-size: 14px; font-weight: 700; color: #106CFF; }
+  .deal-info .deal-name-r { font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 3px; }
+  .deal-info .deal-meta-r { font-size: 11px; color: #64748b; }
+  .deal-match { text-align: right; font-size: 14px; font-weight: 700; color: #106CFF; }
+  .deal-outcome { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 10px; text-align: center; }
+  .outcome-won { background: #dcfce7; color: #16a34a; }
+  .outcome-lost { background: #fee2e2; color: #dc2626; }
+  .deal-period { font-size: 11px; color: #64748b; text-align: right; }
+
+  /* Hypothesis cards */
+  .hypo-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; background: #fff; transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+  .hypo-card:hover { border-color: #106CFF; box-shadow: 0 2px 8px rgba(16,108,255,0.08); }
+  .hypo-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .hypo-card-num { width: 24px; height: 24px; background: #106CFF; color: #fff; border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .hypo-card-title { font-size: 14px; font-weight: 700; color: #1e293b; line-height: 1.4; }
+  .hypo-row { display: grid; grid-template-columns: 80px 1fr; gap: 10px; font-size: 12px; line-height: 1.7; margin-bottom: 6px; }
+  .hypo-row:last-child { margin-bottom: 0; }
+  .hypo-row .hr-label { color: #94a3b8; font-weight: 600; font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; }
+  .hypo-row .hr-text { color: #334155; }
+  .hypo-row .hr-text.talk { background: #f8fafc; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #106CFF; font-style: italic; color: #475569; }
+  .hypo-products { display: flex; flex-wrap: wrap; gap: 6px; }
+  .hypo-products .hp-tag { background: #eff6ff; color: #106CFF; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+
+  /* Members */
+  .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .member-card { background: #f8fafc; border-radius: 10px; padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+  .member-avatar { width: 40px; height: 40px; background: #106CFF; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+  .member-body .member-name-r { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+  .member-body .member-reason { font-size: 11px; color: #64748b; line-height: 1.6; }
+
+  /* Objections */
+  .objection-row { display: flex; gap: 14px; padding: 14px 16px; background: #f8fafc; border-radius: 10px; margin-bottom: 10px; }
+  .objection-row .obj-icon { font-size: 18px; line-height: 1.4; flex-shrink: 0; }
+  .objection-body { flex: 1; }
+  .objection-body .obj-q { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 6px; line-height: 1.5; }
+  .objection-body .obj-a { font-size: 12px; color: #475569; line-height: 1.7; }
+  .objection-body .obj-a-label { font-size: 10px; font-weight: 700; color: #16a34a; letter-spacing: 0.5px; margin-right: 6px; }
+
+  /* Reset bar */
+  .reset-bar { display: flex; justify-content: flex-end; margin-top: 8px; margin-bottom: 24px; }
+  .reset-btn { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 16px; font-size: 12px; color: #64748b; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .reset-btn:hover { background: #f8fafc; color: #106CFF; border-color: #cbd5e1; }
+
+  /* ===== Group Interactive Search (グループ会社攻略) ===== */
+  #groupResults { display: none; }
+  #groupResults.active { display: block; }
+
+  .subsidiary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+  .subsidiary-card { border-radius: 10px; padding: 14px 16px; border: 1px solid transparent; position: relative; display: flex; flex-direction: column; gap: 6px; min-height: 110px; }
+  .subsidiary-card .sub-status-badge { display: inline-block; align-self: flex-start; font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 10px; letter-spacing: 0.3px; }
+  .subsidiary-card .sub-co-name { font-size: 14px; font-weight: 700; color: #1e293b; line-height: 1.4; margin-top: 2px; }
+  .subsidiary-card .sub-co-meta { font-size: 11px; color: #64748b; line-height: 1.55; }
+  .subsidiary-card .sub-co-kp { font-size: 11px; color: #475569; line-height: 1.5; margin-top: auto; padding-top: 6px; border-top: 1px dashed #e2e8f0; }
+  .subsidiary-card.status-active { background: #ecfdf5; border-color: #bbf7d0; }
+  .subsidiary-card.status-active .sub-status-badge { background: #16a34a; color: #fff; }
+  .subsidiary-card.status-partial { background: #fffbeb; border-color: #fde68a; }
+  .subsidiary-card.status-partial .sub-status-badge { background: #d97706; color: #fff; }
+  .subsidiary-card.status-untapped { background: #f8fafc; border-color: #e2e8f0; }
+  .subsidiary-card.status-untapped .sub-status-badge { background: #94a3b8; color: #fff; }
+  .subsidiary-card.status-untapped .sub-co-name { color: #475569; }
+
+  .sub-legend { display: flex; gap: 14px; margin-bottom: 14px; font-size: 11px; color: #64748b; flex-wrap: wrap; }
+  .sub-legend .lg-pill { display: inline-flex; align-items: center; gap: 5px; }
+  .sub-legend .lg-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+
+  .path-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; background: #fff; transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+  .path-card:hover { border-color: #106CFF; box-shadow: 0 2px 8px rgba(16,108,255,0.08); }
+  .path-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .path-card-num { width: 24px; height: 24px; background: #106CFF; color: #fff; border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .path-card-title { font-size: 13px; font-weight: 700; color: #1e293b; flex: 1; }
+  .path-success { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 10px; }
+  .path-success-high { background: #dcfce7; color: #16a34a; }
+  .path-success-mid { background: #fef3c7; color: #d97706; }
+  .path-success-low { background: #fee2e2; color: #dc2626; }
+
+  .path-flow { display: flex; align-items: stretch; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
+  .path-flow .path-step-box { flex: 1; min-width: 160px; background: #f8fafc; border-radius: 8px; padding: 10px 12px; border-left: 3px solid #106CFF; }
+  .path-flow .path-step-box.start { border-left-color: #16a34a; }
+  .path-flow .path-step-box.relay { border-left-color: #d97706; }
+  .path-flow .path-step-box.target { border-left-color: #106CFF; background: #eff6ff; }
+  .path-flow .step-role { font-size: 10px; color: #94a3b8; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 3px; }
+  .path-flow .step-person { font-size: 12px; color: #1e293b; font-weight: 600; line-height: 1.4; }
+  .path-flow .step-co { font-size: 11px; color: #64748b; margin-top: 2px; }
+  .path-flow .path-flow-arrow { display: flex; align-items: center; color: #94a3b8; font-size: 18px; font-weight: 700; padding: 0 2px; }
+
+  .path-basis { background: #f1f5f9; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #475569; line-height: 1.6; margin-bottom: 8px; }
+  .path-basis .pb-label { font-weight: 700; color: #1e293b; margin-right: 4px; }
+  .path-action { font-size: 12px; color: #334155; line-height: 1.7; padding: 8px 12px; background: #fff; border-left: 3px solid #16a34a; border-radius: 4px; font-style: italic; }
+  .path-ref { font-size: 11px; color: #94a3b8; margin-top: 8px; }
+
+  .doorknock-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; background: #fff; }
+  .doorknock-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .doorknock-num { width: 24px; height: 24px; background: #0a4fd1; color: #fff; border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .doorknock-title { font-size: 14px; font-weight: 700; color: #1e293b; }
+  .doorknock-row { display: grid; grid-template-columns: 90px 1fr; gap: 10px; font-size: 12px; line-height: 1.7; margin-bottom: 6px; }
+  .doorknock-row:last-child { margin-bottom: 0; }
+  .doorknock-row .dk-label { color: #94a3b8; font-weight: 700; font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; }
+  .doorknock-row .dk-text { color: #334155; }
+  .doorknock-row .dk-text.talk { background: #f8fafc; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #0a4fd1; font-style: italic; color: #475569; }
+  .dk-match { display: flex; flex-wrap: wrap; gap: 5px; }
+  .dk-match-tag { background: #ecfdf5; color: #15803d; padding: 3px 9px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+
+  .success-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .success-card { background: #f8fafc; border-radius: 10px; padding: 14px 16px; border-left: 3px solid #16a34a; }
+  .success-card .sc-group { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+  .success-card .sc-meta { font-size: 11px; color: #64748b; margin-bottom: 8px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .success-card .sc-meta span { display: inline-flex; align-items: center; gap: 3px; }
+  .success-card .sc-quote { background: #fff; border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #334155; line-height: 1.6; font-style: italic; border-left: 2px solid #cbd5e1; }
+
+  /* ===== Deal Diagnosis (商談診断) ===== */
+  .deal-select-row { display: flex; gap: 10px; align-items: stretch; margin-bottom: 10px; }
+  .deal-select { flex: 0 0 320px; min-height: 54px; padding: 12px 14px; border: none; border-radius: 10px; font-size: 13px; font-family: inherit; outline: none; color: #1e293b; background: #fff url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3e%3cpath d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'/%3e%3c/svg%3e") right 12px center/16px no-repeat; -webkit-appearance: none; appearance: none; padding-right: 36px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); cursor: pointer; }
+  .deal-select:focus { box-shadow: 0 0 0 3px rgba(255,255,255,0.45); }
+
+  /* Deal summary card */
+  .deal-summary-card { background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border-radius: 12px; padding: 22px 26px; border: 1px solid #e0e7ff; }
+  .deal-summary-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+  .deal-summary-name { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 6px; line-height: 1.4; }
+  .deal-summary-meta { font-size: 12px; color: #64748b; line-height: 1.7; }
+  .deal-summary-meta span { display: inline-block; margin-right: 14px; }
+  .deal-grade-block { text-align: right; flex-shrink: 0; }
+  .deal-grade-label { font-size: 10px; color: #94a3b8; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
+  .deal-grade-big { display: inline-flex; align-items: center; justify-content: center; min-width: 56px; height: 48px; border-radius: 10px; font-size: 26px; font-weight: 800; padding: 0 14px; }
+  .deal-grade-score { font-size: 13px; color: #475569; margin-top: 6px; font-weight: 600; }
+  .deal-grade-score .ds-val { font-size: 18px; color: #1e293b; font-weight: 800; }
+  .deal-oneliner { background: #fff; border-left: 3px solid #106CFF; border-radius: 6px; padding: 10px 14px; font-size: 13px; color: #334155; line-height: 1.7; }
+
+  /* Score bars (4 axes) */
+  .score-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 16px; }
+  .score-item { background: #f8fafc; border-radius: 10px; padding: 14px 16px; }
+  .score-item-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .score-item-name { font-size: 13px; font-weight: 700; color: #1e293b; }
+  .score-item-val { font-size: 15px; font-weight: 800; color: #1e293b; }
+  .score-item-val .sv-max { font-size: 11px; color: #94a3b8; font-weight: 500; }
+  .score-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+  .score-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .score-bar-fill.lv-hi { background: linear-gradient(90deg, #34d399, #16a34a); }
+  .score-bar-fill.lv-mid { background: linear-gradient(90deg, #fbbf24, #d97706); }
+  .score-bar-fill.lv-lo { background: linear-gradient(90deg, #f87171, #dc2626); }
+  .score-item-comment { font-size: 11px; color: #64748b; line-height: 1.6; }
+  .sub-metrics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding-top: 14px; border-top: 1px dashed #e2e8f0; }
+  .sub-metric { text-align: center; }
+  .sub-metric-label { font-size: 10px; color: #94a3b8; font-weight: 600; letter-spacing: 0.4px; margin-bottom: 4px; }
+  .sub-metric-val { font-size: 14px; font-weight: 700; color: #1e293b; }
+  .sub-metric-val .sm-note { font-size: 10px; color: #64748b; font-weight: 500; margin-left: 4px; }
+
+  /* Point cards (good / improve) */
+  .point-card { border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; background: #fff; border: 1px solid #e2e8f0; }
+  .point-card.positive { border-left: 4px solid #16a34a; background: #f0fdf4; }
+  .point-card.negative { border-left: 4px solid #f59e0b; background: #fffbeb; }
+  .point-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .point-num { width: 22px; height: 22px; background: #106CFF; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .point-card.positive .point-num { background: #16a34a; }
+  .point-card.negative .point-num { background: #f59e0b; }
+  .point-title { font-size: 14px; font-weight: 700; color: #1e293b; line-height: 1.4; flex: 1; }
+  .timestamp-badge { display: inline-flex; align-items: center; gap: 4px; background: #1e293b; color: #fff; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; font-family: 'SF Mono', Menlo, monospace; }
+  .timestamp-badge::before { content: '▶'; font-size: 8px; }
+  .point-row { display: grid; grid-template-columns: 88px 1fr; gap: 10px; font-size: 12px; line-height: 1.7; margin-bottom: 8px; }
+  .point-row:last-child { margin-bottom: 0; }
+  .point-row .pr-label { color: #94a3b8; font-weight: 600; font-size: 10px; letter-spacing: 0.4px; text-transform: uppercase; padding-top: 2px; }
+  .point-row .pr-text { color: #334155; }
+  .point-row .pr-text.quote { background: #fff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #cbd5e1; font-style: italic; color: #475569; }
+  .point-card.positive .point-row .pr-text.quote { border-left-color: #86efac; }
+  .point-card.negative .point-row .pr-text.quote { border-left-color: #fcd34d; }
+  .point-row .pr-text.best { background: #eff6ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #106CFF; color: #1e3a8a; font-weight: 500; }
+
+  /* Action cards (next actions) */
+  .action-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; }
+  .action-body .action-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 8px; line-height: 1.4; }
+  .action-body .action-desc { font-size: 12px; color: #475569; line-height: 1.7; margin-bottom: 10px; }
+  .action-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .action-meta .action-due { font-size: 11px; color: #64748b; background: #f1f5f9; padding: 3px 10px; border-radius: 10px; font-weight: 600; }
+  .action-meta .action-link { font-size: 11px; color: #106CFF; background: #eff6ff; padding: 3px 10px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid #dbeafe; }
+  .action-meta .action-link:hover { background: #dbeafe; }
+  .action-priority { padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; align-self: flex-start; white-space: nowrap; }
+  .action-priority-high { background: #fee2e2; color: #dc2626; }
+  .action-priority-mid { background: #fef3c7; color: #d97706; }
+  .action-priority-low { background: #e0f2fe; color: #0284c7; }
+
+  /* Grade badge variants for deal summary */
+  .deal-grade-big.gr-a { background: #dcfce7; color: #16a34a; }
+  .deal-grade-big.gr-bp { background: #dbeafe; color: #106CFF; }
+  .deal-grade-big.gr-b { background: #fef3c7; color: #d97706; }
+  .deal-grade-big.gr-bm { background: #fed7aa; color: #ea580c; }
+  .deal-grade-big.gr-c { background: #fee2e2; color: #dc2626; }
+
+  #dealResults { display: none; }
+  #dealResults.active { display: block; }
+
+  /* ===== Quality Analysis (商談品質分析) — won/lost comparison ===== */
+  /* Headline driver banner */
+  .qa-driver { background: linear-gradient(135deg, #0a4fd1 0%, #6366f1 100%); border-radius: 12px; padding: 22px 26px; color: #fff; margin-bottom: 16px; }
+  .qa-driver-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 1px; opacity: 0.85; text-transform: uppercase; margin-bottom: 8px; }
+  .qa-driver-text { font-size: 15px; font-weight: 700; line-height: 1.7; }
+  .qa-driver-text .em { background: rgba(255,255,255,0.22); border-radius: 4px; padding: 1px 6px; }
+
+  /* Win-rate / corpus stat cards */
+  .qa-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .qa-stat { background: #f8fafc; border-radius: 10px; padding: 16px 18px; text-align: center; }
+  .qa-stat-label { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
+  .qa-stat-val { font-size: 26px; font-weight: 800; color: #1e293b; }
+  .qa-stat-val .qa-unit { font-size: 12px; font-weight: 500; color: #94a3b8; margin-left: 2px; }
+  .qa-stat-val.won { color: #16a34a; }
+  .qa-stat-val.lost { color: #dc2626; }
+  .qa-stat-sub { font-size: 10px; color: #64748b; margin-top: 4px; }
+
+  /* Comparison table: 成功群 vs 失注群 */
+  .cmp-legend { display: flex; gap: 16px; margin-bottom: 16px; font-size: 11px; color: #64748b; }
+  .cmp-legend .lg-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: middle; }
+  .cmp-row { display: grid; grid-template-columns: 150px 1fr 56px; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+  .cmp-row:last-child { border-bottom: none; }
+  .cmp-dim { font-size: 12px; font-weight: 600; color: #334155; line-height: 1.4; }
+  .cmp-dim .cmp-dim-note { display: block; font-size: 10px; color: #94a3b8; font-weight: 400; margin-top: 2px; }
+  .cmp-bars { display: flex; flex-direction: column; gap: 6px; }
+  .cmp-bar-line { display: flex; align-items: center; gap: 8px; }
+  .cmp-bar-tag { font-size: 10px; font-weight: 700; width: 30px; flex-shrink: 0; }
+  .cmp-bar-tag.won { color: #16a34a; }
+  .cmp-bar-tag.lost { color: #dc2626; }
+  .cmp-bar-track { flex: 1; height: 14px; background: #f1f5f9; border-radius: 7px; overflow: hidden; }
+  .cmp-bar-fill { height: 100%; border-radius: 7px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 9px; font-weight: 700; color: #fff; transition: width 0.6s ease; min-width: 24px; }
+  .cmp-bar-fill.won { background: linear-gradient(90deg, #34d399, #16a34a); }
+  .cmp-bar-fill.lost { background: linear-gradient(90deg, #fca5a5, #dc2626); }
+  .cmp-gap { text-align: center; font-size: 13px; font-weight: 800; }
+  .cmp-gap.big { color: #0a4fd1; }
+  .cmp-gap.small { color: #94a3b8; }
+  .cmp-gap .cmp-gap-lbl { display: block; font-size: 9px; font-weight: 600; color: #cbd5e1; }
+
+  /* Factor cards (成功要因 / 失注要因) reuse point-card; add occurrence badge */
+  .occ-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 10px; }
+  .occ-won { background: #dcfce7; color: #16a34a; }
+  .occ-lost { background: #fee2e2; color: #dc2626; }
+
+  /* Unasked questions */
+  .uq-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; background: #fff; }
+  .uq-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .uq-q { font-size: 13px; font-weight: 700; color: #1e293b; flex: 1; line-height: 1.5; }
+  .uq-rate { display: flex; gap: 6px; align-items: center; font-size: 11px; }
+  .uq-rate .uq-won { color: #16a34a; font-weight: 700; }
+  .uq-rate .uq-lost { color: #dc2626; font-weight: 700; }
+  .uq-row { display: grid; grid-template-columns: 84px 1fr; gap: 10px; font-size: 12px; line-height: 1.7; margin-bottom: 6px; }
+  .uq-row:last-child { margin-bottom: 0; }
+  .uq-row .uq-label { color: #94a3b8; font-weight: 600; font-size: 10px; letter-spacing: 0.4px; text-transform: uppercase; padding-top: 2px; }
+  .uq-row .uq-text { color: #334155; }
+  .uq-row .uq-text.script { background: #eff6ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #106CFF; color: #1e3a8a; font-style: italic; }
+
+  /* Weak proposal points */
+  .weak-card { border: 1px solid #fde68a; background: #fffbeb; border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; }
+  .weak-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .weak-title { font-size: 13px; font-weight: 700; color: #1e293b; flex: 1; line-height: 1.5; }
+  .weak-corr { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 10px; background: #fef3c7; color: #b45309; white-space: nowrap; }
+  .weak-row { display: grid; grid-template-columns: 84px 1fr; gap: 10px; font-size: 12px; line-height: 1.7; margin-bottom: 6px; }
+  .weak-row:last-child { margin-bottom: 0; }
+  .weak-row .weak-label { color: #b45309; font-weight: 600; font-size: 10px; letter-spacing: 0.4px; text-transform: uppercase; padding-top: 2px; }
+  .weak-row .weak-text { color: #334155; }
+  .weak-row .weak-text.fix { background: #fff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #16a34a; color: #15803d; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-top">
+    <div class="sidebar-logo">
+      <div>
+        <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#106CFF"/><path d="M10 22V12l6-4 6 4v10" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 22v-5h4v5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <span class="logo-text">ailead</span>
+        <span class="logo-sub">Sales Dashboard</span>
+      </div>
+    </div>
+    <ul class="sidebar-nav">
+      <li class="active" id="nav-prospect" onclick="showView('prospect', event)">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-9a1 1 0 112 0v3.586l2.293 2.293a1 1 0 01-1.414 1.414l-2.586-2.586A1 1 0 019 11V7z"/></svg>
+        新規開拓・与件
+      </li>
+      <li id="nav-group" onclick="showView('group', event)">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.99 3.99 0 0114 15c-1.5 0-2.79-.83-3.443-2.053a1 1 0 01-.107-.601l1.302-5.207-3.752-1.5V17h2a1 1 0 110 2H6a1 1 0 110-2h2V5.638l-3.752 1.5 1.302 5.207a1 1 0 01-.107.601C4.79 14.17 3.5 15 2 15a3.99 3.99 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.616a1 1 0 01.894-1.79l1.599.8L8 4.323V3a1 1 0 011-1z"/></svg>
+        グループ会社攻略
+      </li>
+      <li class="" id="nav-deal" onclick="showView('deal', event)">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"/></svg>
+        商談品質分析
+      </li>
+    </ul>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="sidebar-client" style="border-top:none;">
+      <div class="sidebar-client-icon" style="background:#6366f1;">P</div>
+      <div style="line-height:1.3;">
+        <span class="sidebar-client-name">プラスアルファ・コンサルティング</span>
+        <div style="font-size:10px;color:#94a3b8;margin-top:2px;">タレントパレット事業部 営業本部</div>
+      </div>
+    </div>
+    <div class="sidebar-account">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+      アカウント
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+
+<!-- ============================================================ -->
+<!-- ===== VIEW: COACHING (組織診断) ============================ -->
+<!-- ============================================================ -->
+<div class="view" id="view-deal">
+  <div class="page-title">
+    商談品質分析
+    <span class="sub">タレントパレット事業部 営業本部</span>
+    <span class="badge">商談品質分析エージェント</span>
+  </div>
+
+  <div class="disclaimer">
+    <strong>※ サンプルデータ：</strong> 本ダッシュボードはプラスアルファ・コンサルティング様向けのイメージ共有用Mockです。実データに基づくものではありません。
+  </div>
+
+  <!-- AI Search Hero -->
+  <div class="ai-search-section">
+    <div class="ai-search-eyebrow">DEAL QUALITY ANALYSIS</div>
+    <div class="ai-search-headline">分析したいテーマ・セグメントを選んでください</div>
+    <div class="ai-search-sub">同じテーマの<strong style="color:#fff">成功商談（受注）と失注商談</strong>を ailead が横断比較。「成果につながる提案・資料・トーク」の傾向を、成功要因・失注要因・聞けていない質問・弱い提案ポイント・改善アクションとして可視化します。</div>
+    <div class="ai-search-row">
+      <select id="qaSelect" class="deal-select" onchange="onQaSelectChange()">
+        <option value="">-- 分析テーマを選ぶ --</option>
+        <option value="qa_hyoka">人事評価制度の刷新（受注12 / 失注9）</option>
+        <option value="qa_rishoku">離職予兆・エンゲージメント（受注10 / 失注14）</option>
+        <option value="qa_kaiji">人的資本開示対応（受注8 / 失注7）</option>
+        <option value="qa_haichi">適材適所・配置最適化（受注7 / 失注11）</option>
+        <option value="qa_replace">他社HRシステムからの乗り換え（受注9 / 失注13）</option>
+      </select>
+      <textarea id="qaQuery" class="ai-search-input" rows="2" placeholder="または分析したい切り口を自由入力：例「離職予兆テーマで、製造業向けの受注と失注で何が違うか知りたい」"></textarea>
+      <button id="qaAnalyzeBtn" class="ai-search-btn" onclick="analyzeQa()">品質分析を開始 →</button>
+    </div>
+    <div class="sample-pills">
+      <span class="pill-label">サンプル：</span>
+      <span class="pill" onclick="runQaSample('qa_hyoka')"><span class="pill-emoji">📊</span>評価制度の刷新</span>
+      <span class="pill" onclick="runQaSample('qa_rishoku')"><span class="pill-emoji">💬</span>離職予兆・エンゲージメント</span>
+      <span class="pill" onclick="runQaSample('qa_kaiji')"><span class="pill-emoji">📑</span>人的資本開示</span>
+      <span class="pill" onclick="runQaSample('qa_haichi')"><span class="pill-emoji">🧩</span>配置最適化</span>
+      <span class="pill" onclick="runQaSample('qa_replace')"><span class="pill-emoji">🔁</span>他社乗り換え</span>
+    </div>
+  </div>
+
+  <!-- Thinking area -->
+  <div class="thinking-area" id="qaThinkingArea">
+    <div class="thinking-title"><span class="ai-spinner"></span><span id="qaThinkingTitleText">ailead が成功商談と失注商談を比較しています...</span></div>
+    <div id="qaThinkingSteps"></div>
+  </div>
+
+  <!-- Results area -->
+  <div id="dealResults">
+    <div class="result-card" id="rc-qa-summary">
+      <div class="card-header">
+        <span class="rc-icon">🧭</span>
+        <span class="rc-title">分析サマリ・成果ドライバー</span>
+        <span class="rc-sub">成功群と失注群の母数・受注率</span>
+      </div>
+      <div class="qa-driver" id="qaDriver"></div>
+      <div class="qa-stats" id="qaStats"></div>
+    </div>
+
+    <div class="result-card" id="rc-qa-compare">
+      <div class="card-header">
+        <span class="rc-icon">⚖️</span>
+        <span class="rc-title">成功商談 × 失注商談 比較</span>
+        <span class="rc-sub">提案・資料・トークの行動指標で対比</span>
+      </div>
+      <div class="cmp-legend">
+        <span><span class="lg-dot" style="background:#16a34a;"></span>成功群（受注）平均</span>
+        <span><span class="lg-dot" style="background:#dc2626;"></span>失注群平均</span>
+        <span><span class="lg-dot" style="background:#0a4fd1;"></span>差分が大きい＝成果ドライバー候補</span>
+      </div>
+      <div id="qaCompare"></div>
+    </div>
+
+    <div class="result-card" id="rc-qa-success">
+      <div class="card-header">
+        <span class="rc-icon">✅</span>
+        <span class="rc-title">成功要因 Top 3</span>
+        <span class="rc-sub">受注群で高頻度に共通する動き</span>
+      </div>
+      <div id="qaSuccessList"></div>
+    </div>
+
+    <div class="result-card" id="rc-qa-loss">
+      <div class="card-header">
+        <span class="rc-icon">⚠️</span>
+        <span class="rc-title">失注要因 Top 3</span>
+        <span class="rc-sub">失注群に共通する抜け・つまずき</span>
+      </div>
+      <div id="qaLossList"></div>
+    </div>
+
+    <div class="result-card" id="rc-qa-questions">
+      <div class="card-header">
+        <span class="rc-icon">❓</span>
+        <span class="rc-title">聞けていない質問</span>
+        <span class="rc-sub">受注群は聞けて失注群は聞けていない問い</span>
+      </div>
+      <div id="qaQuestionList"></div>
+    </div>
+
+    <div class="result-card" id="rc-qa-weak">
+      <div class="card-header">
+        <span class="rc-icon">🪧</span>
+        <span class="rc-title">弱い提案ポイント・資料・トーク</span>
+        <span class="rc-sub">成果との相関が低い／逆効果の傾向</span>
+      </div>
+      <div id="qaWeakList"></div>
+    </div>
+
+    <div class="result-card" id="rc-qa-actions">
+      <div class="card-header">
+        <span class="rc-icon">🎯</span>
+        <span class="rc-title">改善アクション 3案</span>
+        <span class="rc-sub">成功群の型を再現するための打ち手</span>
+      </div>
+      <div id="qaActionList"></div>
+    </div>
+
+    <div class="reset-bar">
+      <button class="reset-btn" onclick="resetQa()">↺ 別のテーマで分析する</button>
+    </div>
+  </div>
+
+</div>
+<!-- END VIEW: DEAL (商談品質分析) -->
+
+
+
+<!-- ============================================================ -->
+<!-- ===== VIEW: PROSPECT (新規開拓・与件) ====================== -->
+<!-- ============================================================ -->
+<div class="view active" id="view-prospect">
+  <div class="page-title">
+    新規開拓・与件
+    <span class="sub">タレントパレット事業部 営業本部</span>
+    <span class="badge">仮説提示エージェント</span>
+  </div>
+
+  <div class="disclaimer">
+    <strong>※ サンプルデータ：</strong> 本ダッシュボードはプラスアルファ・コンサルティング様向けのイメージ共有用Mockです。実データに基づくものではありません。
+  </div>
+
+  <!-- AI Search Hero -->
+  <div class="ai-search-section">
+    <div class="ai-search-eyebrow">PROSPECT INTELLIGENCE</div>
+    <div class="ai-search-headline">攻めたい顧客を入力してください</div>
+    <div class="ai-search-sub">過去420本のタレントパレット商談データと公開情報（採用サイト・統合報告書・人的資本開示）から、顧客プロファイル・類似商談・仮説・推奨同行者・想定反論を一括生成します。</div>
+    <div class="ai-search-row">
+      <textarea id="prospectQuery" class="ai-search-input" rows="2" placeholder="例：製造A社の人事部にアプローチしたい。人的資本開示の義務化で評価制度の刷新が動いていそう。"></textarea>
+      <button id="prospectAnalyzeBtn" class="ai-search-btn" onclick="analyzeCustomer()">分析開始 →</button>
+    </div>
+    <div class="sample-pills">
+      <span class="pill-label">サンプル：</span>
+      <span class="pill" onclick="runSample('maker_a')"><span class="pill-emoji">🏭</span>製造A社 人事部</span>
+      <span class="pill" onclick="runSample('retail_b')"><span class="pill-emoji">🛍️</span>小売B社 人事企画</span>
+      <span class="pill" onclick="runSample('it_c')"><span class="pill-emoji">💻</span>IT C社 人事本部</span>
+      <span class="pill" onclick="runSample('medical_d')"><span class="pill-emoji">🏥</span>医療法人D 法人本部</span>
+      <span class="pill" onclick="runSample('logistics_e')"><span class="pill-emoji">🚚</span>物流E社 人事部</span>
+    </div>
+  </div>
+
+  <!-- Thinking area -->
+  <div class="thinking-area" id="thinkingArea">
+    <div class="thinking-title"><span class="ai-spinner"></span><span id="thinkingTitleText">ailead が顧客を分析しています...</span></div>
+    <div id="thinkingSteps"></div>
+  </div>
+
+  <!-- Results area -->
+  <div id="prospectResults">
+    <div class="result-card" id="rc-profile">
+      <div class="card-header">
+        <span class="rc-icon">🎯</span>
+        <span class="rc-title">顧客プロファイル分析</span>
+        <span class="rc-sub" id="profileSub">採用サイト・統合報告書 / 過去接点から自動抽出</span>
+      </div>
+      <div class="profile-grid" id="profileGrid"></div>
+    </div>
+
+    <div class="result-card" id="rc-deals">
+      <div class="card-header">
+        <span class="rc-icon">📊</span>
+        <span class="rc-title">過去類似商談 Top 3</span>
+        <span class="rc-sub" id="dealsSub">類似度・受注実績・期間で選定</span>
+      </div>
+      <div id="dealList"></div>
+    </div>
+
+    <div class="result-card" id="rc-hypo">
+      <div class="card-header">
+        <span class="rc-icon">💡</span>
+        <span class="rc-title">刺さる仮説 × 商材 × トーク 3案</span>
+        <span class="rc-sub">仮説 → 推奨商材 → 初回トーク</span>
+      </div>
+      <div id="hypoList"></div>
+    </div>
+
+    <div class="result-card" id="rc-members">
+      <div class="card-header">
+        <span class="rc-icon">👥</span>
+        <span class="rc-title">推奨同行者</span>
+        <span class="rc-sub">過去商談実績ベース</span>
+      </div>
+      <div class="member-grid" id="memberGrid"></div>
+    </div>
+
+    <div class="result-card" id="rc-obj">
+      <div class="card-header">
+        <span class="rc-icon">⚠️</span>
+        <span class="rc-title">想定される反論と対応</span>
+        <span class="rc-sub">過去商談Q&Aから抽出</span>
+      </div>
+      <div id="objectionList"></div>
+    </div>
+
+    <div class="reset-bar">
+      <button class="reset-btn" onclick="resetProspect()">↺ 別の顧客で分析しなおす</button>
+    </div>
+  </div>
+
+</div>
+<!-- END VIEW: PROSPECT -->
+
+
+<!-- ============================================================ -->
+<!-- ===== VIEW: GROUP (グループ会社攻略) ======================= -->
+<!-- ============================================================ -->
+<div class="view" id="view-group">
+  <div class="page-title">
+    グループ会社攻略
+    <span class="sub">タレントパレット事業部 営業本部</span>
+    <span class="badge">人付け展開エージェント</span>
+  </div>
+
+  <div class="disclaimer">
+    <strong>※ サンプルデータ：</strong> 本ダッシュボードはプラスアルファ・コンサルティング様向けのイメージ共有用Mockです。実データに基づくものではありません。
+  </div>
+
+  <div class="ai-search-section">
+    <div class="ai-search-eyebrow">GROUP EXPANSION INTELLIGENCE</div>
+    <div class="ai-search-headline">親会社・グループ名を入力してください</div>
+    <div class="ai-search-sub">既存取引データ・公開情報・過去のグループ横展開事例から、子会社マップ・人付け展開パス・ドアノックテーマ（評価／開示／配置など）を一括生成します。グループ人事の統合機運に合わせて横展開の地図を描きます。</div>
+    <div class="ai-search-row">
+      <textarea id="groupQuery" class="ai-search-input" rows="2" placeholder="例：製造Aホールディングスの未開拓子会社を攻めたい。人的資本開示のグループ統一が統合報告書で言及されている。"></textarea>
+      <button id="groupAnalyzeBtn" class="ai-search-btn" onclick="analyzeGroup()">展開分析開始 →</button>
+    </div>
+    <div class="sample-pills">
+      <span class="pill-label">サンプル：</span>
+      <span class="pill" onclick="runGroupSample('maker_a_group')"><span class="pill-emoji">🏭</span>製造Aホールディングス</span>
+      <span class="pill" onclick="runGroupSample('retail_b_group')"><span class="pill-emoji">🛍️</span>小売Bグループ</span>
+      <span class="pill" onclick="runGroupSample('it_c_group')"><span class="pill-emoji">💻</span>IT Cグループ</span>
+      <span class="pill" onclick="runGroupSample('service_d_group')"><span class="pill-emoji">🏨</span>サービスDグループ</span>
+      <span class="pill" onclick="runGroupSample('medical_e_group')"><span class="pill-emoji">🏥</span>医療E事業グループ</span>
+    </div>
+  </div>
+
+  <div class="thinking-area" id="groupThinkingArea">
+    <div class="thinking-title"><span class="ai-spinner"></span><span>ailead がグループ展開パスを生成しています...</span></div>
+    <div id="groupThinkingSteps"></div>
+  </div>
+
+  <div id="groupResults">
+    <div class="result-card" id="gc-profile">
+      <div class="card-header">
+        <span class="rc-icon">🌐</span>
+        <span class="rc-title">親会社プロファイル</span>
+        <span class="rc-sub">統合報告書・人的資本開示からの集約</span>
+      </div>
+      <div class="profile-grid" id="groupProfileGrid"></div>
+    </div>
+
+    <div class="result-card" id="gc-map">
+      <div class="card-header">
+        <span class="rc-icon">🗺️</span>
+        <span class="rc-title">グループ会社マップ</span>
+        <span class="rc-sub">取引ステータスと推定キーパーソン</span>
+      </div>
+      <div class="sub-legend">
+        <span class="lg-pill"><span class="lg-dot" style="background:#16a34a;"></span>取引◎ 主要案件あり</span>
+        <span class="lg-pill"><span class="lg-dot" style="background:#d97706;"></span>取引△ 接点・小規模</span>
+        <span class="lg-pill"><span class="lg-dot" style="background:#94a3b8;"></span>未開拓</span>
+      </div>
+      <div class="subsidiary-grid" id="subsidiaryGrid"></div>
+    </div>
+
+    <div class="result-card" id="gc-paths">
+      <div class="card-header">
+        <span class="rc-icon">🔗</span>
+        <span class="rc-title">人付け展開パス Top 3</span>
+        <span class="rc-sub">起点 → 中継 → ターゲット</span>
+      </div>
+      <div id="groupPathList"></div>
+    </div>
+
+    <div class="result-card" id="gc-doorknock">
+      <div class="card-header">
+        <span class="rc-icon">💼</span>
+        <span class="rc-title">推奨ドアノック商材 3案</span>
+        <span class="rc-sub">グループ共通テーマで切る</span>
+      </div>
+      <div id="groupDoorknockList"></div>
+    </div>
+
+    <div class="result-card" id="gc-success">
+      <div class="card-header">
+        <span class="rc-icon">📈</span>
+        <span class="rc-title">類似グループでの成功パターン</span>
+        <span class="rc-sub">過去のタレントパレット横展開案件から抽出</span>
+      </div>
+      <div class="success-grid" id="groupSuccessGrid"></div>
+    </div>
+
+    <div class="reset-bar">
+      <button class="reset-btn" onclick="resetGroup()">↺ 別のグループで分析しなおす</button>
+    </div>
+  </div>
+
+</div>
+<!-- END VIEW: GROUP -->
+
+</div>
+<!-- END MAIN -->
+
+<!-- Overlay -->
+<div class="overlay" id="overlay" onclick="closeDetail()"></div>
+
+<!-- Detail Panel -->
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <div class="detail-header-top">
+      <div class="detail-member-name" id="detailName"></div>
+      <div class="detail-header-actions">
+        <button class="detail-btn" onclick="return false;">aileadで開く</button>
+        <button class="detail-btn-close" onclick="closeDetail()">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Summary -->
+  <div class="detail-summary">
+    <div class="detail-card">
+      <div class="detail-card-label">総合スコア</div>
+      <div class="detail-card-value" id="detailScore"></div>
+    </div>
+    <div class="detail-card">
+      <div class="detail-card-label">総合グレード</div>
+      <div class="detail-card-value" id="detailGrade"></div>
+    </div>
+    <div class="detail-card">
+      <div class="detail-card-label">推薦</div>
+      <div class="detail-card-value" id="detailRec"></div>
+    </div>
+    <div class="detail-card">
+      <div class="detail-card-label">話者比率</div>
+      <div class="detail-card-value" id="detailRatio"></div>
+    </div>
+  </div>
+
+  <!-- Radar Chart -->
+  <div class="radar-section">
+    <div class="radar-wrap">
+      <canvas id="radarChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Criteria Section -->
+  <div class="detail-section">
+    <div class="detail-section-title">評価基準別スコア</div>
+    <div id="detailCriteria"></div>
+  </div>
+
+  <!-- Overall Comment Section -->
+  <div class="detail-section">
+    <div class="detail-section-title">総合コメント</div>
+    <div id="detailComment"></div>
+  </div>
+</div>
+
+<script>
+const members = {
+  nishigami: {
+    name: '桐山 真一郎（キリヤマ シンイチロウ）',
+    score: '4.5', grade: 'S', gradeClass: 'grade-s', rec: '優秀', recClass: 'rec-yes', ratio: '33.1%',
+    criteria: [
+      {
+        name: '課題把握', grade: 'A', gradeClass: 'grade-a', score: '4.0',
+        quote: '御社の現状の入退室管理はどのような体制でしょうか？現場ごとに異なる運用をされていると伺いましたが、具体的にどのあたりに課題を感じていらっしゃいますか',
+        context: '商談序盤で顧客の現状課題を具体的に深掘りする質問を投げかけ、顧客から詳細な情報を引き出すことに成功した。相手の発言を受けて追加質問を重ねる姿勢も見られた。',
+        memo: '課題の優先度づけまで踏み込んだヒアリングができるとさらに良い'
+      },
+      {
+        name: '本気度', grade: 'S', gradeClass: 'grade-s', score: '4.5',
+        quote: '今の運用だと、本社側で各拠点の入退室状況をリアルタイムで把握できないという点が一番の課題ではないでしょうか',
+        context: '顧客のヒアリング内容から本質的な課題を正確に特定し、顧客自身が明確に言語化できていなかった課題を構造的に整理して提示した。',
+        memo: '課題設定の精度は高い。業界特有の規制要件との紐づけも加えると提案の説得力がさらに上がる'
+      },
+      {
+        name: '予算把握', grade: 'A', gradeClass: 'grade-a', score: '4.0',
+        quote: 'クラウド上で一元管理いただくことで、監査対応の工数が大幅に削減できます。実際にA社様では導入後3ヶ月で監査準備工数が60%削減されました',
+        context: '課題に対する解決策を具体的な導入事例と数値を交えて提案した。顧客の反応を見ながら提案内容を調整する柔軟性も見られた。',
+        memo: 'ROI試算を顧客の規模に合わせてカスタマイズするとクロージングに繋がりやすい'
+      },
+      {
+        name: '期限把握', grade: 'A', gradeClass: 'grade-a', score: '4.0',
+        quote: 'まずは1拠点でのトライアルから始めていただき、効果を確認いただいた上で全社展開を検討いただければと思います。来週中にトライアルのご提案書をお送りしてもよろしいでしょうか',
+        context: '顧客の導入ハードルを下げる段階的な提案を行い、具体的なネクストアクションを明示した。',
+        memo: '決裁者の同席を次回に設定する動きがあるとさらに良い'
+      }
+    ],
+    comment: {
+      summary: '商談全体を通じて顧客の課題を丁寧にヒアリングし、本質的な課題設定から具体的な提案、ネクストアクションの設定まで一貫した流れで進行できている。話者比率38.2%と適切なバランスで、顧客に多く話させることで信頼構築にも成功している。',
+      positive: '課題の構造化が的確／導入事例を交えた提案の説得力が高い／段階的なクロージングで顧客の心理的ハードルを下げている',
+      negative: '決裁プロセスの確認が不十分／ROI試算を顧客の規模に合わせてカスタマイズする余地がある'
+    }
+  }
+};
+
+function openDetail(id) {
+  const m = members[id];
+  if (!m) return;
+
+  document.getElementById('detailName').textContent = m.name;
+  document.getElementById('detailScore').innerHTML = m.score;
+  document.getElementById('detailGrade').innerHTML = '<span class="grade ' + m.gradeClass + ' d-grade">' + m.grade + '</span>';
+  document.getElementById('detailRec').innerHTML = '<span class="rec-badge ' + m.recClass + ' d-rec">' + m.rec + '</span>';
+  document.getElementById('detailRatio').innerHTML = m.ratio;
+
+  // Criteria
+  let criteriaHtml = '';
+  m.criteria.forEach(c => {
+    criteriaHtml += '<div class="criteria-card">';
+    criteriaHtml += '<div class="criteria-header"><span class="criteria-name">' + c.name + '</span>';
+    criteriaHtml += '<div class="criteria-right"><span class="grade ' + c.gradeClass + '">' + c.grade + '</span><span class="criteria-score">' + c.score + '</span></div></div>';
+    criteriaHtml += '<div class="criteria-block"><div class="criteria-label">引用</div><div class="criteria-quote">' + c.quote + '</div></div>';
+    criteriaHtml += '<div class="criteria-block"><div class="criteria-label">文脈分析</div><div class="criteria-text">' + c.context + '</div></div>';
+    criteriaHtml += '<div class="criteria-block"><div class="criteria-label">改善メモ</div><div class="criteria-text">' + c.memo + '</div></div>';
+    criteriaHtml += '</div>';
+  });
+  document.getElementById('detailCriteria').innerHTML = criteriaHtml;
+
+  // Comment
+  let commentHtml = '';
+  commentHtml += '<div class="comment-block"><div class="comment-label">総合所見</div><div class="comment-text">' + m.comment.summary + '</div></div>';
+  commentHtml += '<div class="comment-block"><div class="comment-label">ポジティブ要素</div><div class="comment-text comment-positive">' + m.comment.positive + '</div></div>';
+  commentHtml += '<div class="comment-block"><div class="comment-label">ネガティブ要素</div><div class="comment-text comment-negative">' + m.comment.negative + '</div></div>';
+  document.getElementById('detailComment').innerHTML = commentHtml;
+
+  // Radar chart
+  if (window._radarChart) { window._radarChart.destroy(); }
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  const scores = m.criteria.map(c => parseFloat(c.score));
+  const labels = m.criteria.map(c => c.name);
+  window._radarChart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: m.name.split('（')[0],
+        data: scores,
+        backgroundColor: 'rgba(16,108,255, 0.15)',
+        borderColor: 'rgba(16,108,255, 0.8)',
+        borderWidth: 2,
+        pointBackgroundColor: 'rgba(16,108,255, 1)',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      scales: {
+        r: {
+          min: 0,
+          max: 5,
+          ticks: { stepSize: 1, font: { size: 11 }, backdropColor: 'transparent', color: '#94a3b8' },
+          grid: { color: '#e2e8f0' },
+          angleLines: { color: '#e2e8f0' },
+          pointLabels: { font: { size: 13, weight: '600' }, color: '#334155' }
+        }
+      },
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+
+  document.getElementById('overlay').classList.add('active');
+  document.getElementById('detailPanel').classList.add('active');
+}
+
+// View switching (top-level: coaching / prospect / group)
+function showView(name, evt) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const target = document.getElementById('view-' + name);
+  if (target) target.classList.add('active');
+  document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
+  const navItem = document.getElementById('nav-' + name);
+  if (navItem) navItem.classList.add('active');
+}
+
+function toggleView() {
+  document.body.classList.toggle('member-view');
+  const btn = document.getElementById('viewToggle');
+  const badge = document.getElementById('modeBadge');
+  if (document.body.classList.contains('member-view')) {
+    btn.textContent = 'マネジメント画面に戻す';
+    badge.textContent = 'メンバー画面';
+    badge.style.background = '#dcfce7';
+    badge.style.color = '#16a34a';
+  } else {
+    btn.textContent = 'メンバー画面に切替';
+    badge.textContent = 'マネジメント画面';
+    badge.style.background = '#dbeafe';
+    badge.style.color = '#106CFF';
+  }
+}
+
+// Sub-tab switching within coaching view (一覧 / レポート)
+function showPage(page) {
+  document.querySelectorAll('#view-coaching .page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#view-coaching .subtab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('nav-' + page).classList.add('active');
+  if (page === 'report') { initReportCharts(); }
+}
+
+let reportChartsInit = false;
+function initReportCharts() {
+  if (reportChartsInit) return;
+  reportChartsInit = true;
+
+  // Grade Distribution - Stacked Bar
+  new Chart(document.getElementById('gradeDistChart'), {
+    type: 'bar',
+    data: {
+      labels: ['課題把握', '本気度', '予算把握', '期限把握'],
+      datasets: [
+        { label: 'S', data: [1,1,1,0], backgroundColor: '#16a34a' },
+        { label: 'A', data: [8,5,4,7], backgroundColor: '#106CFF' },
+        { label: 'B+', data: [0,0,0,0], backgroundColor: '#0284c7' },
+        { label: 'B', data: [3,5,5,5], backgroundColor: '#d97706' },
+        { label: 'C', data: [0,0,1,0], backgroundColor: '#dc2626' }
+      ]
+    },
+    options: {
+      responsive: true, indexAxis: 'y',
+      scales: { x: { stacked: true, max: 12, ticks: { stepSize: 3 } }, y: { stacked: true } },
+      plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } } }
+    }
+  });
+
+  // Recommendation Pie
+  new Chart(document.getElementById('recPieChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['優秀', '要観察', '要改善'],
+      datasets: [{ data: [4, 5, 1], backgroundColor: ['#16a34a', '#d97706', '#dc2626'], borderWidth: 0 }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, cutout: '60%' }
+  });
+
+  // Scatter: Score x Talk Ratio
+  const scatterData = [
+    { x: 33.1, y: 4.5, label: '桐山' }, { x: 37.4, y: 4.1, label: '国分' },
+    { x: 35.8, y: 4.0, label: '結城' }, { x: 40.2, y: 3.8, label: '鈴鹿' },
+    { x: 39.6, y: 3.7, label: '早瀬' }, { x: 44.5, y: 3.4, label: '大津' },
+    { x: 38.9, y: 3.6, label: '浅野' }, { x: 46.3, y: 3.3, label: '桜井' },
+    { x: 47.8, y: 3.2, label: '黒田' }, { x: 42.1, y: 3.5, label: '平岡' },
+    { x: 49.2, y: 3.1, label: '田島' }, { x: 53.4, y: 2.9, label: '大野' }
+  ];
+  new Chart(document.getElementById('scatterChart'), {
+    type: 'scatter',
+    data: {
+      datasets: [{
+        data: scatterData.map(d => ({ x: d.x, y: d.y })),
+        backgroundColor: scatterData.map(d => d.y >= 3.8 ? '#16a34a' : d.y >= 3.2 ? '#d97706' : '#dc2626'),
+        pointRadius: 8, pointHoverRadius: 10
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: { title: { display: true, text: '話者比率 (%)', font: { size: 12 } }, min: 25, max: 60,
+          grid: { color: function(ctx) { return (ctx.tick.value >= 30 && ctx.tick.value <= 40) ? 'rgba(16,108,255,0.08)' : '#f1f5f9'; } }
+        },
+        y: { title: { display: true, text: '総合スコア', font: { size: 12 } }, min: 2, max: 5 }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function(ctx) { return scatterData[ctx.dataIndex].label + ' (' + ctx.parsed.x + '%, ' + ctx.parsed.y + ')'; } } }
+      }
+    }
+  });
+
+  // Trend Line
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: ['2026-01', '2026-02', '2026-03'],
+      datasets: [
+        { label: '課題把握', data: [3.2, 3.5, 3.8], borderColor: '#106CFF', backgroundColor: 'rgba(16,108,255,0.1)', tension: 0.3, fill: false },
+        { label: '本気度', data: [3.0, 3.2, 3.5], borderColor: '#16a34a', backgroundColor: 'rgba(22,163,106,0.1)', tension: 0.3, fill: false },
+        { label: '予算把握', data: [2.8, 3.0, 3.3], borderColor: '#d97706', backgroundColor: 'rgba(217,119,6,0.1)', tension: 0.3, fill: false },
+        { label: '期限把握', data: [3.0, 3.1, 3.4], borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,0.1)', tension: 0.3, fill: false }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: { y: { min: 2, max: 5, ticks: { stepSize: 0.5 } } },
+      plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } } }
+    }
+  });
+}
+
+function closeDetail() {
+  document.getElementById('overlay').classList.remove('active');
+  document.getElementById('detailPanel').classList.remove('active');
+}
+
+// Initialize from URL hash
+/* existing DOMContentLoaded removed; replaced by initProspectFromHash */
+
+
+/* ============================================================ */
+/* ===== Prospect Interactive Agent =========================== */
+/* ============================================================ */
+
+const scenarios = {
+  maker_a: {
+    query_example: '製造A社の人事部にアプローチしたい。人的資本開示の義務化で評価制度の刷新が動いていそう。',
+    profile: {
+      customer: '製造A社 人事部',
+      industry: '製造業（電子部品）／従業員 約8,000名',
+      ir_keywords: ['人的資本開示の強化', '評価制度の刷新', '中期経営計画でのDX', 'グローバル人材育成'],
+      budget: '年 1,500〜3,000万円規模（人事システム刷新枠）',
+      role: '人事部長／人事企画課長（評価制度オーナー）',
+      situation: '統合報告書で人的資本開示の拡充を明言。現行の評価がExcel運用で属人化しており、開示要件に耐える人材データ基盤の整備が直近の課題。'
+    },
+    deals: [
+      { rank: 1, name: '製造M社 評価制度刷新＋人的資本開示', meta: '人事部長／企画課', match: '88%', outcome: '受注', period: '7ヶ月' },
+      { rank: 2, name: '部品N社 タレントマネジメント基盤', meta: '人事企画', match: '79%', outcome: '受注', period: '9ヶ月' },
+      { rank: 3, name: '機械O社 評価ワークフロー導入', meta: '人事部', match: '72%', outcome: '失注', period: '5ヶ月' }
+    ],
+    hypotheses: [
+      {
+        title: '人的資本開示を起点に評価データを一元化',
+        basis: 'M社事例（7ヶ月／受注）と開示拡充のタイミングが一致。Excel評価をタレントパレットに集約し開示集計工数を6割削減した実績。',
+        product: ['タレントパレット コア', '人的資本ダッシュボード'],
+        talk: '「統合報告書の人材セクション、いま何人がかりで作られていますか？M社様は集計を6割減らし、開示と評価を同じデータで回されています」'
+      },
+      {
+        title: '評価制度刷新 × 目標管理(MBO)のデジタル化',
+        basis: '評価のExcel運用は属人化の典型課題。類似8社中6社で「評価の締めが回らない」という発言が確認されている。',
+        product: ['評価運用モジュール', '目標管理(MBO)'],
+        talk: '「評価の締め、いま紙とExcelで何往復していますか？ワークフロー化で人事の差し戻し工数がほぼ消えます」'
+      },
+      {
+        title: 'グローバル人材の可視化（スキル・配置）',
+        basis: '中計のグローバル人材育成テーマ。拠点横断のスキル可視化は他社差別化の要因として効く。',
+        product: ['スキルマネジメント', '配置シミュレーション'],
+        talk: '「海外拠点も含めて、誰がどのスキルを持っているか一覧で見えていますか？配置の意思決定が感覚から数字に変わります」'
+      }
+    ],
+    members: [
+      { name: '樋口 達也', initial: '樋', reason: '製造業の評価制度刷新12社／人的資本開示の言語化に強い。' },
+      { name: '西野 香織', initial: '西', reason: 'タレントパレットの開示ダッシュボード構築の専任。開示要件の翻訳役。' },
+      { name: '北原 健', initial: '北', reason: 'グローバル人材・スキル管理領域の導入知見。情シス調整にも対応。' }
+    ],
+    objections: [
+      { q: 'すでに勤怠・給与システムは入れている。重複しないか？', a: '「勤怠・給与は労務の確定処理、タレントパレットは評価・育成・配置の意思決定レイヤーです。M社様も既存の給与システムと連携させ、二重入力なしで運用されています」' },
+      { q: '評価制度自体がまだ固まっていない', a: '「制度設計と並走できます。M社様も制度確定前に導入し、運用しながら評価項目を調整されました。先にツールがある方が制度議論はむしろ早く進みます」' },
+      { q: '現場の入力負荷が増えるのでは', a: '「スマホ入力・1on1メモからの自動反映で現場の手入力をむしろ減らせます。N社様は管理職の評価作業時間を月3時間削減されました」' }
+    ]
+  },
+  retail_b: {
+    query_example: '小売B社の人事企画にアプローチしたい。離職率の高さと多店舗のエンゲージメント低下が課題。',
+    profile: {
+      customer: '小売B社 人事企画部',
+      industry: '小売・チェーンストア／従業員 約12,000名（パート含む）',
+      ir_keywords: ['離職率の改善', '従業員エンゲージメント', '店舗人材の定着', '採用コスト抑制'],
+      budget: '年 2,000〜4,000万円規模（人材定着の投資枠）',
+      role: '人事企画部長／エンゲージメント推進担当',
+      situation: '採用難と高離職のループがIRでも課題視。店舗ごとの離職率のばらつきが大きく、原因を特定できる従業員データの収集・分析基盤が必要。'
+    },
+    deals: [
+      { rank: 1, name: '小売P社 エンゲージメント×離職予兆', meta: '人事企画／部長級', match: '90%', outcome: '受注', period: '6ヶ月' },
+      { rank: 2, name: '外食Q社 店舗定着プロジェクト', meta: '人事部', match: '81%', outcome: '受注', period: '8ヶ月' },
+      { rank: 3, name: '小売R社 サーベイ単発導入', meta: '人事企画', match: '70%', outcome: '失注', period: '4ヶ月' }
+    ],
+    hypotheses: [
+      {
+        title: 'パルスサーベイ × 離職予兆で「辞めそうな兆候」を先に掴む',
+        basis: 'P社事例（6ヶ月／受注）。サーベイと評価・勤怠を掛け合わせ離職予兆を可視化し、対象店舗の離職率を15%改善。',
+        product: ['エンゲージメント分析', '離職予兆AI'],
+        talk: '「離職が出てから気づく状態ですよね？P社様はパルスサーベイと勤怠の変化から、辞める3ヶ月前に兆候を掴めるようになりました」'
+      },
+      {
+        title: '店舗別エンゲージメントの可視化で打ち手を店長に渡す',
+        basis: '多店舗の離職ばらつきは「店長マネジメント」起因が多い。店舗別ダッシュボードで現場が自走する。',
+        product: ['組織診断', 'エンゲージメント分析'],
+        talk: '「離職率の高い店と低い店、何が違うか言語化できていますか？店舗別に見えると本部の支援先が絞れます」'
+      },
+      {
+        title: '採用コストと定着をワンセットで経営に示す',
+        basis: '採用コスト抑制のIR言及。定着改善のROIを採用費削減で語ると経営の予算が通りやすい。',
+        product: ['タレントパレット コア', '採用管理'],
+        talk: '「離職1人あたりの採用・教育コスト、試算されていますか？定着の効果を採用費の削減額として経営に示せます」'
+      }
+    ],
+    members: [
+      { name: '園田 美緒', initial: '園', reason: '小売・サービス業のエンゲージメント改善10社。サーベイ設計に強い。' },
+      { name: '三宅 涼', initial: '三', reason: '離職予兆分析のデータ設計が専門。勤怠・評価との連携を技術で詰める。' },
+      { name: '樋口 達也', initial: '樋', reason: '経営への投資対効果の語り口。予算化の意思決定支援が得意。' }
+    ],
+    objections: [
+      { q: 'サーベイは過去にやったが、取って終わりになった', a: '「『取って終わり』が一番多いご相談です。P社様は結果を店長別ダッシュボードに落とし、翌週の1on1の話題に直結させることで形骸化を防がれました」' },
+      { q: 'パート・アルバイトまで広げると回答が集まらない', a: '「スマホ・QRで30秒回答にできます。Q社様はパート回答率を初回で78%まで上げられました。匿名性の担保も含めて設計を支援します」' },
+      { q: '離職予兆は本当に当たるのか半信半疑', a: '「最初の3ヶ月は予兆と実際の離職の答え合わせ期間として伴走します。精度を御社データで確認いただいてから本格運用に移れます」' }
+    ]
+  },
+  it_c: {
+    query_example: 'IT C社の人事本部にアプローチしたい。急拡大でスキルの可視化とジョブ型・配置最適化が追いついていない。',
+    profile: {
+      customer: 'IT C社 人事本部',
+      industry: 'IT・ソフトウェア／従業員 約2,500名（年率20%成長）',
+      ir_keywords: ['ジョブ型人事制度', 'スキルベースの配置', 'エンジニア採用強化', '人的資本ROI'],
+      budget: '年 1,000〜2,500万円規模',
+      role: 'CHRO直下 人事本部長／HRBP',
+      situation: '急成長で人材データが各ツールに散在。ジョブ型移行に向けてスキル・等級・報酬を一気通貫で見たいが、スプレッドシート運用が限界に来ている。'
+    },
+    deals: [
+      { rank: 1, name: 'IT S社 ジョブ型×スキル基盤', meta: '人事本部／HRBP', match: '87%', outcome: '受注', period: '8ヶ月' },
+      { rank: 2, name: 'SaaS T社 配置最適化', meta: '人事企画', match: '78%', outcome: '受注', period: '10ヶ月' },
+      { rank: 3, name: 'IT U社 タレント基盤検討', meta: '情報システム部主管', match: '69%', outcome: '失注', period: '6ヶ月' }
+    ],
+    hypotheses: [
+      {
+        title: 'ジョブ型の土台＝スキル・等級・人材データの一元化',
+        basis: 'S社事例（8ヶ月／受注）。ジョブ型は制度設計より先にデータ統合がボトルネックになる。',
+        product: ['スキルマネジメント', 'タレントパレット コア'],
+        talk: '「ジョブ型、制度は描けても“誰がどの要件を満たすか”見えていますか？S社様はまずスキルの棚卸しから着手して移行を早めました」'
+      },
+      {
+        title: '配置シミュレーションで成長スピードに人材を追従させる',
+        basis: '年20%成長で配置判断が属人化。シミュレーションで欠員・抜擢を可視化する。',
+        product: ['配置シミュレーション', 'タレント分析'],
+        talk: '「来期の組織図、誰をどこに置くか何で議論していますか？配置シミュレーションがあると意思決定が一気に速くなります」'
+      },
+      {
+        title: '人的資本ROIをCHROが経営会議で語れる状態に',
+        basis: '人的資本ROIのIR言及。育成投資と成果の接続をダッシュボード化する。',
+        product: ['人的資本ダッシュボード', 'エンゲージメント分析'],
+        talk: '「CHROが経営会議で人材の話を“数字”でできていますか？育成投資と定着・パフォーマンスを一枚でつなぎます」'
+      }
+    ],
+    members: [
+      { name: '黒木 隼人', initial: '黒', reason: 'IT/SaaS業界のジョブ型導入8社。HRBPとの会話に強い。' },
+      { name: '北原 健', initial: '北', reason: 'スキル・配置データの設計が専門。情シス連携の技術詰め。' },
+      { name: '西野 香織', initial: '西', reason: '人的資本ダッシュボードの構築知見。経営報告の型作り。' }
+    ],
+    objections: [
+      { q: '内製のスプレッドシート＋BIで足りている', a: '「立ち上げ期はそれが最速です。ただ人数が増えると更新が止まります。S社様も2,000名を超えた頃に限界が来て移行されました。連携APIで既存BIにも出せます」' },
+      { q: '情シスがSaaS追加に慎重', a: '「SSO・SCIM対応で既存の認証基盤に乗せられます。U社様の情シス要件チェックリストを雛形でお渡しできます」' },
+      { q: '制度がジョブ型に固まってから入れたい', a: '「順番が逆だと移行が長引きます。S社様はデータ統合を先に終えていたので、制度確定後すぐに運用に乗りました」' }
+    ]
+  },
+  medical_d: {
+    query_example: '医療法人Dの法人本部にアプローチしたい。看護師の離職と多拠点の人材データ分散が課題。',
+    profile: {
+      customer: '医療法人D 法人本部（人事担当）',
+      industry: '医療・介護／職員 約3,500名（病院・介護施設の多拠点）',
+      ir_keywords: ['看護師の定着', '多拠点の人材標準化', '働き方改革', '採用難への対応'],
+      budget: '年 800〜1,800万円規模',
+      role: '法人本部 人事担当理事／看護部との合議',
+      situation: '拠点ごとに人事運用がバラバラで、職員データが施設単位に分散。看護師の離職率が高く、定着施策の効果測定ができていない。'
+    },
+    deals: [
+      { rank: 1, name: '医療P会 看護師定着プロジェクト', meta: '法人本部／看護部', match: '85%', outcome: '受注', period: '9ヶ月' },
+      { rank: 2, name: '介護Q社 多拠点人材標準化', meta: '人事部', match: '76%', outcome: '受注', period: '11ヶ月' },
+      { rank: 3, name: '医療R会 評価制度統一', meta: '事務局主管', match: '68%', outcome: '失注', period: '7ヶ月' }
+    ],
+    hypotheses: [
+      {
+        title: '施設横断で職員データを一元化し定着施策を効果測定',
+        basis: 'P会事例（9ヶ月／受注）。拠点別の離職要因を可視化し定着率を改善した。',
+        product: ['タレントパレット コア', 'エンゲージメント分析'],
+        talk: '「施設ごとに名簿が分かれていませんか？横串で見えると、どの施設のどんな施策が効いているか初めて比較できます」'
+      },
+      {
+        title: '看護師の離職予兆を夜勤・残業データから捉える',
+        basis: '医療の離職は負荷の偏りが起点。勤務データと組み合わせた予兆検知が効く。',
+        product: ['離職予兆AI', '組織診断'],
+        talk: '「夜勤の偏りと離職、感覚では繋がっていても数字で追えていますか？負荷データから予兆を出せます」'
+      },
+      {
+        title: '多拠点でバラバラな評価を法人標準に',
+        basis: '評価のばらつきは異動・公平性の不満の温床。標準化が働き方改革の前提になる。',
+        product: ['評価運用モジュール', 'スキルマネジメント'],
+        talk: '「施設をまたぐ異動のとき、評価の物差しが揃っていますか？法人標準があると配置の納得感が上がります」'
+      }
+    ],
+    members: [
+      { name: '園田 美緒', initial: '園', reason: '医療・介護のエンゲージメント改善実績。看護部との合意形成に強い。' },
+      { name: '福地 亮', initial: '福', reason: '多拠点・シフト勤務のデータ設計が専門。' },
+      { name: '三宅 涼', initial: '三', reason: '離職予兆と勤務データ連携の技術詰め役。' }
+    ],
+    objections: [
+      { q: '現場（看護部）の理解が得られるか不安', a: '「看護部を“管理される側”でなく“データで守られる側”として巻き込むのが成功の鍵です。P会様では最初に看護部長へ離職予兆のメリットを説明し、味方にしてから展開されました」' },
+      { q: '拠点ごとにシステムが違って統一が大変', a: '「一括で揃える必要はありません。Q社様はまず名簿と評価だけ統一し、勤怠は既存のまま連携させる段階導入で負荷を抑えられました」' },
+      { q: '予算が単年で取りづらい', a: '「採用難の中で離職1人の損失額は大きく、定着改善のROIで予算化された例が多いです。理事会向けの試算フォーマットをご用意します」' }
+    ]
+  },
+  logistics_e: {
+    query_example: '物流E社の人事部にアプローチしたい。ドライバーの定着と現場の評価のばらつき、2024年問題への対応。',
+    profile: {
+      customer: '物流E社 人事部',
+      industry: '運輸・物流／従業員 約5,000名（ドライバー中心）',
+      ir_keywords: ['ドライバーの確保・定着', '2024年問題への対応', '現場の処遇改善', '多拠点マネジメント'],
+      budget: '年 1,000〜2,000万円規模',
+      role: '人事部長／現場（営業所）との合議',
+      situation: '2024年問題で人手不足が深刻。営業所ごとに評価・処遇がばらつき、定着のための公平な仕組みづくりと現場マネジメントの可視化が急務。'
+    },
+    deals: [
+      { rank: 1, name: '物流P社 ドライバー定着×評価標準化', meta: '人事部／営業所', match: '86%', outcome: '受注', period: '8ヶ月' },
+      { rank: 2, name: '運輸Q社 多拠点の人事可視化', meta: '人事企画', match: '77%', outcome: '受注', period: '10ヶ月' },
+      { rank: 3, name: '物流R社 サーベイ・評価検討', meta: '総務人事', match: '67%', outcome: '失注', period: '5ヶ月' }
+    ],
+    hypotheses: [
+      {
+        title: '営業所ごとにバラつく評価・処遇を標準化して定着へ',
+        basis: 'P社事例（8ヶ月／受注）。評価の不公平感が離職要因。標準化で定着率を改善した。',
+        product: ['評価運用モジュール', 'タレントパレット コア'],
+        talk: '「営業所によって評価の基準が違う、という声は出ていませんか？標準化が処遇の納得感、ひいては定着に直結します」'
+      },
+      {
+        title: '現場の声をサーベイで拾い、所長マネジメントを支援',
+        basis: '多拠点の定着は所長の力量依存。サーベイで現場の不満を早期に把握する。',
+        product: ['エンゲージメント分析', '組織診断'],
+        talk: '「営業所長によって雰囲気がまるで違いますよね。サーベイで見えると、本部がどの所をどう支援すべきか分かります」'
+      },
+      {
+        title: '人材データを2024年問題の要員計画に接続',
+        basis: '人手不足下で配置・採用の最適化は経営課題。データで要員計画を支える。',
+        product: ['配置シミュレーション', '採用管理'],
+        talk: '「2024年問題、現状は勘で人を回していませんか？スキル・資格データがあると、誰をどこに回せるか即座に見えます」'
+      }
+    ],
+    members: [
+      { name: '福地 亮', initial: '福', reason: '運輸・物流の多拠点人事の導入実績。現場目線の説明に強い。' },
+      { name: '黒木 隼人', initial: '黒', reason: '配置・要員計画のデータ設計。経営課題への接続が得意。' },
+      { name: '園田 美緒', initial: '園', reason: 'サーベイ設計・現場巻き込みのノウハウ。' }
+    ],
+    objections: [
+      { q: 'ドライバーはPC・スマホ入力に不慣れ', a: '「入力は最小限にし、QR・LINE連携の30秒サーベイから始められます。P社様はまず点呼時の一言サーベイから入って定着させました」' },
+      { q: '評価制度を変えると現場が反発する', a: '「いきなり処遇に反映せず、まず“見える化”から始めるのが鉄則です。P社様も初年度は可視化と対話に絞り、納得感を作ってから処遇連動に進められました」' },
+      { q: '本部に分析できる人がいない', a: '「ダッシュボードは設定済みでお渡しします。分析専任がいなくても、毎月決まった画面を見るだけで打ち手が分かる状態を作ります」' }
+    ]
+  }
+};
+
+function matchScenario(query) {
+  if (!query) return 'maker_a';
+  const q = query.toLowerCase();
+  const rules = [
+    { key: 'maker_a',     words: ['製造', 'メーカー', '部品', 'a社', '人的資本開示', '評価制度'] },
+    { key: 'retail_b',    words: ['小売', 'チェーン', '店舗', 'b社', '離職', 'エンゲージメント', '外食'] },
+    { key: 'it_c',        words: ['it', 'ソフトウェア', 'saas', 'c社', 'ジョブ型', 'スキル', 'エンジニア'] },
+    { key: 'medical_d',   words: ['医療', '介護', '看護', '病院', 'd社', '法人', '施設'] },
+    { key: 'logistics_e', words: ['物流', '運輸', 'ドライバー', 'e社', '2024年問題', '営業所'] }
+  ];
+  for (const r of rules) {
+    for (const w of r.words) {
+      if (q.includes(w.toLowerCase())) return r.key;
+    }
+  }
+  return 'maker_a';
+}
+
+const THINKING_STEPS = [
+  '入力クエリを解析中...',
+  '過去420本のタレントパレット商談から類似事例を検索中...',
+  '採用サイト・統合報告書・人的資本開示をクロスチェック中...',
+  '仮説 × 商材 × トーク案を生成中...',
+  '推奨同行者・想定反論を組み立て中...'
+];
+
+let prospectInProgress = false;
+
+function runSample(key) {
+  const data = scenarios[key];
+  if (!data) return;
+  const ta = document.getElementById('prospectQuery');
+  if (ta) ta.value = data.query_example;
+  analyzeCustomer();
+}
+
+function analyzeCustomer(opts) {
+  if (prospectInProgress) return;
+  const ta = document.getElementById('prospectQuery');
+  const query = ta ? ta.value.trim() : '';
+  const key = matchScenario(query);
+  const data = scenarios[key];
+  const instant = opts && opts.instant === true;
+  prospectInProgress = true;
+
+  const btn = document.getElementById('prospectAnalyzeBtn');
+  if (btn) btn.disabled = true;
+
+  const results = document.getElementById('prospectResults');
+  results.classList.remove('active');
+  document.querySelectorAll('#prospectResults .result-card').forEach(c => c.classList.remove('show'));
+
+  const thinking = document.getElementById('thinkingArea');
+  const stepsEl = document.getElementById('thinkingSteps');
+  stepsEl.innerHTML = '';
+
+  if (instant) {
+    thinking.classList.remove('active');
+    renderResultData(data);
+    results.classList.add('active');
+    document.querySelectorAll('#prospectResults .result-card').forEach(c => c.classList.add('show'));
+    prospectInProgress = false;
+    if (btn) btn.disabled = false;
+    return;
+  }
+
+  thinking.classList.add('active');
+  streamThinking(THINKING_STEPS, () => {
+    setTimeout(() => {
+      thinking.classList.remove('active');
+      renderResultData(data);
+      results.classList.add('active');
+      revealSections(() => {
+        prospectInProgress = false;
+        if (btn) btn.disabled = false;
+      });
+    }, 350);
+  });
+}
+
+function streamThinking(steps, done) {
+  const stepsEl = document.getElementById('thinkingSteps');
+  stepsEl.innerHTML = '';
+  steps.forEach((text, i) => {
+    const div = document.createElement('div');
+    div.className = 'thinking-step pending';
+    div.id = 'thStep-' + i;
+    div.innerHTML = '<span class="step-mark">⏳</span><span class="step-text">' + text + '</span>';
+    stepsEl.appendChild(div);
+  });
+
+  const STEP_DELAY = 750;
+  steps.forEach((_, i) => {
+    setTimeout(() => {
+      const el = document.getElementById('thStep-' + i);
+      if (el) el.classList.add('visible');
+    }, i * STEP_DELAY + 50);
+    setTimeout(() => {
+      const el = document.getElementById('thStep-' + i);
+      if (el) {
+        el.classList.remove('pending');
+        el.classList.add('done');
+        const mark = el.querySelector('.step-mark');
+        if (mark) mark.textContent = '✓';
+      }
+    }, i * STEP_DELAY + STEP_DELAY - 100);
+  });
+  setTimeout(() => { if (typeof done === 'function') done(); }, steps.length * STEP_DELAY + 200);
+}
+
+function renderResultData(data) {
+  const pg = document.getElementById('profileGrid');
+  pg.innerHTML = '';
+  const profileCells = [
+    { label: '対象顧客', value: data.profile.customer },
+    { label: '業種・領域', value: data.profile.industry },
+    { label: '想定キーパーソン', value: data.profile.role },
+    { label: '推定予算規模', value: data.profile.budget },
+    { label: 'IRキーワード', value: data.profile.ir_keywords.map(k => '<span class="ir-tag">' + k + '</span>').join(''), html: true, full: true },
+    { label: '直近の動き', value: data.profile.situation, full: true }
+  ];
+  profileCells.forEach(c => {
+    const cell = document.createElement('div');
+    cell.className = 'profile-cell' + (c.full ? ' full' : '');
+    cell.innerHTML = '<div class="pc-label">' + c.label + '</div>' +
+      '<div class="pc-value">' + (c.html ? '<div class="ir-tags">' + c.value + '</div>' : c.value) + '</div>';
+    pg.appendChild(cell);
+  });
+
+  const dl = document.getElementById('dealList');
+  dl.innerHTML = '';
+  data.deals.forEach(d => {
+    const row = document.createElement('div');
+    row.className = 'deal-row';
+    const outcomeClass = d.outcome === '受注' ? 'outcome-won' : 'outcome-lost';
+    row.innerHTML =
+      '<div class="deal-rank">#' + d.rank + '</div>' +
+      '<div class="deal-info"><div class="deal-name-r">' + d.name + '</div><div class="deal-meta-r">' + d.meta + '</div></div>' +
+      '<div class="deal-match">' + d.match + '</div>' +
+      '<div class="deal-outcome ' + outcomeClass + '">' + d.outcome + '</div>' +
+      '<div class="deal-period">' + d.period + '</div>';
+    dl.appendChild(row);
+  });
+
+  const hl = document.getElementById('hypoList');
+  hl.innerHTML = '';
+  data.hypotheses.forEach((h, i) => {
+    const card = document.createElement('div');
+    card.className = 'hypo-card';
+    const products = h.product.map(p => '<span class="hp-tag">' + p + '</span>').join('');
+    card.innerHTML =
+      '<div class="hypo-card-head"><div class="hypo-card-num">' + (i + 1) + '</div><div class="hypo-card-title">' + h.title + '</div></div>' +
+      '<div class="hypo-row"><div class="hr-label">仮説の根拠</div><div class="hr-text">' + h.basis + '</div></div>' +
+      '<div class="hypo-row"><div class="hr-label">推奨商材</div><div class="hr-text"><div class="hypo-products">' + products + '</div></div></div>' +
+      '<div class="hypo-row"><div class="hr-label">初回トーク</div><div class="hr-text talk">' + h.talk + '</div></div>';
+    hl.appendChild(card);
+  });
+
+  const mg = document.getElementById('memberGrid');
+  mg.innerHTML = '';
+  data.members.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'member-card';
+    card.innerHTML =
+      '<div class="member-avatar">' + m.initial + '</div>' +
+      '<div class="member-body"><div class="member-name-r">' + m.name + '</div><div class="member-reason">' + m.reason + '</div></div>';
+    mg.appendChild(card);
+  });
+
+  const ol = document.getElementById('objectionList');
+  ol.innerHTML = '';
+  data.objections.forEach(o => {
+    const row = document.createElement('div');
+    row.className = 'objection-row';
+    row.innerHTML =
+      '<div class="obj-icon">⚠️</div>' +
+      '<div class="objection-body"><div class="obj-q">Q. ' + o.q + '</div>' +
+      '<div class="obj-a"><span class="obj-a-label">A.</span>' + o.a + '</div></div>';
+    ol.appendChild(row);
+  });
+}
+
+function revealSections(done) {
+  const cards = document.querySelectorAll('#prospectResults .result-card');
+  const INTERVAL = 800;
+  cards.forEach((card, i) => {
+    setTimeout(() => card.classList.add('show'), i * INTERVAL);
+  });
+  setTimeout(() => { if (typeof done === 'function') done(); }, cards.length * INTERVAL + 100);
+}
+
+function resetProspect() {
+  const ta = document.getElementById('prospectQuery');
+  if (ta) ta.value = '';
+  document.getElementById('prospectResults').classList.remove('active');
+  document.querySelectorAll('#prospectResults .result-card').forEach(c => c.classList.remove('show'));
+  document.getElementById('thinkingArea').classList.remove('active');
+  document.getElementById('thinkingSteps').innerHTML = '';
+  prospectInProgress = false;
+  const btn = document.getElementById('prospectAnalyzeBtn');
+  if (btn) btn.disabled = false;
+  if (ta) ta.focus();
+}
+
+function initProspectFromHash() {
+  const raw = location.hash.slice(1);
+  if (!raw) return;
+  const segs = raw.split(/[&?]/);
+  const head = segs[0];
+  const params = {};
+  segs.slice(1).forEach(s => {
+    const [k, v] = s.split('=');
+    if (k) params[k] = v == null ? '' : v;
+  });
+  if (head === 'prospect') {
+    showView('prospect');
+    if (params.demo === '1') {
+      const data = scenarios.maker_a;
+      const ta = document.getElementById('prospectQuery');
+      if (ta) ta.value = data.query_example;
+      analyzeCustomer({ instant: true });
+    }
+  } else if (head === 'group') {
+    showView('group');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initProspectFromHash();
+});
+
+
+
+/* ============================================================ */
+/* ===== Group Interactive Agent ============================== */
+/* ============================================================ */
+
+const groupScenarios = {
+  maker_a_group: {
+    query_example: '製造Aホールディングスの未開拓子会社を攻めたい。人的資本開示のグループ統一が統合報告書で言及されている。',
+    profile: {
+      group_name: '製造Aホールディングス',
+      industry: '製造業グループ（電子部品・化成・物流）',
+      structure: 'A製作所・A電子・A化成・A物流・A商事・A海外法人の6本柱',
+      ir_keywords: ['人的資本開示のグループ統一', 'グループ人材データ基盤', '次世代リーダー育成', 'ジョブ型のグループ展開'],
+      budget: 'グループ総枠 年 8,000万〜1.5億円規模（持株人事企画が配分）',
+      kdm: 'グループCHRO／持株人事企画部長／各社人事責任者'
+    },
+    subsidiaries: [
+      { name: 'A製作所', status: 'active', meta: '導入済・月1定例', kp: '既存KP：佐久間人事部長' },
+      { name: 'A電子', status: 'partial', meta: '一部利用・拡大余地', kp: '接点：戸田人事課長' },
+      { name: 'A化成', status: 'untapped', meta: '未開拓', kp: '推定：人事部 大島部長' },
+      { name: 'A物流', status: 'untapped', meta: '未開拓', kp: '推定：管理本部 人事担当' },
+      { name: 'A商事', status: 'partial', meta: '検討中・サーベイのみ', kp: '接点：人事企画 林次長' },
+      { name: 'A海外法人', status: 'untapped', meta: '未開拓', kp: '推定：グローバル人事室' }
+    ],
+    paths: [
+      {
+        title: 'A製作所 → A化成（開示統一を起点に横展開）', success: '高',
+        start: { role: '起点（既存接点）', person: 'A製作所 佐久間人事部長', co: '人事部／月1定例中' },
+        relay: { role: '中継', person: '持株人事企画部', co: 'グループ開示プロジェクト主管' },
+        target: { role: 'ターゲット', person: 'A化成 大島部長（推定）', co: '人事部' },
+        basis: '人的資本開示のグループ統一は持株主導。佐久間部長は開示プロジェクトの中核で、化成への横展開議論への同席が現実的。',
+        action: '「佐久間様、グループ開示の統一データの議論で、A化成様の人事ラインを巻き込む段取りにご一緒できませんか？」',
+        ref: '類似：製造Mグループで開示統一を起点に14ヶ月3社展開'
+      },
+      {
+        title: '持株人事企画 → A物流（グループ人材データ基盤）', success: '中',
+        start: { role: '起点（既存接点）', person: '持株人事企画 林次長', co: 'グループ持株／四半期に1接点' },
+        relay: { role: '中継', person: '持株 グループ人材データ推進室', co: '基盤統合の旗振り' },
+        target: { role: 'ターゲット', person: 'A物流 人事担当（推定）', co: '管理本部' },
+        basis: 'グループ人材データ基盤は物流子会社が最後発。持株経由での標準導入が最短ルート。',
+        action: '「林様、グループ標準の人材データ基盤を広げる流れで、A物流様にも同じ型を提案させていただけませんか？」',
+        ref: '類似：製造Nグループ 持株起点で物流子会社へ9ヶ月接続'
+      },
+      {
+        title: 'A電子 → A海外法人（グローバル人材の可視化）', success: '中',
+        start: { role: '起点（既存接点）', person: 'A電子 戸田人事課長', co: '人事部／一部利用中' },
+        relay: { role: '中継', person: 'グローバル人事室', co: '海外駐在・現地人材の管掌' },
+        target: { role: 'ターゲット', person: 'A海外法人 現地人事統括（推定）', co: '海外法人' },
+        basis: '次世代リーダー育成・グローバル人材の可視化はIR言及テーマ。電子の利用実績を海外へ展開する型。',
+        action: '「戸田様、グローバル人材のスキル可視化の話で、海外法人様との接続の場を作れませんか？」',
+        ref: '類似：製造O 国内子会社→海外法人で12ヶ月接続'
+      }
+    ],
+    doorknock: [
+      { title: '人的資本開示のグループ統一', hypothesis: '子会社ごとに開示の集計様式がバラバラで、持株での取りまとめに膨大な工数。統一基盤がIRテーマ。', match: ['A製作所', 'A電子', 'A化成', 'A物流', 'A商事'], talk: '「グループの開示数値、いま各社からExcelを集めて手作業で束ねていませんか？同じ基盤に乗せると取りまとめが一気に楽になります」' },
+      { title: '評価制度のグループ標準化', hypothesis: 'グループ内の異動・出向で評価の物差しが揃わず不公平感。標準化のニーズが各社共通。', match: ['A製作所', 'A電子', 'A化成'], talk: '「グループ間の異動で、評価の基準がバラバラだと困りませんか？標準の型をご提示できます」' },
+      { title: '次世代リーダーのグループ横断可視化', hypothesis: 'サクセッションをグループ横断で見たい経営ニーズ。後継者プールの可視化。', match: ['A製作所', 'A電子', 'A商事'], talk: '「次の幹部候補、グループ全体で誰がいるか一覧で見えていますか？横断のサクセッション設計が可能です」' }
+    ],
+    success_patterns: [
+      { group: '製造Mグループ', period: '14ヶ月', scale: '3社導入', quote: '開示統一を持株主導のプロジェクトにした瞬間、子会社3社が同じ基盤に乗ることが既定路線になった。' },
+      { group: '製造Nグループ', period: '9ヶ月', scale: '持株＋2社', quote: '持株人事企画への標準提案が起点。物流・化成子会社へ「同じ型で」と展開が早かった。' },
+      { group: '製造O', period: '12ヶ月', scale: '国内＋海外法人', quote: '国内子会社の成功を、グローバル人材の可視化テーマで海外法人へ。駐在人事の巻き込みが鍵だった。' }
+    ]
+  },
+  retail_b_group: {
+    query_example: '小売Bグループの未開拓子会社を攻めたい。グループ共通のエンゲージメントサーベイ・定着施策が動いている。',
+    profile: {
+      group_name: '小売Bグループ',
+      industry: '小売・サービスグループ（GMS・食品・ドラッグ）',
+      structure: 'Bストア・Bフード・Bドラッグ・B物流・Bデジタルの5本柱',
+      ir_keywords: ['グループ共通サーベイ', '店舗人材の定着', '採用のグループ最適化', 'パート戦力化'],
+      budget: 'グループ総枠 年 6,000万〜1.2億円規模',
+      kdm: 'グループ人事統括／持株HR推進部長／各事業会社の人事責任者'
+    },
+    subsidiaries: [
+      { name: 'Bストア', status: 'active', meta: '導入済・月2定例', kp: '既存KP：青木人事企画部長' },
+      { name: 'Bフード', status: 'partial', meta: 'サーベイのみ利用', kp: '接点：森本人事課長' },
+      { name: 'Bドラッグ', status: 'untapped', meta: '未開拓', kp: '推定：人事部 高田部長' },
+      { name: 'B物流', status: 'untapped', meta: '未開拓', kp: '推定：管理部 人事担当' },
+      { name: 'Bデジタル', status: 'partial', meta: '検討中', kp: '接点：人事 西川マネージャー' }
+    ],
+    paths: [
+      {
+        title: 'Bストア → Bドラッグ（共通サーベイ展開）', success: '高',
+        start: { role: '起点（既存接点）', person: 'Bストア 青木人事企画部長', co: '人事企画／月2定例' },
+        relay: { role: '中継', person: '持株HR推進部', co: 'グループ共通サーベイの旗振り' },
+        target: { role: 'ターゲット', person: 'Bドラッグ 高田部長（推定）', co: '人事部' },
+        basis: 'グループ共通サーベイは持株主導テーマ。Bストアの成功事例を横展開する自然な流れ。',
+        action: '「青木様、グループ共通サーベイの展開で、Bドラッグ様の人事に同じ仕組みを提案する場をご一緒できますか？」',
+        ref: '類似：小売Mグループで共通サーベイを起点に4社展開'
+      },
+      {
+        title: '持株HR推進 → B物流（定着の標準化）', success: '中',
+        start: { role: '起点（既存接点）', person: '持株HR推進部 担当', co: 'グループ持株' },
+        relay: { role: '中継', person: 'グループ採用・定着委員会', co: '横断施策の検討体' },
+        target: { role: 'ターゲット', person: 'B物流 人事担当（推定）', co: '管理部' },
+        basis: '物流子会社は定着課題が最も深刻。持株の定着委員会経由での標準導入。',
+        action: '「定着委員会の議題に、B物流様の現場定着のテーマを当社事例とセットで入れていただけませんか？」',
+        ref: '類似：小売N 持株定着施策→物流子会社で8ヶ月接続'
+      },
+      {
+        title: 'Bフード → Bデジタル（人材の相互理解）', success: '中',
+        start: { role: '起点（既存接点）', person: 'Bフード 森本人事課長', co: 'サーベイ利用中' },
+        relay: { role: '中継', person: 'グループ人材交流プロジェクト', co: '出向・兼務の管掌' },
+        target: { role: 'ターゲット', person: 'Bデジタル 西川マネージャー', co: '検討中' },
+        basis: 'デジタル人材のグループ内交流が活発化。スキル可視化の共通基盤ニーズ。',
+        action: '「森本様、グループの人材交流で“誰が何をできるか”を共通で見る話、Bデジタル様と進められませんか？」',
+        ref: '類似：小売O 事業会社間のスキル可視化で7ヶ月2社'
+      }
+    ],
+    doorknock: [
+      { title: 'グループ共通エンゲージメントサーベイ', hypothesis: '各社別サーベイで比較不能。共通化でグループのエンゲージメント経年比較が可能に。', match: ['Bストア', 'Bフード', 'Bドラッグ', 'B物流'], talk: '「各社バラバラのサーベイ、グループで横並び比較できていますか？共通化すると経営に出せる一枚になります」' },
+      { title: '店舗人材の定着ダッシュボード', hypothesis: '店舗別離職の見える化はグループ全社共通の悩み。', match: ['Bストア', 'Bフード', 'Bドラッグ'], talk: '「離職の高い店、グループ全体でどこか即答できますか？店舗別に並べると支援先が絞れます」' },
+      { title: '採用のグループ最適化', hypothesis: '採用をグループでバッティング・重複させている非効率。データ統合で最適化。', match: ['Bストア', 'Bドラッグ', 'Bデジタル'], talk: '「同じエリアでグループ各社が採用を取り合っていませんか？データを束ねると採用効率が上がります」' }
+    ],
+    success_patterns: [
+      { group: '小売Mグループ', period: '11ヶ月', scale: '4社導入', quote: '共通サーベイをグループ標準にしたことで、後発の子会社は「右にならえ」で導入が決まった。' },
+      { group: '小売Nグループ', period: '8ヶ月', scale: '持株＋物流', quote: '持株の定着委員会に当社が事例提供。最も困っていた物流子会社から声がかかった。' },
+      { group: '小売O', period: '7ヶ月', scale: '2社', quote: '事業会社間のスキル可視化を共通テーマにし、人材交流のインフラとして2社同時導入。' }
+    ]
+  },
+  it_c_group: {
+    query_example: 'IT Cグループの未開拓子会社を攻めたい。ジョブ型・スキル管理のグループ統一が経営方針。',
+    profile: {
+      group_name: 'IT Cグループ',
+      industry: 'IT・ソフトウェアグループ',
+      structure: 'C本体・Cソリューションズ・Cデザイン・Cセキュリティ・C地域開発の5本柱',
+      ir_keywords: ['ジョブ型のグループ統一', 'スキルベース人材マネジメント', 'グループ内人材流動', 'エンジニア定着'],
+      budget: 'グループ総枠 年 5,000万〜1億円規模',
+      kdm: 'グループCHRO／HR Tech推進室長／各社人事責任者'
+    },
+    subsidiaries: [
+      { name: 'C本体', status: 'active', meta: '導入済・月1定例', kp: '既存KP：相馬HR本部長' },
+      { name: 'Cソリューションズ', status: 'partial', meta: '一部利用', kp: '接点：人事 岡部マネージャー' },
+      { name: 'Cデザイン', status: 'untapped', meta: '未開拓', kp: '推定：管理部 人事担当' },
+      { name: 'Cセキュリティ', status: 'untapped', meta: '未開拓', kp: '推定：人事 角田課長' },
+      { name: 'C地域開発', status: 'partial', meta: '検討中', kp: '接点：人事 久保次長' }
+    ],
+    paths: [
+      {
+        title: 'C本体 → Cセキュリティ（スキル基盤の横展開）', success: '高',
+        start: { role: '起点（既存接点）', person: 'C本体 相馬HR本部長', co: 'HR本部／月1定例' },
+        relay: { role: '中継', person: 'グループHR Tech推進室', co: 'ジョブ型統一の旗振り' },
+        target: { role: 'ターゲット', person: 'Cセキュリティ 角田課長（推定）', co: '人事' },
+        basis: 'ジョブ型のグループ統一は経営方針。本体の成功を専門子会社へ展開する最有望ライン。',
+        action: '「相馬様、グループのスキル基盤統一で、Cセキュリティ様にも同じ型を入れる議論をご一緒できますか？」',
+        ref: '類似：IT Mグループでスキル基盤を起点に12ヶ月3社'
+      },
+      {
+        title: 'HR Tech推進室 → Cデザイン（ジョブ型統一）', success: '中',
+        start: { role: '起点（既存接点）', person: 'グループHR Tech推進室 担当', co: 'グループ横断組織' },
+        relay: { role: '中継', person: 'グループ ジョブ型移行PJ', co: '制度統一の検討体' },
+        target: { role: 'ターゲット', person: 'Cデザイン 人事担当（推定）', co: '管理部' },
+        basis: 'クリエイティブ子会社はジョブ型移行が最後発。推進室経由での標準導入。',
+        action: '「ジョブ型移行PJの議題に、Cデザイン様のスキル定義の話を当社事例とセットで入れられませんか？」',
+        ref: '類似：IT N 推進室主導で専門子会社へ9ヶ月接続'
+      },
+      {
+        title: 'Cソリューションズ → C地域開発（人材流動の可視化）', success: '中',
+        start: { role: '起点（既存接点）', person: 'Cソリューションズ 岡部マネージャー', co: '一部利用中' },
+        relay: { role: '中継', person: 'グループ人材流動プロジェクト', co: '出向・配置転換の管掌' },
+        target: { role: 'ターゲット', person: 'C地域開発 久保次長', co: '検討中' },
+        basis: 'グループ内人材流動の活性化がIRテーマ。スキルの共通可視化が前提条件。',
+        action: '「岡部様、グループ内の人材流動で“誰がどこで活きるか”を共通で見る話、地域開発様と進められませんか？」',
+        ref: '類似：IT O 人材流動の可視化で7ヶ月2社'
+      }
+    ],
+    doorknock: [
+      { title: 'グループ共通スキルマネジメント', hypothesis: '子会社ごとにスキル定義がバラバラで人材流動が進まない。共通定義が前提。', match: ['C本体', 'Cソリューションズ', 'Cデザイン', 'Cセキュリティ'], talk: '「グループ内で“同じスキル”を別々の言葉で管理していませんか？共通化が人材流動の第一歩です」' },
+      { title: 'ジョブ型のグループ標準', hypothesis: 'ジョブ型移行を各社個別にやると整合が取れない。標準の型が要る。', match: ['C本体', 'Cデザイン', 'Cセキュリティ'], talk: '「ジョブ型、子会社ごとにバラバラに作っていませんか？グループ標準があると移行が一気に速くなります」' },
+      { title: 'エンジニア定着の横断分析', hypothesis: 'エンジニア採用難でグループ全体の定着が経営課題。', match: ['C本体', 'Cソリューションズ', 'C地域開発'], talk: '「エンジニアの定着、グループ横断で何が効いているか見えていますか？データで打ち手が絞れます」' }
+    ],
+    success_patterns: [
+      { group: 'IT Mグループ', period: '12ヶ月', scale: '3社導入', quote: 'スキル基盤の共通化を本体で実証し、子会社は「同じものを」で展開が決まった。' },
+      { group: 'IT Nグループ', period: '9ヶ月', scale: '推進室＋2社', quote: 'HR Tech推進室を巻き込んだことで、ジョブ型移行PJの標準ツールとして採用された。' },
+      { group: 'IT O', period: '7ヶ月', scale: '2社', quote: '人材流動の可視化を共通テーマにし、出向・配置転換のインフラとして2社導入。' }
+    ]
+  },
+  service_d_group: {
+    query_example: 'サービスDグループの未開拓子会社を攻めたい。多拠点の定着とサービス品質の人材が課題。',
+    profile: {
+      group_name: 'サービスDグループ',
+      industry: 'サービス業グループ（ホテル・外食・ブライダル）',
+      structure: 'Dホテル・Dレストラン・Dブライダル・Dフィットネス・D人材サービスの5本柱',
+      ir_keywords: ['多拠点の人材定着', 'サービス品質と人材育成', 'グループ共通の教育', '採用難への対応'],
+      budget: 'グループ総枠 年 4,000万〜9,000万円規模',
+      kdm: 'グループ人事統括／人材開発本部長／各社人事責任者'
+    },
+    subsidiaries: [
+      { name: 'Dホテル', status: 'active', meta: '導入済・月1定例', kp: '既存KP：浜田人事部長' },
+      { name: 'Dレストラン', status: 'partial', meta: '一部利用', kp: '接点：人事 関口課長' },
+      { name: 'Dブライダル', status: 'untapped', meta: '未開拓', kp: '推定：人事 沢田部長' },
+      { name: 'Dフィットネス', status: 'untapped', meta: '未開拓', kp: '推定：管理部 人事担当' },
+      { name: 'D人材サービス', status: 'partial', meta: '検討中', kp: '接点：人事企画 武田次長' }
+    ],
+    paths: [
+      {
+        title: 'Dホテル → Dブライダル（定着・育成の横展開）', success: '高',
+        start: { role: '起点（既存接点）', person: 'Dホテル 浜田人事部長', co: '人事部／月1定例' },
+        relay: { role: '中継', person: 'グループ人材開発本部', co: '共通教育の旗振り' },
+        target: { role: 'ターゲット', person: 'Dブライダル 沢田部長（推定）', co: '人事部' },
+        basis: '接客サービスの定着・育成は事業をまたいで共通。ホテルの成功をブライダルへ展開する型。',
+        action: '「浜田様、グループ共通の育成・定着の話で、Dブライダル様の人事に同じ仕組みを提案できませんか？」',
+        ref: '類似：サービスMグループで育成共通化を起点に3社展開'
+      },
+      {
+        title: '人材開発本部 → Dフィットネス（共通教育）', success: '中',
+        start: { role: '起点（既存接点）', person: 'グループ人材開発本部 担当', co: 'グループ横断組織' },
+        relay: { role: '中継', person: 'グループ教育委員会', co: '研修・資格管理の管掌' },
+        target: { role: 'ターゲット', person: 'Dフィットネス 人事担当（推定）', co: '管理部' },
+        basis: '資格・教育のグループ管理ニーズ。最後発のフィットネス子会社へ標準導入。',
+        action: '「教育委員会の議題に、Dフィットネス様の資格・スキル管理を当社事例とセットで入れられませんか？」',
+        ref: '類似：サービスN 教育委員会経由で子会社へ8ヶ月接続'
+      },
+      {
+        title: 'Dレストラン → D人材サービス（現場データの活用）', success: '中',
+        start: { role: '起点（既存接点）', person: 'Dレストラン 関口課長', co: '一部利用中' },
+        relay: { role: '中継', person: 'グループ採用・配置プロジェクト', co: '人材融通の管掌' },
+        target: { role: 'ターゲット', person: 'D人材サービス 武田次長', co: '検討中' },
+        basis: 'グループ内の人材融通を支えるデータ基盤ニーズ。',
+        action: '「関口様、繁忙期の人材融通で“誰がどこで動けるか”を共通で見る話、人材サービス様と進められませんか？」',
+        ref: '類似：サービスO 人材融通の可視化で7ヶ月2社'
+      }
+    ],
+    doorknock: [
+      { title: '多拠点の定着ダッシュボード', hypothesis: '拠点ごとの離職ばらつきは全事業共通。横断可視化のニーズ。', match: ['Dホテル', 'Dレストラン', 'Dブライダル', 'Dフィットネス'], talk: '「どの拠点でなぜ辞めているか、グループで見えていますか？拠点別に並べると支援先が絞れます」' },
+      { title: 'グループ共通のスキル・資格管理', hypothesis: '接客資格・スキルをグループで管理したい育成ニーズ。', match: ['Dホテル', 'Dレストラン', 'Dブライダル'], talk: '「接客スキル・資格、いま各社バラバラで管理していませんか？共通化で異動・育成が回ります」' },
+      { title: '繁忙期の人材融通の最適化', hypothesis: '季節波動の人材融通をデータで支えるニーズ。', match: ['Dホテル', 'Dレストラン', 'D人材サービス'], talk: '「繁忙期の人の融通、いま勘でやっていませんか？スキルデータがあると誰を回せるか即わかります」' }
+    ],
+    success_patterns: [
+      { group: 'サービスMグループ', period: '10ヶ月', scale: '3社導入', quote: '育成・定着の共通化を本丸事業で実証し、他事業へ横展開が決まった。' },
+      { group: 'サービスNグループ', period: '8ヶ月', scale: '教育委員会＋2社', quote: 'グループ教育委員会に入り込んだことで、資格管理の標準ツールとして採用された。' },
+      { group: 'サービスO', period: '7ヶ月', scale: '2社', quote: '人材融通の可視化を共通テーマにし、繁忙期対応のインフラとして2社導入。' }
+    ]
+  },
+  medical_e_group: {
+    query_example: '医療E事業グループの未開拓子会社を攻めたい。看護師・介護職の定着をグループで標準化したい。',
+    profile: {
+      group_name: '医療E事業グループ',
+      industry: '医療・介護・ヘルスケアグループ',
+      structure: 'E病院・E介護・Eクリニック・E保育・Eメディカルサポートの5本柱',
+      ir_keywords: ['看護・介護職の定着', 'グループ人材標準化', '多拠点の働き方改革', '採用難への対応'],
+      budget: 'グループ総枠 年 4,000万〜8,000万円規模',
+      kdm: 'グループ人事統括理事／法人本部 人事部長／各施設長'
+    },
+    subsidiaries: [
+      { name: 'E病院', status: 'active', meta: '導入済・月1定例', kp: '既存KP：神田人事部長＋看護部' },
+      { name: 'E介護', status: 'partial', meta: '一部利用', kp: '接点：人事 望月課長' },
+      { name: 'Eクリニック', status: 'untapped', meta: '未開拓', kp: '推定：事務局 人事担当' },
+      { name: 'E保育', status: 'untapped', meta: '未開拓', kp: '推定：運営本部 人事担当' },
+      { name: 'Eメディカルサポート', status: 'partial', meta: '検討中', kp: '接点：管理部 大塚次長' }
+    ],
+    paths: [
+      {
+        title: 'E病院 → E介護（定着の横展開）', success: '高',
+        start: { role: '起点（既存接点）', person: 'E病院 神田人事部長', co: '人事／月1定例＋看護部連携' },
+        relay: { role: '中継', person: '法人本部 人事部', co: 'グループ定着プロジェクト主管' },
+        target: { role: 'ターゲット', person: 'E介護 望月課長', co: '人事（一部利用）' },
+        basis: '看護・介護職の定着はグループ共通の最重要課題。病院の成功を介護事業へ展開する型。',
+        action: '「神田様、グループ定着の標準化で、E介護様にも病院と同じ仕組みを広げる議論をご一緒できますか？」',
+        ref: '類似：医療Mグループで定着標準化を起点に3施設展開'
+      },
+      {
+        title: '法人本部 → Eクリニック（人材標準化）', success: '中',
+        start: { role: '起点（既存接点）', person: '法人本部 人事部', co: 'グループ横断組織' },
+        relay: { role: '中継', person: 'グループ人事標準化委員会', co: '評価・名簿統一の管掌' },
+        target: { role: 'ターゲット', person: 'Eクリニック 人事担当（推定）', co: '事務局' },
+        basis: '小規模クリニックは人事運用が手薄。法人本部経由での標準導入が最短。',
+        action: '「人事標準化委員会の議題に、Eクリニック様の名簿・評価統一を当社事例とセットで入れられませんか？」',
+        ref: '類似：医療N 法人本部主導で小規模施設へ8ヶ月接続'
+      },
+      {
+        title: 'E介護 → E保育（多拠点サーベイ）', success: '中',
+        start: { role: '起点（既存接点）', person: 'E介護 望月課長', co: '一部利用中' },
+        relay: { role: '中継', person: 'グループ働き方改革PJ', co: '多拠点の労務改善' },
+        target: { role: 'ターゲット', person: 'E保育 人事担当（推定）', co: '運営本部' },
+        basis: '保育も人手不足・定着が深刻。働き方改革PJ経由でサーベイ展開。',
+        action: '「望月様、働き方改革PJで現場の声を拾うサーベイの話、E保育様と一緒に進められませんか？」',
+        ref: '類似：医療O 介護→保育で7ヶ月接続'
+      }
+    ],
+    doorknock: [
+      { title: '看護・介護職の定着ダッシュボード', hypothesis: '施設別の離職要因を横断で見たいグループニーズ。', match: ['E病院', 'E介護', 'Eクリニック', 'E保育'], talk: '「どの施設でなぜ辞めているか、グループで比較できていますか？横断で見えると支援先が絞れます」' },
+      { title: 'グループ人材の標準化（名簿・評価）', hypothesis: '施設ごとにバラバラな評価・名簿の統一ニーズ。', match: ['E病院', 'E介護', 'Eクリニック'], talk: '「施設をまたぐ異動のとき、評価や名簿の様式が揃っていますか？標準化で運用が楽になります」' },
+      { title: '多拠点のエンゲージメントサーベイ', hypothesis: '働き方改革の効果測定をグループ共通で行うニーズ。', match: ['E病院', 'E介護', 'E保育'], talk: '「働き方改革、やりっぱなしになっていませんか？共通サーベイで効果がグループで見えます」' }
+    ],
+    success_patterns: [
+      { group: '医療Mグループ', period: '11ヶ月', scale: '3施設導入', quote: '定着標準化を本院で実証し、介護・クリニックへ「同じ仕組みで」と展開が決まった。' },
+      { group: '医療Nグループ', period: '8ヶ月', scale: '法人本部＋2施設', quote: '法人本部の標準化委員会に入り込んだことで、名簿・評価の標準ツールとして採用された。' },
+      { group: '医療O', period: '7ヶ月', scale: '2施設', quote: '働き方改革のサーベイを共通テーマにし、介護から保育へ展開した。' }
+    ]
+  }
+};
+
+function matchGroupScenario(query) {
+  if (!query) return 'maker_a_group';
+  const q = query.toLowerCase();
+  const rules = [
+    { key: 'maker_a_group',   words: ['製造', 'メーカー', '部品', 'aホールディングス', 'a グループ', 'aグループ', '開示'] },
+    { key: 'retail_b_group',  words: ['小売', 'チェーン', 'bグループ', 'b グループ', '店舗', 'ドラッグ'] },
+    { key: 'it_c_group',      words: ['it', 'ソフトウェア', 'cグループ', 'c グループ', 'ジョブ型', 'スキル'] },
+    { key: 'service_d_group', words: ['サービス', 'ホテル', '外食', 'ブライダル', 'dグループ', 'd グループ'] },
+    { key: 'medical_e_group', words: ['医療', '介護', '看護', '保育', 'eグループ', 'e グループ', 'e事業'] }
+  ];
+  for (const r of rules) {
+    for (const w of r.words) {
+      if (q.includes(w.toLowerCase())) return r.key;
+    }
+  }
+  return 'maker_a_group';
+}
+
+const GROUP_THINKING_STEPS = [
+  '親会社・子会社の関係性を解析中...',
+  '既存取引データから各社人事の接点を洗い出し中...',
+  '人付け展開パスを過去事例から抽出中...',
+  '推奨ドアノックテーマを選定中...',
+  '類似グループでの成功パターンを照合中...'
+];
+
+let groupInProgress = false;
+
+function runGroupSample(key) {
+  const data = groupScenarios[key];
+  if (!data) return;
+  const ta = document.getElementById('groupQuery');
+  if (ta) ta.value = data.query_example;
+  analyzeGroup();
+}
+
+function analyzeGroup(opts) {
+  if (groupInProgress) return;
+  const ta = document.getElementById('groupQuery');
+  const query = ta ? ta.value.trim() : '';
+  const key = matchGroupScenario(query);
+  const data = groupScenarios[key];
+  const instant = opts && opts.instant === true;
+  groupInProgress = true;
+
+  const btn = document.getElementById('groupAnalyzeBtn');
+  if (btn) btn.disabled = true;
+
+  const results = document.getElementById('groupResults');
+  results.classList.remove('active');
+  document.querySelectorAll('#groupResults .result-card').forEach(c => c.classList.remove('show'));
+
+  const thinking = document.getElementById('groupThinkingArea');
+  const stepsEl = document.getElementById('groupThinkingSteps');
+  stepsEl.innerHTML = '';
+
+  if (instant) {
+    thinking.classList.remove('active');
+    renderGroupData(data);
+    results.classList.add('active');
+    document.querySelectorAll('#groupResults .result-card').forEach(c => c.classList.add('show'));
+    groupInProgress = false;
+    if (btn) btn.disabled = false;
+    return;
+  }
+
+  thinking.classList.add('active');
+  streamGroupThinking(GROUP_THINKING_STEPS, () => {
+    setTimeout(() => {
+      thinking.classList.remove('active');
+      renderGroupData(data);
+      results.classList.add('active');
+      revealGroupSections(() => {
+        groupInProgress = false;
+        if (btn) btn.disabled = false;
+      });
+    }, 350);
+  });
+}
+
+function streamGroupThinking(steps, done) {
+  const stepsEl = document.getElementById('groupThinkingSteps');
+  stepsEl.innerHTML = '';
+  steps.forEach((text, i) => {
+    const div = document.createElement('div');
+    div.className = 'thinking-step pending';
+    div.id = 'grpStep-' + i;
+    div.innerHTML = '<span class="step-mark">⏳</span><span class="step-text">' + text + '</span>';
+    stepsEl.appendChild(div);
+  });
+  const STEP_DELAY = 750;
+  steps.forEach((_, i) => {
+    setTimeout(() => {
+      const el = document.getElementById('grpStep-' + i);
+      if (el) el.classList.add('visible');
+    }, i * STEP_DELAY + 50);
+    setTimeout(() => {
+      const el = document.getElementById('grpStep-' + i);
+      if (el) {
+        el.classList.remove('pending');
+        el.classList.add('done');
+        const mark = el.querySelector('.step-mark');
+        if (mark) mark.textContent = '✓';
+      }
+    }, i * STEP_DELAY + STEP_DELAY - 100);
+  });
+  setTimeout(() => { if (typeof done === 'function') done(); }, steps.length * STEP_DELAY + 200);
+}
+
+function renderGroupData(data) {
+  const pg = document.getElementById('groupProfileGrid');
+  pg.innerHTML = '';
+  const cells = [
+    { label: '対象グループ', value: data.profile.group_name },
+    { label: '業種・領域', value: data.profile.industry },
+    { label: 'グループ構成', value: data.profile.structure, full: true },
+    { label: 'IRキーワード', value: data.profile.ir_keywords.map(k => '<span class="ir-tag">' + k + '</span>').join(''), html: true, full: true },
+    { label: '推定総予算枠', value: data.profile.budget },
+    { label: '主要意思決定者', value: data.profile.kdm }
+  ];
+  cells.forEach(c => {
+    const cell = document.createElement('div');
+    cell.className = 'profile-cell' + (c.full ? ' full' : '');
+    cell.innerHTML = '<div class="pc-label">' + c.label + '</div>' +
+      '<div class="pc-value">' + (c.html ? '<div class="ir-tags">' + c.value + '</div>' : c.value) + '</div>';
+    pg.appendChild(cell);
+  });
+
+  const sg = document.getElementById('subsidiaryGrid');
+  sg.innerHTML = '';
+  const statusLabel = { active: '取引◎', partial: '取引△', untapped: '未開拓' };
+  data.subsidiaries.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'subsidiary-card status-' + s.status;
+    card.innerHTML =
+      '<span class="sub-status-badge">' + statusLabel[s.status] + '</span>' +
+      '<div class="sub-co-name">' + s.name + '</div>' +
+      '<div class="sub-co-meta">' + s.meta + '</div>' +
+      '<div class="sub-co-kp">' + s.kp + '</div>';
+    sg.appendChild(card);
+  });
+
+  const pl = document.getElementById('groupPathList');
+  pl.innerHTML = '';
+  data.paths.forEach((p, i) => {
+    const successClass = p.success === '高' ? 'path-success-high' : (p.success === '中' ? 'path-success-mid' : 'path-success-low');
+    const card = document.createElement('div');
+    card.className = 'path-card';
+    card.innerHTML =
+      '<div class="path-card-head">' +
+        '<div class="path-card-num">' + (i + 1) + '</div>' +
+        '<div class="path-card-title">' + p.title + '</div>' +
+        '<span class="path-success ' + successClass + '">成功確度 ' + p.success + '</span>' +
+      '</div>' +
+      '<div class="path-flow">' +
+        '<div class="path-step-box start"><div class="step-role">' + p.start.role + '</div><div class="step-person">' + p.start.person + '</div><div class="step-co">' + p.start.co + '</div></div>' +
+        '<div class="path-flow-arrow">→</div>' +
+        '<div class="path-step-box relay"><div class="step-role">' + p.relay.role + '</div><div class="step-person">' + p.relay.person + '</div><div class="step-co">' + p.relay.co + '</div></div>' +
+        '<div class="path-flow-arrow">→</div>' +
+        '<div class="path-step-box target"><div class="step-role">' + p.target.role + '</div><div class="step-person">' + p.target.person + '</div><div class="step-co">' + p.target.co + '</div></div>' +
+      '</div>' +
+      '<div class="path-basis"><span class="pb-label">根拠：</span>' + p.basis + '</div>' +
+      '<div class="path-action">' + p.action + '</div>' +
+      '<div class="path-ref">' + p.ref + '</div>';
+    pl.appendChild(card);
+  });
+
+  const dl = document.getElementById('groupDoorknockList');
+  dl.innerHTML = '';
+  data.doorknock.forEach((d, i) => {
+    const matches = d.match.map(m => '<span class="dk-match-tag">' + m + '</span>').join('');
+    const card = document.createElement('div');
+    card.className = 'doorknock-card';
+    card.innerHTML =
+      '<div class="doorknock-head"><div class="doorknock-num">' + (i + 1) + '</div><div class="doorknock-title">' + d.title + '</div></div>' +
+      '<div class="doorknock-row"><div class="dk-label">仮説</div><div class="dk-text">' + d.hypothesis + '</div></div>' +
+      '<div class="doorknock-row"><div class="dk-label">子会社マッチ</div><div class="dk-text"><div class="dk-match">' + matches + '</div></div></div>' +
+      '<div class="doorknock-row"><div class="dk-label">トーク冒頭</div><div class="dk-text talk">' + d.talk + '</div></div>';
+    dl.appendChild(card);
+  });
+
+  const ssg = document.getElementById('groupSuccessGrid');
+  ssg.innerHTML = '';
+  data.success_patterns.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'success-card';
+    card.innerHTML =
+      '<div class="sc-group">' + s.group + '</div>' +
+      '<div class="sc-meta"><span>展開期間：' + s.period + '</span><span>受注規模：' + s.scale + '</span></div>' +
+      '<div class="sc-quote">' + s.quote + '</div>';
+    ssg.appendChild(card);
+  });
+}
+
+function revealGroupSections(done) {
+  const cards = document.querySelectorAll('#groupResults .result-card');
+  const INTERVAL = 800;
+  cards.forEach((card, i) => {
+    setTimeout(() => card.classList.add('show'), i * INTERVAL);
+  });
+  setTimeout(() => { if (typeof done === 'function') done(); }, cards.length * INTERVAL + 100);
+}
+
+function resetGroup() {
+  const ta = document.getElementById('groupQuery');
+  if (ta) ta.value = '';
+  document.getElementById('groupResults').classList.remove('active');
+  document.querySelectorAll('#groupResults .result-card').forEach(c => c.classList.remove('show'));
+  document.getElementById('groupThinkingArea').classList.remove('active');
+  document.getElementById('groupThinkingSteps').innerHTML = '';
+  groupInProgress = false;
+  const btn = document.getElementById('groupAnalyzeBtn');
+  if (btn) btn.disabled = false;
+  if (ta) ta.focus();
+}
+
+function initGroupFromHash() {
+  const raw = location.hash.slice(1);
+  if (!raw) return;
+  const segs = raw.split(/[&?]/);
+  const head = segs[0];
+  if (head !== 'group') return;
+  const params = {};
+  segs.slice(1).forEach(s => {
+    const [k, v] = s.split('=');
+    if (k) params[k] = v == null ? '' : v;
+  });
+  showView('group');
+  if (params.demo === '1') {
+    const sampleKey = params.sample && groupScenarios[params.sample] ? params.sample : 'maker_a_group';
+    const data = groupScenarios[sampleKey];
+    const ta = document.getElementById('groupQuery');
+    if (ta) ta.value = data.query_example;
+    analyzeGroup({ instant: true });
+  }
+}
+
+(function patchInitForGroup() {
+  if (typeof initProspectFromHash !== 'function') return;
+  const _origInit = initProspectFromHash;
+  initProspectFromHash = function() {
+    const raw = location.hash.slice(1);
+    const head = raw.split(/[&?]/)[0];
+    if (head === 'group') {
+      initGroupFromHash();
+    } else {
+      _origInit();
+    }
+  };
+})();
+
+
+/* ============================================================ */
+/* ===== Deal Diagnosis Agent (商談診断) ====================== */
+/* ============================================================ */
+
+const qaScenarios = {
+  qa_hyoka: {
+    query_example: '評価制度の刷新テーマで、受注した商談と失注した商談で何が違うのか知りたい。',
+    summary: {
+      theme: '人事評価制度の刷新',
+      driver: '受注商談に共通するのは<span class="em">「評価が回らない」現場の痛みを“数字”で引き出し、制度確定を待たず並走導入を提案している</span>こと。失注群は<span class="em">機能説明に終始し、決裁者（人事部長・経営層）との接点を初期に作れていない</span>。'
+    },
+    stats: [
+      { label: '分析対象商談', val: '21', unit: '件' },
+      { label: '受注', val: '12', unit: '件', kind: 'won' },
+      { label: '失注', val: '9', unit: '件', kind: 'lost' },
+      { label: '受注率', val: '57', unit: '%' }
+    ],
+    compare: [
+      { dim: '人事部長・経営層との初期接点', note: '初回〜2回目で接点を作れた割合', won: 83, lost: 33, wonText: '83%', lostText: '33%', gap: '+50pt', big: true },
+      { dim: '制度確定前の並走導入提案', note: '制度と並走する提案に持ち込めた割合', won: 67, lost: 22, wonText: '67%', lostText: '22%', gap: '+45pt', big: true },
+      { dim: '評価運用工数の定量ヒアリング', note: '締め日数・差し戻し回数まで把握', won: 75, lost: 38, wonText: '75%', lostText: '38%', gap: '+37pt', big: true },
+      { dim: '同業界の導入事例提示', note: '製造業など同業の刷新事例を提示', won: 92, lost: 55, wonText: '92%', lostText: '55%', gap: '+37pt', big: true },
+      { dim: '顧客の発話比率（傾聴）', note: '商談中に顧客が話した割合', won: 58, lost: 44, wonText: '58%', lostText: '44%', gap: '+14pt', big: false }
+    ],
+    success_factors: [
+      { title: '「評価が回らない」痛みを“数字”で引き出している', occ: '受注群 83%', observation: '受注群は「評価の締めに何日かかっているか」「差し戻しが何往復あるか」を初回で具体的に質問し、痛みを数値化している。', quote: '評価の締め、いま部門から人事に戻ってくるまで何往復くらいされていますか？', pattern: '受注12件中10件でこの“工数の定量ヒアリング”が初回〜2回目に登場。失注群では38%にとどまる。' },
+      { title: '制度確定を待たず「並走導入」を提案している', occ: '受注群 67%', observation: '「制度が固まってから」という顧客の慣性に対し、受注群は「ツールがある方が制度議論が早い」と切り返し、制度と並走する提案に持ち込んでいる。', quote: '制度設計と並走できます。先にツールがある方が、評価項目の議論はむしろ早く進みます', pattern: '制度確定前の提案ができた商談の受注率は74%。「確定を待つ」と答えた商談は次回までにトーンが下がる傾向。' },
+      { title: '人事部長・経営層を初期から場に巻き込んでいる', occ: '受注群 83%', observation: '担当者だけでなく、初回〜2回目で人事部長や経営層を商談の場に引き込んでいる。', quote: '次回は人事部長の◯◯様にもご同席いただけると、開示との接続まで一気に握れます', pattern: '初期2回以内に決裁者接点を作れた商談は受注率81%。担当者のみで進んだ商談は失注率が顕著に高い。' }
+    ],
+    loss_factors: [
+      { title: '機能説明に終始し、痛みの定量化をしていない', occ: '失注群 71%', observation: '評価ワークフローの機能デモに時間を使い、「現状どれだけ困っているか」を数値で押さえないまま提案に進んでいる。', signal: '失注シグナル：商談の前半20分で“顧客の現状の数値”が一度も出てこない。', reference: '失注9件中6件が「痛みの定量化なし」。受注群との最大の差分。' },
+      { title: '決裁者が最後まで出てこない', occ: '失注群 67%', observation: '担当者とだけ商談が進み、人事部長・経営層が一度も場に出ないまま検討フェーズに入り、社内で止まっている。', signal: '失注シグナル：3回目商談までに部長以上が一度も同席していない。', reference: '失注案件の67%が「決裁者未接触」。停滞商談の最強の予測指標。' },
+      { title: '費用対効果を「機能の便利さ」で語っている', occ: '失注群 56%', observation: 'ROIを工数削減額や開示コストで語らず、機能の便利さの説明にとどまっている。投資判断の土台が作れていない。', signal: '失注シグナル：金額換算の効果が商談ログに出てこない。', reference: '数値ROIを提示した商談の受注率は68%、未提示は29%。' }
+    ],
+    unasked: [
+      { q: '評価の締めに、いま実際どれくらいの工数がかかっていますか？', wonRate: '受注群 75%', lostRate: '失注群 38%', why: '痛みの大きさを“金額・工数”に変換でき、投資判断の土台になる。聞けていないと「あると便利」止まりになる。', script: '「評価の締め、部門から人事に戻ってくるまで何往復・何営業日かかっていますか？その工数、年間に直すとどれくらいでしょう」' },
+      { q: '最終的に評価制度刷新の意思決定をされるのはどなたですか？', wonRate: '受注群 70%', lostRate: '失注群 31%', why: '決裁者を特定できないと社内で止まる。失注の最大要因に直結する問い。', script: '「制度刷新の最終判断は、人事部長様のご決裁ですか？それとも経営会議まで上がる形でしょうか。事前にお会いできる機会を作れればと」' },
+      { q: '人的資本開示と評価制度、社内では同じプロジェクトで動いていますか？', wonRate: '受注群 58%', lostRate: '失注群 25%', why: '開示と接続できると予算規模と緊急度が一段上がる。聞けていないと評価単体の小さな案件で終わる。', script: '「開示対応と評価のデータ、別々に進めると二度手間になりがちです。社内では同じ流れで議論されていますか？」' }
+    ],
+    weak: [
+      { title: '機能デモを商談の主役にしている', corr: '成果相関 低', finding: '評価ワークフローのデモ時間が長い商談ほど、受注率はむしろ下がる傾向。デモは「便利さ」は伝わるが「投資する理由」は作れない。', fix: 'デモは10分以内に圧縮し、冒頭で“現状の工数・痛み”を数値で握ってから見せる。デモの前に課題の合意を取る。' },
+      { title: '汎用の製品紹介資料をそのまま使っている', corr: '成果相関 低', finding: '業界・課題に合わせてカスタマイズせず汎用資料を使った商談は、印象に残らず次回の温度が上がりにくい。', fix: '冒頭3枚を「相手業界の評価の痛み」に差し替える。製造業なら多拠点・グローバルの評価ばらつきを起点にする。' }
+    ],
+    actions: [
+      { title: '初回ヒアリングシートに「工数の定量質問」を必須化', desc: '評価の締め日数・差し戻し回数・関与人数を初回で必ず聞く設計に。受注群の質問をテンプレ化して全営業に配布。', due: '運用ルール化', priority: 'high', priorityLabel: '高', templates: [{ icon: '📋', label: 'ヒアリングシート' }] },
+      { title: '決裁者接点を「2回目までに作る」をKPI化', desc: '担当者だけの商談が3回続いたらアラート。部長同席を次回ゴールに設定する運用へ転換する。', due: '次回MTGまで', priority: 'high', priorityLabel: '高', templates: [{ icon: '🎯', label: '同席打診テンプレ' }] },
+      { title: '業界別ROI試算テンプレを整備', desc: '評価工数削減額・開示コスト削減を業界別に試算できる雛形を用意。デモ前に投資判断の土台を作る。', due: '資料整備', priority: 'mid', priorityLabel: '中', templates: [{ icon: '📊', label: 'ROI試算テンプレ' }, { icon: '📑', label: '業界別資料' }] }
+    ]
+  },
+  qa_rishoku: {
+    query_example: '離職予兆・エンゲージメントのテーマで、受注と失注で何が違うのか知りたい。',
+    summary: {
+      theme: '離職予兆・エンゲージメント',
+      driver: '受注群は<span class="em">「サーベイを取って終わり」の不安に先回りし、結果を1on1や店長支援に“接続”する運用設計まで提案</span>している。失注群は<span class="em">サーベイ単体の提案にとどまり、予兆の精度への不安を払拭できていない</span>。'
+    },
+    stats: [
+      { label: '分析対象商談', val: '24', unit: '件' },
+      { label: '受注', val: '10', unit: '件', kind: 'won' },
+      { label: '失注', val: '14', unit: '件', kind: 'lost' },
+      { label: '受注率', val: '42', unit: '%' }
+    ],
+    compare: [
+      { dim: '予兆精度への不安に先回り', note: '答え合わせ期間など不安解消を提示', won: 67, lost: 21, wonText: '67%', lostText: '21%', gap: '+46pt', big: true },
+      { dim: '現場（店長・管理職）の巻き込み提案', note: '現場が使う運用像を描けた割合', won: 80, lost: 36, wonText: '80%', lostText: '36%', gap: '+44pt', big: true },
+      { dim: 'サーベイ結果の活用シナリオ提示', note: '1on1・店長支援への接続を提示', won: 78, lost: 35, wonText: '78%', lostText: '35%', gap: '+43pt', big: true },
+      { dim: '離職コストの試算提示', note: '採用費換算でROIを提示', won: 70, lost: 29, wonText: '70%', lostText: '29%', gap: '+41pt', big: true },
+      { dim: '顧客の発話比率（傾聴）', note: '商談中に顧客が話した割合', won: 60, lost: 47, wonText: '60%', lostText: '47%', gap: '+13pt', big: false }
+    ],
+    success_factors: [
+      { title: '「取って終わり」を防ぐ活用設計まで提案している', occ: '受注群 78%', observation: 'サーベイ導入だけでなく、結果を店長別ダッシュボードに落とし翌週の1on1の話題に直結させる“運用”まで描いている。', quote: '結果を店長別の画面に落として、翌週の1on1の最初の話題にする。ここまでやって初めてサーベイは生きます', pattern: '活用シナリオまで提示した商談の受注率は71%。サーベイ単体提案は34%。' },
+      { title: '離職を“コスト”に翻訳して経営の予算に乗せている', occ: '受注群 70%', observation: '離職1人あたりの採用・教育コストを試算し、定着改善のROIを採用費削減として経営に示している。', quote: '離職1人で採用・教育に◯万円。定着が5%改善すると年間でこれだけ採用費が浮きます', pattern: '離職コスト試算を提示した商談の受注率は68%。' },
+      { title: '予兆精度への不安に「答え合わせ期間」で先回り', occ: '受注群 67%', observation: '「予兆は当たるのか」という不安に対し、最初の3ヶ月を予兆と実離職の答え合わせ期間として伴走する提案で不安を解消している。', quote: '最初の3ヶ月は精度の答え合わせ期間として伴走します。御社データで確認いただいてから本格運用に', pattern: '不安先回りができた商談は次回前進率が顕著に高い。' }
+    ],
+    loss_factors: [
+      { title: 'サーベイ単体の提案で終わっている', occ: '失注群 64%', observation: 'サーベイ機能の説明にとどまり、結果をどう現場の打ち手につなげるかの運用像を描けていない。', signal: '失注シグナル：「結果をどう使うか」が商談で語られない。', reference: '失注14件中9件が「活用設計なし」。' },
+      { title: '現場（店長・管理職）を敵に回す説明になっている', occ: '失注群 50%', observation: 'サーベイを「管理職を評価・監視する道具」と受け取られる説明をしてしまい、現場の協力が得られず頓挫。', signal: '失注シグナル：現場の入力協力・回答率の話が出ない。', reference: '現場巻き込みの提案がない商談の失注率が高い。' },
+      { title: '予兆の精度不安を放置している', occ: '失注群 57%', observation: '「本当に当たるのか」という半信半疑を払拭する提案（伴走・答え合わせ）がなく、検討が止まる。', signal: '失注シグナル：精度・根拠への質問に事例ベースで返せていない。', reference: '精度不安に先回りできた商談との差が大きい。' }
+    ],
+    unasked: [
+      { q: 'いまの離職、辞めると分かるのはどのタイミングですか？', wonRate: '受注群 72%', lostRate: '失注群 33%', why: '「辞表が出てから」と答えが返れば、予兆の価値が一気に伝わる。', script: '「離職が分かるのは退職の申し出が出てからですよね？その3ヶ月前に兆候が見えていたら、打てる手は変わりませんか？」' },
+      { q: '過去にサーベイをやって“取って終わり”になった経験はありますか？', wonRate: '受注群 65%', lostRate: '失注群 28%', why: '過去の失敗体験を引き出せば、運用設計の提案が刺さる。', script: '「以前サーベイをやって、結果が現場で使われずに終わった、というご経験はありませんか？」' },
+      { q: '離職1人あたりのコスト、試算されたことはありますか？', wonRate: '受注群 60%', lostRate: '失注群 24%', why: 'コスト意識を引き出すと定着投資のROIが語れる。', script: '「離職1人の採用・教育コスト、ざっくりでも試算されたことはありますか？そこが見えると投資判断がしやすくなります」' }
+    ],
+    weak: [
+      { title: 'サーベイの設問数・機能の網羅性をアピールしている', corr: '成果相関 低', finding: '設問の豊富さや分析機能の網羅性を強調した商談ほど、かえって「使いこなせなさそう」と敬遠される傾向。', fix: '「まず30秒・数問から」と最小で始める提案に切り替える。網羅性より“現場が回せること”を前面に。' },
+      { title: '他社の平均スコアとの比較を主役にしている', corr: '成果相関 低', finding: '業界平均との比較は興味は引くが、自社の打ち手にはつながりにくく、意思決定の決め手にならない。', fix: '比較より「自社の店舗間の差」と「打ち手」を主役に。明日から何をするかに接続する。' }
+    ],
+    actions: [
+      { title: '提案に「活用シナリオ1枚」を必須添付', desc: 'サーベイ後に結果を1on1・店長支援にどう使うかの運用フロー図を提案に必ず付ける。', due: '提案テンプレ更新', priority: 'high', priorityLabel: '高', templates: [{ icon: '🗺️', label: '活用フロー図' }] },
+      { title: '離職コスト試算ツールを営業に配布', desc: '人数・離職率・採用単価を入れると定着改善のROIが出る簡易ツールを配布。経営提案の標準にする。', due: 'ツール整備', priority: 'high', priorityLabel: '高', templates: [{ icon: '📊', label: '離職コスト試算' }] },
+      { title: '「精度の答え合わせ期間」を標準提案メニュー化', desc: '最初の3ヶ月の伴走を標準オプションとして提案に組み込み、精度不安を制度的に解消する。', due: 'メニュー化', priority: 'mid', priorityLabel: '中', templates: [{ icon: '🤝', label: '伴走メニュー' }] }
+    ]
+  },
+  qa_kaiji: {
+    query_example: '人的資本開示対応のテーマで、受注と失注で何が違うのか知りたい。',
+    summary: {
+      theme: '人的資本開示対応',
+      driver: '受注群は<span class="em">開示の“集計工数の地獄”を起点に、評価・人材データの一元化まで広げて提案</span>している。失注群は<span class="em">開示項目への対応可否（機能チェック）の話に閉じ、データ基盤の話に広げられていない</span>。'
+    },
+    stats: [
+      { label: '分析対象商談', val: '15', unit: '件' },
+      { label: '受注', val: '8', unit: '件', kind: 'won' },
+      { label: '失注', val: '7', unit: '件', kind: 'lost' },
+      { label: '受注率', val: '53', unit: '%' }
+    ],
+    compare: [
+      { dim: '開示集計の現状工数ヒアリング', note: '集計の人日・関与人数を把握', won: 75, lost: 30, wonText: '75%', lostText: '30%', gap: '+45pt', big: true },
+      { dim: '評価・人材データ一元化への展開', note: '開示単体から基盤の話に広げた', won: 71, lost: 28, wonText: '71%', lostText: '28%', gap: '+43pt', big: true },
+      { dim: '経営・IR部門との接点', note: '人事以外の意思決定層を巻き込む', won: 63, lost: 25, wonText: '63%', lostText: '25%', gap: '+38pt', big: true },
+      { dim: '開示と現場運用の接続提示', note: '開示を運用の“出力”として提示', won: 68, lost: 33, wonText: '68%', lostText: '33%', gap: '+35pt', big: true },
+      { dim: '顧客の発話比率（傾聴）', note: '商談中に顧客が話した割合', won: 57, lost: 46, wonText: '57%', lostText: '46%', gap: '+11pt', big: false }
+    ],
+    success_factors: [
+      { title: '開示の“集計地獄”を起点に痛みを掴んでいる', occ: '受注群 75%', observation: '受注群は「開示の数値をいま何人がかりで集めているか」を聞き、手作業の痛みを起点にしている。', quote: '統合報告書の人材セクション、いま各部署からExcelを集めて何人がかりで束ねていますか？', pattern: '集計工数ヒアリングがある商談の受注率は72%。' },
+      { title: '開示単体でなくデータ基盤の話に広げている', occ: '受注群 71%', observation: '開示対応を入口に、評価・人材データの一元化まで提案を広げ、予算規模を引き上げている。', quote: '開示と評価を別々のデータでやると二度手間です。同じ基盤に乗せると開示はその“出力”になります', pattern: '基盤に広げられた商談は受注金額が平均1.8倍。' },
+      { title: '経営・IR部門を巻き込んでいる', occ: '受注群 63%', observation: '人事だけでなく経営企画・IRを巻き込み、開示を経営アジェンダとして位置づけている。', quote: '開示は人事だけの話ではないので、経営企画・IRのご担当も交えてお話しできればと', pattern: '経営・IR接点がある商談の受注率が高い。' }
+    ],
+    loss_factors: [
+      { title: '開示項目の対応可否チェックに閉じている', occ: '失注群 71%', observation: '失注群は「この開示項目に対応できるか」の機能チェックリスト対応に終始し、データ基盤や運用の価値に広げられていない。', signal: '失注シグナル：商談が機能の○×確認で終わる。', reference: '失注7件中5件が「機能チェックに終始」。' },
+      { title: '開示を“やらされ仕事”の文脈のまま放置', occ: '失注群 57%', observation: '開示を義務対応のコストとしてしか語れず、人材マネジメント高度化の機会に転換できていない。', signal: '失注シグナル：開示の前向きな活用像が出てこない。', reference: '前向き文脈に転換できた商談との差が大きい。' },
+      { title: '単年の開示対応で終わる小さな提案になっている', occ: '失注群 43%', observation: '今年の開示を乗り切る単発提案にとどまり、継続的なデータ基盤として位置づけられていない。', signal: '失注シグナル：来年以降・継続運用の話が出ない。', reference: '継続運用を描けた商談の受注率が高い。' }
+    ],
+    unasked: [
+      { q: '開示の数値、いま集計に何人日かかっていますか？', wonRate: '受注群 75%', lostRate: '失注群 30%', why: '集計工数＝痛みの大きさ。基盤化のROIに直結する。', script: '「開示の数値集計、毎年何人がかりで何日くらいかかっていますか？その工数を毎年繰り返す前提でしょうか」' },
+      { q: '評価のデータと開示のデータ、いまは別々に管理されていますか？', wonRate: '受注群 68%', lostRate: '失注群 26%', why: '二重管理の非効率を突くと基盤一元化の話に広げられる。', script: '「評価で使うデータと開示で出す数値、いまは別々に作られていませんか？同じ基盤なら開示はその出力になります」' },
+      { q: '開示の議論は経営企画・IRも一緒に動いていますか？', wonRate: '受注群 60%', lostRate: '失注群 22%', why: '経営アジェンダ化すると予算と緊急度が上がる。', script: '「開示は人事だけで抱えるには重いテーマです。経営企画・IRのご担当も同じ流れで動かれていますか？」' }
+    ],
+    weak: [
+      { title: '開示項目の対応表（○×リスト）を主役にしている', corr: '成果相関 低', finding: '機能対応表は「対応できる」は伝わるが、それだけでは他社と差がつかず価格比較に落ちる。', fix: '対応表は補足に回し、「集計工数がゼロになる運用」を主役に。痛みの解消を前面に出す。' },
+      { title: '開示の制度・ガイドライン解説に時間を使いすぎ', corr: '成果相関 低', finding: '制度解説は親切だが、顧客はすでに知っており、商談時間を消費するだけで意思決定は進まない。', fix: '制度解説は最小限に。「御社の場合の集計の現状」を聞く時間に振り替える。' }
+    ],
+    actions: [
+      { title: '開示提案を「基盤一元化」ストーリーに標準化', desc: '開示単体でなく、評価・人材データ一元化の入口として提案する型をテンプレ化する。', due: '提案ストーリー整備', priority: 'high', priorityLabel: '高', templates: [{ icon: '📑', label: '提案ストーリー' }] },
+      { title: '集計工数の現状ヒアリングを必須化', desc: '開示集計の人日・関与人数を初回で必ず聞く。基盤化ROIの根拠にする。', due: 'ヒアリング設計', priority: 'high', priorityLabel: '高', templates: [{ icon: '📋', label: 'ヒアリングシート' }] },
+      { title: '経営企画・IR同席を促す打診テンプレ整備', desc: '開示を経営アジェンダ化するため、経営企画・IRの同席を促す打診メールを用意する。', due: 'テンプレ整備', priority: 'mid', priorityLabel: '中', templates: [{ icon: '✉', label: '同席打診メール' }] }
+    ]
+  },
+  qa_haichi: {
+    query_example: '適材適所・配置最適化のテーマで、受注と失注で何が違うのか知りたい。',
+    summary: {
+      theme: '適材適所・配置最適化',
+      driver: '受注群は<span class="em">「配置を“勘”で決めている」現状を可視化し、シミュレーションの意思決定価値を体感させている</span>。失注群は<span class="em">スキル入力の負荷ばかりが論点になり、データを“貯める苦労”で止まっている</span>。'
+    },
+    stats: [
+      { label: '分析対象商談', val: '18', unit: '件' },
+      { label: '受注', val: '7', unit: '件', kind: 'won' },
+      { label: '失注', val: '11', unit: '件', kind: 'lost' },
+      { label: '受注率', val: '39', unit: '%' }
+    ],
+    compare: [
+      { dim: '配置の意思決定プロセスのヒアリング', note: '今“何を見て”決めているかを把握', won: 78, lost: 32, wonText: '78%', lostText: '32%', gap: '+46pt', big: true },
+      { dim: 'シミュレーションのデモ提示', note: '配置が速くなる体験を見せた', won: 73, lost: 30, wonText: '73%', lostText: '30%', gap: '+43pt', big: true },
+      { dim: 'スキル入力負荷への解決提示', note: '既存データ・自動反映で負荷を下げた', won: 68, lost: 27, wonText: '68%', lostText: '27%', gap: '+41pt', big: true },
+      { dim: '事業部長・経営の巻き込み', note: '配置を決める人を場に引き込んだ', won: 60, lost: 25, wonText: '60%', lostText: '25%', gap: '+35pt', big: true },
+      { dim: '顧客の発話比率（傾聴）', note: '商談中に顧客が話した割合', won: 56, lost: 45, wonText: '56%', lostText: '45%', gap: '+11pt', big: false }
+    ],
+    success_factors: [
+      { title: '「配置を何で決めているか」を可視化している', occ: '受注群 78%', observation: '受注群は来期の配置を今どう議論しているか（誰の記憶・勘か）を聞き、属人化の痛みを顕在化させている。', quote: '来期の組織図、誰をどこに置くか、いまは何を見ながら議論されていますか？', pattern: '配置プロセスのヒアリングがある商談の受注率が高い。' },
+      { title: 'シミュレーションの“意思決定が速くなる”体験を見せている', occ: '受注群 73%', observation: 'スキル蓄積の話より先に、配置シミュレーションで「意思決定がこう速くなる」価値を体感させている。', quote: '欠員が出たとき、要件を満たす人が一覧で出る。配置会議の議論がこれだけ速くなります', pattern: '出口（意思決定）から見せた商談の受注率が高い。' },
+      { title: 'スキル入力の負荷に先回りで解を出している', occ: '受注群 68%', observation: '「入力が大変では」という懸念に対し、1on1メモ・既存データからの自動反映で負荷を最小化する提案をしている。', quote: 'スキルは一から手入力ではなく、1on1メモや既存の評価データから自動で埋まる設計にできます', pattern: '入力負荷の解消提示がある商談は前進しやすい。' }
+    ],
+    loss_factors: [
+      { title: 'スキルを“貯める苦労”の話で止まっている', occ: '失注群 73%', observation: '失注群はスキルデータの入力・整備の大変さが論点の中心になり、「貯めた先の価値」に進めていない。', signal: '失注シグナル：入力負荷・項目設計の議論で商談が終わる。', reference: '失注11件中8件が「入力負荷で停滞」。' },
+      { title: '配置の意思決定者（事業部長・経営）が不在', occ: '失注群 55%', observation: '人事担当とだけ話し、実際に配置を決める事業部長・経営層を巻き込めず、価値が伝わる相手に届いていない。', signal: '失注シグナル：配置を決める人が商談に出てこない。', reference: '意思決定者不在の商談の失注率が高い。' },
+      { title: 'シミュレーションの価値を言葉だけで説明している', occ: '失注群 45%', observation: 'デモや具体イメージなしに「配置が最適化できます」と抽象的に語り、価値が腹落ちしていない。', signal: '失注シグナル：具体的なシミュレーション画面を見せていない。', reference: 'デモ提示の有無で差が出る。' }
+    ],
+    unasked: [
+      { q: '来期の配置、いまは何を見ながら決めていますか？', wonRate: '受注群 75%', lostRate: '失注群 30%', why: '「部長の頭の中」と返れば属人化リスクが顕在化する。', script: '「来期の異動・配置、いまは誰の記憶や手元のリストで議論されていますか？その人が異動したらどうなりますか？」' },
+      { q: '実際に配置を決定されるのはどなたですか？', wonRate: '受注群 63%', lostRate: '失注群 27%', why: '価値が刺さる相手（事業部長・経営）を特定できる。', script: '「最終的な配置は事業部長様のご判断ですか？その方にこそシミュレーションの価値が伝わるので、ぜひ場をご一緒したく」' },
+      { q: 'スキル情報、いまどこかに少しでも溜まっていますか？', wonRate: '受注群 55%', lostRate: '失注群 22%', why: '既存データを起点にすれば入力負荷の不安を下げられる。', script: '「資格や経歴、評価のコメントなど、断片的にでもデータはありませんか？そこを起点にすれば一から入力する必要はありません」' }
+    ],
+    weak: [
+      { title: 'スキル項目の設計の精緻さをアピールしている', corr: '成果相関 低', finding: 'スキルマップの精緻さを強調するほど「整備が大変そう」と腰が引け、導入が遠のく。', fix: '「粗くてもまず配置が見える」ことを主役に。精緻化は運用しながらでよい、と負荷を下げる。' },
+      { title: '人材データの網羅入力を前提に話している', corr: '成果相関 低', finding: '全項目を埋めてから使う前提だと、導入のハードルが上がり検討が止まる。', fix: '「既存データ＋最小入力」で今すぐ使える、を見せる。完璧な入力を待たない設計を提案する。' }
+    ],
+    actions: [
+      { title: 'デモを「配置シミュレーション体験」起点に再設計', desc: '機能一覧でなく、欠員・抜擢のシミュレーション体験から入る商談フローに統一する。', due: 'デモ設計', priority: 'high', priorityLabel: '高', templates: [{ icon: '🧩', label: 'デモシナリオ' }] },
+      { title: '事業部長・経営の巻き込みを提案に明記', desc: '配置の意思決定者を商談に引き込む段取りを標準提案に組み込む。', due: '次回MTGまで', priority: 'high', priorityLabel: '高', templates: [{ icon: '🎯', label: '同席打診テンプレ' }] },
+      { title: '「既存データから始める」導入パターンを整備', desc: '一から入力させない、既存データ起点の最小導入パターンを標準提案化する。', due: '導入設計', priority: 'mid', priorityLabel: '中', templates: [{ icon: '🚀', label: 'スモール導入案' }] }
+    ]
+  },
+  qa_replace: {
+    query_example: '他社HRシステムからの乗り換えのテーマで、受注と失注で何が違うのか知りたい。',
+    summary: {
+      theme: '他社HRシステムからの乗り換え',
+      driver: '受注群は<span class="em">既存システムへの不満を具体的に棚卸しし、移行リスクへの不安に“移行支援の型”で先回り</span>している。失注群は<span class="em">機能比較表での優位性アピールに終始し、乗り換えコスト・リスクの不安を解消できていない</span>。'
+    },
+    stats: [
+      { label: '分析対象商談', val: '22', unit: '件' },
+      { label: '受注', val: '9', unit: '件', kind: 'won' },
+      { label: '失注', val: '13', unit: '件', kind: 'lost' },
+      { label: '受注率', val: '41', unit: '%' }
+    ],
+    compare: [
+      { dim: '移行リスク・コストへの先回り', note: '移行手順・期間・体制を提示', won: 74, lost: 29, wonText: '74%', lostText: '29%', gap: '+45pt', big: true },
+      { dim: '既存システムへの不満の具体化', note: '不便な作業を具体レベルで把握', won: 80, lost: 38, wonText: '80%', lostText: '38%', gap: '+42pt', big: true },
+      { dim: 'データ移行の具体的な型の提示', note: '標準の移行計画を提示', won: 70, lost: 30, wonText: '70%', lostText: '30%', gap: '+40pt', big: true },
+      { dim: '現場の運用変更への配慮提示', note: '並走・教育サポートを提示', won: 65, lost: 33, wonText: '65%', lostText: '33%', gap: '+32pt', big: true },
+      { dim: '顧客の発話比率（傾聴）', note: '商談中に顧客が話した割合', won: 58, lost: 46, wonText: '58%', lostText: '46%', gap: '+12pt', big: false }
+    ],
+    success_factors: [
+      { title: '既存システムの不満を“具体的に”棚卸ししている', occ: '受注群 80%', observation: '受注群は「今のシステムのどこが不便か」を機能・運用レベルで具体的に引き出し、乗り換えの動機を明確にしている。', quote: '今のシステムで“これだけは毎回ストレス”という作業、具体的に挙げるとどれですか？', pattern: '不満の具体化ができた商談の受注率が高い。' },
+      { title: '移行リスクの不安に「移行支援の型」で先回り', occ: '受注群 74%', observation: '「移行が大変そう」という最大の不安に対し、データ移行の標準手順・期間・伴走体制を具体的に示して安心させている。', quote: 'データ移行は標準の手順があります。◯週間でこう進める、という移行計画を最初にお渡しします', pattern: '移行支援の型を示した商談は前進率が高い。' },
+      { title: '現場の運用変更への配慮を見せている', occ: '受注群 65%', observation: '乗り換えで現場のオペレーションが変わる不安に対し、移行期の並走・教育サポートを提案している。', quote: '切替時は一定期間、新旧を並走させて現場が慣れてから完全移行する形にできます', pattern: '現場配慮の提示がある商談は決裁が通りやすい。' }
+    ],
+    loss_factors: [
+      { title: '機能比較表での優位性アピールに終始', occ: '失注群 69%', observation: '失注群は自社が機能で勝っている比較表を見せることに注力し、顧客の乗り換え不安そのものに向き合えていない。', signal: '失注シグナル：商談が機能比較の議論に終始する。', reference: '失注13件中9件が「比較表中心」。' },
+      { title: '移行コスト・リスクの不安を放置している', occ: '失注群 62%', observation: '「乗り換えが面倒」という慣性に対し、移行の具体像を示せず、現状維持バイアスに負けている。', signal: '失注シグナル：移行手順・期間・体制の話が出ない。', reference: '移行不安に先回りできた商談との差が最大。' },
+      { title: '既存ベンダーとの関係・契約に踏み込めていない', occ: '失注群 46%', observation: '既存契約の更新時期や違約金、ベンダーとの関係に踏み込まず、乗り換えのタイミングを設計できていない。', signal: '失注シグナル：既存契約の更新時期を把握していない。', reference: '契約タイミングを押さえた商談の受注率が高い。' }
+    ],
+    unasked: [
+      { q: '今のシステムで、毎回ストレスになっている作業は具体的にどれですか？', wonRate: '受注群 78%', lostRate: '失注群 36%', why: '乗り換えの動機を具体化できる。漠然とした不満では現状維持に負ける。', script: '「今のシステム、“これだけは毎回面倒”という作業を3つ挙げるとしたら何ですか？」' },
+      { q: '移行の何が一番ご不安ですか？', wonRate: '受注群 70%', lostRate: '失注群 28%', why: '不安を言語化させれば移行支援の型で正面から潰せる。', script: '「乗り換えで一番ご不安なのはデータ移行ですか、それとも現場が慣れるかですか？そこを先に潰す計画をお出しします」' },
+      { q: '今の契約の更新時期はいつですか？', wonRate: '受注群 60%', lostRate: '失注群 25%', why: '切替のタイミングと予算の窓を設計できる。', script: '「今のシステムの契約更新はいつ頃ですか？そのタイミングに合わせて移行計画を逆算してご提案できます」' }
+    ],
+    weak: [
+      { title: '機能比較表を商談の主役にしている', corr: '成果相関 低', finding: '機能優位の比較表は「分かるが、それで乗り換えるほどか」と現状維持バイアスに勝てない。', fix: '比較表は補足に。「今の不満」と「移行の安心」を主役に据え、感情と不安に向き合う。' },
+      { title: '“多機能”を乗り換え理由として推している', corr: '成果相関 低', finding: '機能が多いほど「使いこなせるか」「移行が重そう」と逆効果になる場面がある。', fix: '乗り換え理由は「今の不満の解消」に一点集中。多機能は導入後の伸びしろとして後段で語る。' }
+    ],
+    actions: [
+      { title: '初回に「既存不満の棚卸しシート」を実施', desc: '現行システムの不満を機能・運用レベルで具体化するヒアリングを初回必須にする。', due: 'ヒアリング設計', priority: 'high', priorityLabel: '高', templates: [{ icon: '📋', label: '不満棚卸しシート' }] },
+      { title: '標準「移行計画テンプレ」を商談で先に渡す', desc: 'データ移行の手順・期間・並走体制を示す移行計画を、不安が出る前に提示する運用へ。', due: 'テンプレ整備', priority: 'high', priorityLabel: '高', templates: [{ icon: '🗺️', label: '移行計画テンプレ' }] },
+      { title: '既存契約の更新時期を案件管理に記録', desc: '契約更新時期を必ず把握し、切替の最適タイミングから逆算して提案する。', due: '案件管理ルール化', priority: 'mid', priorityLabel: '中', templates: [{ icon: '📅', label: '契約タイミング管理' }] }
+    ]
+  }
+};
+
+function matchQaScenario(query) {
+  if (!query) return 'qa_hyoka';
+  const q = query.toLowerCase();
+  const rules = [
+    { key: 'qa_hyoka',   words: ['評価', '評価制度', '人事評価', '目標管理', 'mbo', '刷新'] },
+    { key: 'qa_rishoku', words: ['離職', 'エンゲージメント', 'サーベイ', '定着', '予兆'] },
+    { key: 'qa_kaiji',   words: ['開示', '人的資本', '統合報告', 'iso', 'レポート'] },
+    { key: 'qa_haichi',  words: ['配置', '適材適所', '異動', 'スキル', 'シミュレーション', 'タレント'] },
+    { key: 'qa_replace', words: ['乗り換え', 'リプレース', '他社', '切替', '移行', '既存システム'] }
+  ];
+  for (const r of rules) {
+    for (const w of r.words) {
+      if (q.includes(w.toLowerCase())) return r.key;
+    }
+  }
+  return 'qa_hyoka';
+}
+
+const QA_THINKING_STEPS = [
+  '対象テーマの商談を抽出中...',
+  '受注商談と失注商談に仕分け中...',
+  '提案・資料・トークの行動指標を比較中...',
+  '成功要因・失注要因・聞けていない質問を抽出中...',
+  '弱い提案ポイントと改善アクションを生成中...'
+];
+
+let qaInProgress = false;
+
+function onQaSelectChange() {
+  const sel = document.getElementById('qaSelect');
+  if (!sel) return;
+  const key = sel.value;
+  if (!key) return;
+  const data = qaScenarios[key];
+  if (!data) return;
+  const ta = document.getElementById('qaQuery');
+  if (ta) ta.value = data.query_example;
+}
+
+function runQaSample(key) {
+  const data = qaScenarios[key];
+  if (!data) return;
+  const sel = document.getElementById('qaSelect');
+  if (sel) sel.value = key;
+  const ta = document.getElementById('qaQuery');
+  if (ta) ta.value = data.query_example;
+  analyzeQa();
+}
+
+function analyzeQa(opts) {
+  if (qaInProgress) return;
+  const sel = document.getElementById('qaSelect');
+  const ta = document.getElementById('qaQuery');
+  const query = ta ? ta.value.trim() : '';
+  let key = sel && sel.value ? sel.value : '';
+  if (!key) key = matchQaScenario(query);
+  const data = qaScenarios[key];
+  if (!data) return;
+  const instant = opts && opts.instant === true;
+  qaInProgress = true;
+
+  const btn = document.getElementById('qaAnalyzeBtn');
+  if (btn) btn.disabled = true;
+
+  const results = document.getElementById('dealResults');
+  results.classList.remove('active');
+  document.querySelectorAll('#dealResults .result-card').forEach(c => c.classList.remove('show'));
+
+  const thinking = document.getElementById('qaThinkingArea');
+  const stepsEl = document.getElementById('qaThinkingSteps');
+  stepsEl.innerHTML = '';
+
+  if (instant) {
+    thinking.classList.remove('active');
+    renderQa(data);
+    results.classList.add('active');
+    document.querySelectorAll('#dealResults .result-card').forEach(c => c.classList.add('show'));
+    qaInProgress = false;
+    if (btn) btn.disabled = false;
+    return;
+  }
+
+  thinking.classList.add('active');
+  streamQaThinking(QA_THINKING_STEPS, () => {
+    setTimeout(() => {
+      thinking.classList.remove('active');
+      renderQa(data);
+      results.classList.add('active');
+      revealQaSections(() => {
+        qaInProgress = false;
+        if (btn) btn.disabled = false;
+      });
+    }, 350);
+  });
+}
+
+function streamQaThinking(steps, done) {
+  const stepsEl = document.getElementById('qaThinkingSteps');
+  stepsEl.innerHTML = '';
+  steps.forEach((text, i) => {
+    const div = document.createElement('div');
+    div.className = 'thinking-step pending';
+    div.id = 'qaThStep-' + i;
+    div.innerHTML = '<span class="step-mark">⏳</span><span class="step-text">' + text + '</span>';
+    stepsEl.appendChild(div);
+  });
+  const STEP_DELAY = 750;
+  steps.forEach((_, i) => {
+    setTimeout(() => {
+      const el = document.getElementById('qaThStep-' + i);
+      if (el) el.classList.add('visible');
+    }, i * STEP_DELAY + 50);
+    setTimeout(() => {
+      const el = document.getElementById('qaThStep-' + i);
+      if (el) {
+        el.classList.remove('pending');
+        el.classList.add('done');
+        const mark = el.querySelector('.step-mark');
+        if (mark) mark.textContent = '✓';
+      }
+    }, i * STEP_DELAY + STEP_DELAY - 100);
+  });
+  setTimeout(() => { if (typeof done === 'function') done(); }, steps.length * STEP_DELAY + 200);
+}
+
+function renderQa(data) {
+  const s = data.summary;
+  document.getElementById('qaDriver').innerHTML =
+    '<div class="qa-driver-eyebrow">成果ドライバー ｜ ' + s.theme + '</div>' +
+    '<div class="qa-driver-text">' + s.driver + '</div>';
+
+  const stats = document.getElementById('qaStats');
+  stats.innerHTML = '';
+  data.stats.forEach(st => {
+    const d = document.createElement('div');
+    d.className = 'qa-stat';
+    d.innerHTML =
+      '<div class="qa-stat-label">' + st.label + '</div>' +
+      '<div class="qa-stat-val ' + (st.kind || '') + '">' + st.val + '<span class="qa-unit">' + (st.unit || '') + '</span></div>';
+    stats.appendChild(d);
+  });
+
+  const cmp = document.getElementById('qaCompare');
+  cmp.innerHTML = '';
+  data.compare.forEach(c => {
+    const row = document.createElement('div');
+    row.className = 'cmp-row';
+    row.innerHTML =
+      '<div class="cmp-dim">' + c.dim + '<span class="cmp-dim-note">' + c.note + '</span></div>' +
+      '<div class="cmp-bars">' +
+        '<div class="cmp-bar-line"><span class="cmp-bar-tag won">受注</span><div class="cmp-bar-track"><div class="cmp-bar-fill won" style="width:' + c.won + '%">' + c.wonText + '</div></div></div>' +
+        '<div class="cmp-bar-line"><span class="cmp-bar-tag lost">失注</span><div class="cmp-bar-track"><div class="cmp-bar-fill lost" style="width:' + c.lost + '%">' + c.lostText + '</div></div></div>' +
+      '</div>' +
+      '<div class="cmp-gap ' + (c.big ? 'big' : 'small') + '">' + c.gap + '<span class="cmp-gap-lbl">差</span></div>';
+    cmp.appendChild(row);
+  });
+
+  const sl = document.getElementById('qaSuccessList');
+  sl.innerHTML = '';
+  data.success_factors.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'point-card positive';
+    card.innerHTML =
+      '<div class="point-head"><div class="point-num">' + (i + 1) + '</div><div class="point-title">' + p.title + '</div><span class="occ-badge occ-won">' + p.occ + '</span></div>' +
+      '<div class="point-row"><div class="pr-label">観察</div><div class="pr-text">' + p.observation + '</div></div>' +
+      '<div class="point-row"><div class="pr-label">受注群の発言例</div><div class="pr-text quote">' + p.quote + '</div></div>' +
+      '<div class="point-row"><div class="pr-label">データ</div><div class="pr-text">' + p.pattern + '</div></div>';
+    sl.appendChild(card);
+  });
+
+  const ll = document.getElementById('qaLossList');
+  ll.innerHTML = '';
+  data.loss_factors.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'point-card negative';
+    card.innerHTML =
+      '<div class="point-head"><div class="point-num">' + (i + 1) + '</div><div class="point-title">' + p.title + '</div><span class="occ-badge occ-lost">' + p.occ + '</span></div>' +
+      '<div class="point-row"><div class="pr-label">観察</div><div class="pr-text">' + p.observation + '</div></div>' +
+      '<div class="point-row"><div class="pr-label">失注シグナル</div><div class="pr-text best">' + p.signal + '</div></div>' +
+      '<div class="point-row"><div class="pr-label">データ</div><div class="pr-text">' + p.reference + '</div></div>';
+    ll.appendChild(card);
+  });
+
+  const ql = document.getElementById('qaQuestionList');
+  ql.innerHTML = '';
+  data.unasked.forEach(u => {
+    const card = document.createElement('div');
+    card.className = 'uq-card';
+    card.innerHTML =
+      '<div class="uq-head"><div class="uq-q">' + u.q + '</div><div class="uq-rate"><span class="uq-won">' + u.wonRate + '</span>／<span class="uq-lost">' + u.lostRate + '</span></div></div>' +
+      '<div class="uq-row"><div class="uq-label">なぜ重要</div><div class="uq-text">' + u.why + '</div></div>' +
+      '<div class="uq-row"><div class="uq-label">質問の型</div><div class="uq-text script">' + u.script + '</div></div>';
+    ql.appendChild(card);
+  });
+
+  const wl = document.getElementById('qaWeakList');
+  wl.innerHTML = '';
+  data.weak.forEach(w => {
+    const card = document.createElement('div');
+    card.className = 'weak-card';
+    card.innerHTML =
+      '<div class="weak-head"><div class="weak-title">' + w.title + '</div><span class="weak-corr">' + w.corr + '</span></div>' +
+      '<div class="weak-row"><div class="weak-label">分析</div><div class="weak-text">' + w.finding + '</div></div>' +
+      '<div class="weak-row"><div class="weak-label">改善</div><div class="weak-text fix">' + w.fix + '</div></div>';
+    wl.appendChild(card);
+  });
+
+  const al = document.getElementById('qaActionList');
+  al.innerHTML = '';
+  data.actions.forEach(a => {
+    const card = document.createElement('div');
+    card.className = 'action-card';
+    const tpl = (a.templates || []).map(t =>
+      '<span class="action-link" onclick="return false;">' + t.icon + ' ' + t.label + '</span>'
+    ).join('');
+    card.innerHTML =
+      '<div class="action-body">' +
+        '<div class="action-title">' + a.title + '</div>' +
+        '<div class="action-desc">' + a.desc + '</div>' +
+        '<div class="action-meta">' +
+          '<span class="action-due">' + a.due + '</span>' +
+          tpl +
+        '</div>' +
+      '</div>' +
+      '<span class="action-priority action-priority-' + a.priority + '">優先度 ' + a.priorityLabel + '</span>';
+    al.appendChild(card);
+  });
+}
+
+function revealQaSections(done) {
+  const cards = document.querySelectorAll('#dealResults .result-card');
+  const INTERVAL = 700;
+  cards.forEach((card, i) => {
+    setTimeout(() => card.classList.add('show'), i * INTERVAL);
+  });
+  setTimeout(() => { if (typeof done === 'function') done(); }, cards.length * INTERVAL + 100);
+}
+
+function resetQa() {
+  const sel = document.getElementById('qaSelect');
+  if (sel) sel.value = '';
+  const ta = document.getElementById('qaQuery');
+  if (ta) ta.value = '';
+  document.getElementById('dealResults').classList.remove('active');
+  document.querySelectorAll('#dealResults .result-card').forEach(c => c.classList.remove('show'));
+  document.getElementById('qaThinkingArea').classList.remove('active');
+  document.getElementById('qaThinkingSteps').innerHTML = '';
+  qaInProgress = false;
+  const btn = document.getElementById('qaAnalyzeBtn');
+  if (btn) btn.disabled = false;
+  if (sel) sel.focus();
+}
+
+function initQaFromHash() {
+  const raw = location.hash.slice(1);
+  if (!raw) return;
+  const segs = raw.split(/[&?]/);
+  const head = segs[0];
+  const params = {};
+  segs.slice(1).forEach(seg => {
+    const [k, v] = seg.split('=');
+    if (k) params[k] = v == null ? '' : v;
+  });
+  if (head === 'deal' || head === 'quality') {
+    showView('deal');
+    if (params.demo === '1') {
+      const key = params.id && qaScenarios[params.id] ? params.id : 'qa_hyoka';
+      const data = qaScenarios[key];
+      const sel = document.getElementById('qaSelect');
+      if (sel) sel.value = key;
+      const ta = document.getElementById('qaQuery');
+      if (ta) ta.value = data.query_example;
+      analyzeQa({ instant: true });
+    }
+  }
+}
+
+/* Patch initProspectFromHash to dispatch deal/quality hash to initQaFromHash */
+(function patchInitForQa() {
+  if (typeof initProspectFromHash !== 'function' || typeof initQaFromHash !== 'function') return;
+  const _origInit = initProspectFromHash;
+  initProspectFromHash = function() {
+    const raw = location.hash.slice(1);
+    const head = raw.split(/[&?]/)[0];
+    if (head === 'deal' || head === 'quality') {
+      initQaFromHash();
+    } else {
+      _origInit();
+    }
+  };
+})();
+
+
+</script>
+
+</body>
+</html>
